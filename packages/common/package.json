@@ -1,0 +1,31 @@
+{
+	"name": "@ucsjs/common",
+	"version": "1.0.0",
+	"description": "UCS.js (@common)",
+	"funding": {
+		"type": "opencollective",
+		"url": "https://opencollective.com/ucsjs"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ucsjs/workspace.git"
+	},
+	"author": "Andre Ferreira",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/ucsjs/workspace/issues"
+	},
+	"homepage": "https://ucsjs.io/",
+	"peerDependencies": {
+		"reflect-metadata": "^0.1.12",
+		"rxjs": "^7.1.0"
+	},
+	"dependencies": {
+		"rxjs": "^7.8.1",
+		"ts-node": "^10.9.1",
+		"typescript": "^5.1.3"
+	}
+}
