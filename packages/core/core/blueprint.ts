@@ -20,6 +20,7 @@ export class Blueprint extends Singleton implements IBlueprint{
     protected inputs: Map<string, BlueprintInput> = new Map();
     protected triggers: Map<string, Subject<IBlueprintTrigger>> = new Map();
     protected events: Map<string, Function> = new Map();
+    private started = false;
 
     header: IBlueprintHeader = {
         useInEditor: true,
@@ -35,22 +36,34 @@ export class Blueprint extends Singleton implements IBlueprint{
         if(settings) this.settings = settings;
     }
 
-    public setup() {
+    public async setup() {
         this.propertiesIndex.clear();
 
+        if(this.header.inputs && this.header.inputs.length > 0) {
+            for(let input of this.header.inputs)
+                this.input(input.callback, input.name);
+        }
+
+        if(this.header.outputs && this.header.outputs.length > 0){
+            for(let output of this.header.outputs)
+                this.output(output.name);
+        }
+
         if(this.header.properties && this.header.properties.length > 0) {
-            for(let property of this.header.properties)
-                this.propertiesIndex.set(property.name, property);
+            for(let property of this.header.properties){
+                if(!this.propertiesIndex.has(property.name))
+                    this.propertiesIndex.set(property.name, property);
+            }  
         }
 
         if(this.header.events && this.header.events.length > 0){
             for(let event of this.header.events)
-                this.events.set(event.name, event.callback);
+                this.event(event.callback, event.name); 
         }
 
         if(this.header.triggers && this.header.triggers.length > 0){
             for(let trigger of this.header.triggers)
-                this.triggers.set(trigger.name, new Subject<IBlueprintTrigger>());
+                this.trigger(trigger.name);
         }
                 
         if(this.settings) {
@@ -59,12 +72,16 @@ export class Blueprint extends Singleton implements IBlueprint{
                     this.propertiesIndex[property].value = this.settings[property];
             }
         }
+
+        this.started = true;
     }
       
     public next(data: IBlueprintData, name: string = "_default"): Blueprint {
-        if(this.outputs.has(name)){
+        if(this.started && this.outputs.has(name)){
             let output = this.outputs.get(name);
-            output?.next(data);
+
+            if(output && data.value != null && data.value != undefined)
+                output?.next(data);
         }
 
         return this;
@@ -104,12 +121,17 @@ export class Blueprint extends Singleton implements IBlueprint{
         if(this.outputs.has(outputName)){
             let output = this.outputs.get(outputName);
 
-            output?.subscribe((data: IBlueprintData) => {
-                if(data){
-                    if(blueprint.receive && typeof(blueprint.receive) == "function")
-                        blueprint.receive(data, inputName);
-                }                    
-            });
+            if(output){
+                output?.subscribe((data: IBlueprintData) => {
+                    if(data){
+                        if(blueprint.receive && typeof(blueprint.receive) == "function")
+                            blueprint.receive(data, inputName);
+                    }                    
+                });
+            }
+            else{
+                Logger.error(`Output '${outputName}' not exists in ${this.header.namespace}`);
+            }
         }
     }
 
@@ -155,14 +177,14 @@ export class Blueprint extends Singleton implements IBlueprint{
         }
     }
 
-    public getParameter<T>(key: string, defaultValue: T): T;
+    public getParameter<T>(name: string, defaultValue: T): T;
 
-    public getParameter(key: string, defaultValue: any): any | null {
+    public getParameter(name: string, defaultValue: any): any | null {
         let returnValue = defaultValue;
 
-        if(this.propertiesIndex.has(key)) {
-            let property = this.propertiesIndex.get(key);
-            returnValue = (property.value && typeof property.value !== "boolean") ? this.header.properties[key].value : property.default;
+        if(this.propertiesIndex.has(name)) {
+            let property = this.propertiesIndex.get(name);
+            returnValue = (property.value && typeof property.value !== "boolean") ? this.header.properties[name].value : property.default;
 
             if(!returnValue)
                 returnValue = (!returnValue && returnValue !== false && defaultValue) ? defaultValue : null;
@@ -171,24 +193,24 @@ export class Blueprint extends Singleton implements IBlueprint{
         return returnValue;
     }
 
-    public trigger(key: string = "_default") {
-        if(this.triggers.has(key)) {
+    public trigger(name: string = "_default") {
+        if(this.triggers.has(name)) {
             return false;
         }
         else{
-            this.triggers.set(key, new Subject<IBlueprintTrigger>());
+            this.triggers.set(name, new Subject<IBlueprintTrigger>());
             return true;
         }
     }
 
-    public emit(issuer: Blueprint, key: string = "_default") {
-        if(this.triggers.has(key)){
-            Logger.log(`${issuer.header.namespace} emit ${key}` , "Blueprint");
-            let trigger = this.triggers.get(key);
+    public emit(issuer: Blueprint, name: string = "_default") {
+        if(this.triggers.has(name)){
+            Logger.log(`${issuer.header.namespace} emit ${name}` , "Blueprint");
+            let trigger = this.triggers.get(name);
             trigger.next({ blueprint: this, name: issuer.header.namespace, timeout: new Date().getTime() });
         }
         else{
-            Logger.log(`Trigger ${key} dont exists` , issuer.header.namespace);
+            Logger.log(`Trigger ${name} dont exists` , issuer.header.namespace);
         }
     }
 
@@ -196,15 +218,20 @@ export class Blueprint extends Singleton implements IBlueprint{
         return new BlueprintData(trigger.blueprint, null, { value: `${trigger.name}::${trigger.blueprint.id}::${trigger.timeout}` })
     }
 
-    public incorporate(): { [key: string]: IBlueprintIncorporate } { return {}; }
+    public incorporate(): { [name: string]: IBlueprintIncorporate } { return {}; }
     
     public async bind(flow: Flow) {};
 
     static execute(){
-        let instance = this.getInstance();
+        try{
+            let instance = this.getInstance();
         
-        GlobalRegistry.load().then((scope) => scope.createFlow(instance.incorporate())
-        .buildListenAndExecute(flow => instance.bind(flow)));
+            GlobalRegistry.load().then(async (scope) => scope.createFlow(instance.incorporate())
+            .then(flow => flow.buildListenAndExecute(flow => instance.bind(flow))));
+        }
+        catch(e){
+            Logger.error(e, "Blueprint");
+        }        
     }
 }
 

@@ -1,7 +1,7 @@
 import { 
     Types, IBlueprintData, IBlueprintHeader, IBlueprintSettings, 
     IBlueprintTrigger, Blueprint, GlobalRegistry 
-} from "@ucsjs/blueprint";
+} from "@ucsjs/core";
 
 export default class Console extends Blueprint {
     public header: IBlueprintHeader = {
@@ -11,7 +11,7 @@ export default class Console extends Blueprint {
         group: "Debug",
         helpLink: "https://www.w3schools.com/jsref/met_console_log.asp",
         inputs: [
-            { key: "_default", alias: "value", type: Types.String }
+            { name: "_default", alias: "value", type: Types.String, callback: (data: IBlueprintData) => this.log(data) }
         ],
         events: [
             { name: "_default", callback: (trigger: IBlueprintTrigger) => this.log(this.triggerIdentify(trigger)) }
@@ -25,10 +25,6 @@ export default class Console extends Blueprint {
 
         if(settings && settings.customOutput && typeof settings.customOutput == "function")
             this.customOutput = settings.customOutput;
-    }
-
-    public async build() {
-        this.input((data: IBlueprintData) => this.log(data));
     }
 
     public log(data: IBlueprintData){

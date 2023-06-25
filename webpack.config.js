@@ -11,8 +11,6 @@ const env = process.env.NODE_ENV;
 const isAnalyze = !!process.env.ANALYSE;
 const analyzerMode = isAnalyze ? "server" : "disabled";
 
-console.log(path.resolve("./tsconfig.editor.json"));
-
 module.exports = {
     watch: true,
     mode: 'development',

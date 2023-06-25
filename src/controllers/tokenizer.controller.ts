@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Header, Param, Post } from "@ucsjs/common";
+import { Body, Controller, Delete, Get, Param, Post } from "@ucsjs/common";
 import { TokenizerService } from "@service/tokenizer.service";
 import { TokenizerDTO } from "@dto/tokenizer.dto";
 

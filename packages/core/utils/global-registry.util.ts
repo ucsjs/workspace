@@ -6,47 +6,58 @@ import { IBlueprint, IBlueprintSettings } from "../interfaces";
 import { Blueprint, Flow } from "../core";
 
 export class GlobalRegistry extends Singleton { 
-    private directory: string;
+    private directory: string | Array<string>;
 
     public registry: Map<string, any> = new Map();
 
-    static async registerDirectory(directory: string, clearRegistry: boolean = true) {
+    static async registerDirectory(directories: string | Array<string>, clearRegistry: boolean = true) {
         const globalRegistry = GlobalRegistry.getInstance();
         
-        globalRegistry.directory = directory;
+        globalRegistry.directory = directories;
 
         if(clearRegistry)
             globalRegistry.registry.clear();
 
-        const files = await fs.readdir(directory);
-        
-        for (const file of files) {
-            const fullPath = path.join(directory, file);            
-            const stat = await fs.stat(fullPath);
+        if(typeof directories == "string")
+            directories = [directories]; 
 
-            if (stat.isDirectory()) {
-                await this.registerDirectory(fullPath, false);
-            } else if (file.endsWith((process.env.NODE_ENV == "prod") ? "blueprint.js" : "blueprint.ts")) {
-                const module = require(fullPath).default;
-
-                if (module){
-                    let tmpInstance = new module();
-
-                    Logger.log(`Loading Blueprint ${tmpInstance.header.namespace}`, "Blueprint");
-
-                    if(tmpInstance.header.namespace != undefined && !globalRegistry.registry.has(tmpInstance.header.namespace))
-                        globalRegistry.registry.set(tmpInstance.header.namespace, module);      
-                        
-                    if(tmpInstance.header.alias != undefined && !globalRegistry.registry.has(tmpInstance.header.alias))
-                        globalRegistry.registry.set(tmpInstance.header.alias, module); 
-                }   
+        for(let directory of directories){
+            try{
+                const files = await fs.readdir(directory);
+            
+                for (const file of files) {
+                    const fullPath = path.join(directory, file);            
+                    const stat = await fs.stat(fullPath);
+    
+                    if (stat.isDirectory()) {
+                        await this.registerDirectory(fullPath, false);
+                    } else if (file.endsWith((process.env.NODE_ENV == "prod") ? "blueprint.js" : "blueprint.ts")) {
+                        const module = require(fullPath).default;
+    
+                        if (module){
+                            let tmpInstance = new module();
+    
+                            Logger.log(`Loading Blueprint ${tmpInstance.header.namespace}`, "Global Registry");
+    
+                            if(tmpInstance.header.namespace != undefined && !globalRegistry.registry.has(tmpInstance.header.namespace))
+                                globalRegistry.registry.set(tmpInstance.header.namespace, module);      
+                                
+                            if(tmpInstance.header.alias != undefined && !globalRegistry.registry.has(tmpInstance.header.alias))
+                                globalRegistry.registry.set(tmpInstance.header.alias, module); 
+                        }   
+                    }
+                }
             }
+            catch(e){
+                Logger.error(e.message, "Global Registry");
+            }            
         }
     }
 
     static async load() {
+        let directoryPackages = path.resolve((process.env.NODE_ENV == "prod") ? "./node_modules/@ucsjs/blueprints" : "./packages/blueprints");
         let directory = path.resolve((process.env.NODE_ENV == "prod") ? "./dist" : "./src");
-        await GlobalRegistry.registerDirectory(directory);
+        await GlobalRegistry.registerDirectory([directoryPackages, directory]);
         return this;
     }
 
@@ -89,13 +100,13 @@ export class GlobalRegistry extends Singleton {
             globalRegistry.registry.set(blueprintClass.prototype.Namespace, blueprintClass);
     }
 
-    static retrieve(key: string, args?: IBlueprintSettings): Blueprint {
+    static async retrieve(key: string, args?: IBlueprintSettings): Promise<Blueprint> {
         const globalRegistry = GlobalRegistry.getInstance();
 
         if(globalRegistry.registry.has(key)) {
             let classBase = globalRegistry.registry.get(key);
             let component = new classBase(args);
-            component.setup();
+            await component.setup();
             
             return component;
         }
@@ -109,7 +120,7 @@ export class GlobalRegistry extends Singleton {
         return Array.from(globalRegistry.registry);
     }
 
-    static createFlow(blueprints: { [key: string]: any }): Flow{
-        return Flow.create(blueprints);
+    static async createFlow(blueprints: { [key: string]: any }): Promise<Flow>{
+        return await Flow.create(blueprints);
     }
 }

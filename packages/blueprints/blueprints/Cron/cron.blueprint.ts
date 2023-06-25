@@ -1,12 +1,12 @@
 import { CronJob } from 'cron';
-import { enumToList, Logger, objectKeysToList } from "@ucsjs/common";
 import * as timezones from "google-timezones-json";
-
-import { Types, IBlueprintHeader, Blueprint, GlobalRegistry } from "@ucsjs/blueprint";
+import { enumToList, Logger, objectKeysToList } from "@ucsjs/common";
+import { Types, IBlueprintHeader, Blueprint } from "@ucsjs/core";
 import { CronExpression } from "./cronexpression.enum";
 
 export default class Cron extends Blueprint {
-    public namespace: string = "Cron";
+
+    private cron: CronJob;
     
     public header: IBlueprintHeader = {
         useInEditor: true,
@@ -23,10 +23,7 @@ export default class Cron extends Blueprint {
         triggers: [ { name: "_default" } ]
     }
 
-    private cron: CronJob;
-
     public async build() {
-        Logger.log(`Build`, "Cron Blueprint");
         let startNow: boolean = this.getParameter("startNow", false) as boolean;
         let cronTime: string = this.getParameter("cronTime", CronExpression.EVERY_10_SECONDS) as string;
         let timezone: string = this.getParameter("timezone", "America/Sao_Paulo");

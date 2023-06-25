@@ -1,0 +1,22 @@
+{
+	"name": "@ucsjs/blueprints",
+	"version": "1.0.0",
+	"description": "UCS.js (@blueprints)",
+	"funding": {
+		"type": "opencollective",
+		"url": "https://opencollective.com/ucsjs"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ucsjs/workspace.git"
+	},
+	"author": "Andre Ferreira",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/ucsjs/workspace/issues"
+	},
+	"homepage": "https://ucsjs.io/"
+}

@@ -26,15 +26,16 @@ export interface IBlueprintData {
 
 export interface IBlueprintInput {
     id?: string,
-    key: string,
+    name: string,
     alias?: string,
     type: Types,
-    default?: any
+    default?: any,
+    callback: Function
 }
 
 export interface IBlueprintOutput {
     id?: string,
-    key: string,
+    name: string,
     alias?: string,
     type: Types
 }

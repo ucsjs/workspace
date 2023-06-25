@@ -8,18 +8,22 @@ export class Flow {
 
     public outputIndex: Map<string, any> = new Map();
 
-    constructor(blueprints: { [key: string]: any }) {
-        for(let namespaceBlueprint in blueprints) {
-            const { blueprint, args } = blueprints[namespaceBlueprint];
-            let tmpBlueprint = GlobalRegistry.retrieve(blueprint, args);
-
-            if(tmpBlueprint)
-                this.blueprints.set(namespaceBlueprint, tmpBlueprint);            
-        }
+    public static async create(blueprints: { [key: string]: any }): Promise<Flow> {
+        let flow = new Flow();
+        await flow.setup(blueprints);
+        return flow;
     }
 
-    public static create(blueprints: { [key: string]: any }): Flow {
-        return new Flow(blueprints);
+    public async setup(blueprints: { [key: string]: any }){
+        for(let namespaceBlueprint in blueprints) {
+            const { blueprint, args } = blueprints[namespaceBlueprint];
+            let tmpBlueprint = await GlobalRegistry.retrieve(blueprint, args);
+
+            if(tmpBlueprint)
+                this.blueprints.set(namespaceBlueprint, tmpBlueprint);   
+            else
+                throw new Error(`Unable to load Blueprint '${blueprint}'(${namespaceBlueprint}) `);
+        }
     }
 
     public async build(): Promise<this> {
@@ -54,6 +58,12 @@ export class Flow {
 
         if(fromBlueprint && toBlueprint)
             fromBlueprint.subscribe(toBlueprint, fromOutput, toOutput);
+        else {
+            if(fromBlueprint)
+                throw new Error(`${fromNamespace} not exists`);
+            else
+                throw new Error(`${toNamespace} not exists`);
+        }
         
         return this;
     }
@@ -86,7 +96,7 @@ export class Flow {
         await this.build();
         await listenFlow(this);
         await this.execute();
-        Logger.log(`Execute`, "Blueprint");
+        Logger.log(`Execute`, "Flow");
         this.await();
     }
 

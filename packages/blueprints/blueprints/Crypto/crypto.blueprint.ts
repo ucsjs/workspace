@@ -1,5 +1,5 @@
 import * as crypto from "crypto";
-import { Types, IBlueprintData, IBlueprintHeader, Blueprint, GlobalRegistry } from "@ucsjs/blueprint";
+import { Types, IBlueprintData, IBlueprintHeader, Blueprint } from "@ucsjs/core";
 
 export default class Crypto extends Blueprint {
     public header: IBlueprintHeader = {
@@ -10,10 +10,15 @@ export default class Crypto extends Blueprint {
         icon: "fa-solid fa-lock",
         helpLink: "https://www.w3schools.com/jsref/met_console_log.asp",
         inputs: [
-            { key: "_default", alias: "value", type: Types.Any }
+            { 
+                name: "_default", 
+                alias: "value", 
+                type: Types.Any, 
+                callback: (data: IBlueprintData) => this.transform(data, this) 
+            }
         ],
         outputs: [
-            { key: "_default", type: Types.String }
+            { name: "_default", type: Types.String }
         ],
         properties: [
             { 
@@ -44,15 +49,10 @@ export default class Crypto extends Blueprint {
             }
         ]
     }
-    
-    public async build() {
-        this.input((data: IBlueprintData) => this.transform(data, this));
-        this.output();
-    }
 
     private transform(data: IBlueprintData, scope: Crypto) {
         let value = data.value;
-        let algorithm = scope.getParameter("algorithm", "sha256");
+        let algorithm = scope.getParameter("algorithm", "SHA256");
         let encoding = scope.getParameter("encoding", "hex") as crypto.BinaryToTextEncoding;
 
         switch(typeof value){
