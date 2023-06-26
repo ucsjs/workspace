@@ -1,6 +1,6 @@
 import * as YAML from "yaml";
 import { Controller, Get, Header } from "@ucsjs/common";
-import { GlobalRegistry, BlueprintParser } from "@ucsjs/core";
+import { GlobalRegistry, BlueprintParser, Blueprint } from "@ucsjs/core";
 
 @Controller("blueprint")
 export class BlueprintController { 

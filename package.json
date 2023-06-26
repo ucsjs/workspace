@@ -153,6 +153,8 @@
 		"vue": "^3.3.4",
 		"vue-loader": "^17.2.2",
 		"vue-template-compiler": "^2.7.14",
+		"vue3-draggable": "^2.0.9",
+		"vue3-perfect-scrollbar": "^1.6.1",
 		"vue3-uuid": "^1.0.0",
 		"yaml": "^2.3.1"
 	}

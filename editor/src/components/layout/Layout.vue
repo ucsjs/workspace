@@ -61,6 +61,8 @@ import { ILayoutItem, ILayout, ILayoutPanel } from "../../interfaces";
 import LayoutPanel from "./LayoutPanel.vue";
 import LayoutDragPreview from "./LayoutDragPreview.vue";
 
+import BlueprintEditor from "../blueprint/BlueprintEditor.vue";
+
 export default defineComponent({
     components: { 
         LayoutPanel,
@@ -81,14 +83,20 @@ export default defineComponent({
             dropAreaSelected: null,
             contents: [
                 {
-                        id: uuid.v4(),                        
-                        rows: [{
-                            currentItemSelected: 0,
-                            items: [
-                                { id: uuid.v4(), namespace: "item 1", icon: "fa-solid fa-file", items: [] }
-                            ]
-                        }]                        
-                    }
+                    id: uuid.v4(),                        
+                    rows: [{
+                        currentItemSelected: 0,
+                        items: [
+                            { 
+                                id: "content-1", 
+                                namespace: "item 1", 
+                                icon: "fa-solid fa-file", 
+                                items: [],
+                                content: BlueprintEditor
+                            }
+                        ]
+                    }]                        
+                }
             ] 
         }
     },

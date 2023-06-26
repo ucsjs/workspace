@@ -32,6 +32,12 @@
                     </div>
                 </header>
 
+                <main v-if="row.items && row.items?.length > 0" :id="id">
+                    <div v-for="(item, key) in row.items" :key="item.id" class="layout-panel-contents">                        
+                        <component v-if="item.content && row.currentItemSelected === key" :is="item.content" :id="item.id"></component>
+                    </div>                    
+                </main>
+
                 <div class="layout-item-header-dropzone" v-if="storage.inDrag" :id="id" :row="keyRow"></div>
             </div>
         </div>
@@ -45,6 +51,7 @@
 .layout-panel{
     display: flex;
     flex-direction: column;
+    width: 100%;
     height: 100%;
     position: relative;
     gap: 1px;
@@ -54,11 +61,13 @@
     flex: 1;
     border-right: 2px solid #000;
     margin-bottom: 1px;
+    overflow: hidden;
 }
 
 .layout-panel-row-contents {
     position: relative;
     min-width: 300px;
+    width: 100%;
     background-color: #3c3c3c;
     overflow: hidden;   
     height: 100%; 
@@ -67,6 +76,15 @@
 .layout-panel header {
     width: 100%;
     height: 30px;
+    background-color: #282828;
+    display: flex;
+    font-size: 14px;
+    user-select: none;
+}
+
+.layout-panel main {
+    width: auto;
+    height: calc(100% - 30px);
     background-color: #282828;
     display: flex;
     font-size: 14px;
@@ -162,6 +180,11 @@
     width: 100%;
     height: 100em;
     z-index: 9999999;
+}
+
+.layout-panel-contents{
+    height: 100%;
+    width: 100%;
 }
 </style>
 

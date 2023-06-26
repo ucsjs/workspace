@@ -23,6 +23,9 @@
 		"lib": ["esnext", "dom", "dom.iterable", "scripthost"],
 		"typeRoots": ["./node_modules/@types", "./node_modules/vuetify/types"],
 		"paths": {
+			"@interfaces": ["editor/src/interfaces"],
+			"@components": ["editor/src/components"],
+			"@component/*": ["editor/src/components/*"],
 			"@": ["editor/src/"],
 			"@/*": ["editor/src/*"],
 			"~": ["editor/src/"],
