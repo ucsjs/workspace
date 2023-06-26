@@ -1,11 +1,13 @@
 {
     "extends": "../tsconfig.build.json",
     "compilerOptions": {
-        "types": ["node"]
+        "types": ["node"],
+        "paths": {}
     },
     "files": [],
-    "include": [],
     "references": [
         { "path": "./tsconfig.build.json" }
-    ]
+    ], 
+    "include": ["/**/*.ts"],
+	"exclude": ["node_modules", "editor", "dist", "**/*.spec.ts"],
 }

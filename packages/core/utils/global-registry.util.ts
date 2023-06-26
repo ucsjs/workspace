@@ -1,5 +1,6 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import { glob } from 'glob';
 
 import { Singleton, Logger } from "@ucsjs/common";
 import { IBlueprint, IBlueprintSettings } from "../interfaces";
@@ -21,42 +22,40 @@ export class GlobalRegistry extends Singleton {
         if(typeof directories == "string")
             directories = [directories]; 
 
-        for(let directory of directories){
-            try{
-                const files = await fs.readdir(directory);
-            
-                for (const file of files) {
-                    const fullPath = path.join(directory, file);            
-                    const stat = await fs.stat(fullPath);
-    
-                    if (stat.isDirectory()) {
-                        await this.registerDirectory(fullPath, false);
-                    } else if (file.endsWith((process.env.NODE_ENV == "prod") ? "blueprint.js" : "blueprint.ts")) {
-                        const module = require(fullPath).default;
-    
-                        if (module){
-                            let tmpInstance = new module();
-    
-                            Logger.log(`Loading Blueprint ${tmpInstance.header.namespace}`, "Global Registry");
-    
-                            if(tmpInstance.header.namespace != undefined && !globalRegistry.registry.has(tmpInstance.header.namespace))
-                                globalRegistry.registry.set(tmpInstance.header.namespace, module);      
-                                
-                            if(tmpInstance.header.alias != undefined && !globalRegistry.registry.has(tmpInstance.header.alias))
-                                globalRegistry.registry.set(tmpInstance.header.alias, module); 
-                        }   
-                    }
+        try{
+            const files = await glob(directories);
+        
+            for (const file of files) {
+                const fullPath = file;            
+                const stat = await fs.stat(fullPath);
+
+                if (stat.isDirectory()) {
+                    await this.registerDirectory(fullPath, false);
+                } else if (file.endsWith((process.env.NODE_ENV == "prod") ? "blueprint.js" : "blueprint.ts")) {
+                    const module = require(fullPath).default;
+
+                    if (module){
+                        let tmpInstance = new module();
+
+                        Logger.log(`Loading Blueprint ${tmpInstance.header.namespace}`, "Global Registry");
+
+                        if(tmpInstance.header.namespace != undefined && !globalRegistry.registry.has(tmpInstance.header.namespace))
+                            globalRegistry.registry.set(tmpInstance.header.namespace, module);      
+                            
+                        if(tmpInstance.header.alias != undefined && !globalRegistry.registry.has(tmpInstance.header.alias))
+                            globalRegistry.registry.set(tmpInstance.header.alias, module); 
+                    }   
                 }
             }
-            catch(e){
-                Logger.error(e.message, "Global Registry");
-            }            
         }
+        catch(e){
+            Logger.error(e.message, "Global Registry");
+        }            
     }
 
     static async load() {
-        let directoryPackages = path.resolve((process.env.NODE_ENV == "prod") ? "./node_modules/@ucsjs/blueprints" : "./packages/blueprints");
-        let directory = path.resolve((process.env.NODE_ENV == "prod") ? "./dist" : "./src");
+        let directoryPackages = path.resolve((process.env.NODE_ENV == "prod") ? "./node_modules/@ucsjs/**/*.blueprint.js" : "./packages/**/*.blueprint.ts");
+        let directory = path.resolve((process.env.NODE_ENV == "prod") ? "./dist/**/*.blueprint.js" : "./src/**/*.blueprint.ts");
         await GlobalRegistry.registerDirectory([directoryPackages, directory]);
         return this;
     }

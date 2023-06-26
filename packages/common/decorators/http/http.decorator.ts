@@ -1,5 +1,4 @@
 import * as express from 'express';
-import * as crypto from "crypto";
 import { Request, Response } from "express";
 
 import { IRouteSettings, RequestMappingMetadata, RouteSettingsDefault } from "../../interfaces";
@@ -120,8 +119,10 @@ function getHandlerArgs(target:any, methodName: string, middlewares:[], req: Req
 function processRequest(handler: Function, methodName: string, middlewares: [], options: IRouteSettings = RouteSettingsDefault) {
 	return async (req: Request, res: Response) => {	
 		try{
+			const startTimeout = new Date().getTime();
 			const args = getHandlerArgs(handler, methodName, middlewares, req, res);
 			const buffer = await handler(...args);
+			const endTimeout = new Date().getTime();
 			
 			if((typeof buffer === "string" && buffer.length > 0) || typeof buffer === "object") {
 				if(options.raw){
@@ -133,7 +134,7 @@ function processRequest(handler: Function, methodName: string, middlewares: [], 
 
 					res.status(200).send({ 
 						status: 200, 
-						//sign: crypto.createHash("sha256").update(Buffer.from(buffer)).digest("hex"), 
+						processTimeout: (endTimeout - startTimeout) / 1000,
 						data: buffer 
 					});
 				}
@@ -147,7 +148,8 @@ function processRequest(handler: Function, methodName: string, middlewares: [], 
 
 			res.status(500).send({
 				status: 500,
-				error: e.message
+				error: e.message,
+				...e
 			}).end();
 		}
 	};
@@ -183,19 +185,25 @@ export function createRouterFromController(controller): express.Router {
 				if (routeMetadata) {
 					const methodName = property || "";
 					const scope = Injector.inject(controller);
-					const handler = scope[property].bind(scope);
-					const path = "/" + prefixController + routeMetadata;
 					
-					Logger.log(`Listing route ${controller.name}::${RequestMethod[methodMetadata]} (${path})`, "Server");
-	
-					switch (methodMetadata) {
-						case RequestMethod.GET: router.get(path, processRequest(handler, methodName, middlewares, optionsMetadata)); break;
-						case RequestMethod.POST: router.post(path, processRequest(handler, methodName, middlewares, optionsMetadata)); break;
-						case RequestMethod.PUT: router.put(path, processRequest(handler, methodName, middlewares, optionsMetadata)); break;
-						case RequestMethod.PATCH: router.patch(path, processRequest(handler, methodName, middlewares, optionsMetadata)); break;
-						case RequestMethod.DELETE: router.delete(path, processRequest(handler, methodName, middlewares, optionsMetadata)); break;
-						case RequestMethod.HEAD: router.head(path, processRequest(handler, methodName, middlewares, optionsMetadata)); break;
+					if(scope[property]){
+						const handler = scope[property]?.bind(scope);
+						const path = "/" + prefixController + routeMetadata;
+					
+						Logger.log(`Listing route ${controller.name}::${RequestMethod[methodMetadata]} (${path})`, "Server");
+		
+						switch (methodMetadata) {
+							case RequestMethod.GET: router.get(path, processRequest(handler, methodName, middlewares, optionsMetadata)); break;
+							case RequestMethod.POST: router.post(path, processRequest(handler, methodName, middlewares, optionsMetadata)); break;
+							case RequestMethod.PUT: router.put(path, processRequest(handler, methodName, middlewares, optionsMetadata)); break;
+							case RequestMethod.PATCH: router.patch(path, processRequest(handler, methodName, middlewares, optionsMetadata)); break;
+							case RequestMethod.DELETE: router.delete(path, processRequest(handler, methodName, middlewares, optionsMetadata)); break;
+							case RequestMethod.HEAD: router.head(path, processRequest(handler, methodName, middlewares, optionsMetadata)); break;
+						}
 					}
+					else{
+						Logger.error(`Method ${property} does not exist in the context of controller ${controller.name}`, "HTTP Decorator");
+					}					
 				}
 			}
 		}

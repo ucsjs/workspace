@@ -2,17 +2,18 @@ import { BehaviorSubject, Subject } from "rxjs";
 import { v4 as uuidv4 } from 'uuid'; 
 import { Singleton, Logger } from "@ucsjs/common";
 
-import { BlueprintData } from "../dto";
+import { BlueprintData, BlueprintDataError } from "../dto";
 import { GlobalRegistry } from "../utils";
 
 import { 
     IBlueprint, IBlueprintData, IBlueprintHeader, IBlueprintIncorporate, 
-    IBlueprintProperties, IBlueprintSettings, IBlueprintTrigger 
+    IBlueprintInjectData, 
+    IBlueprintProperties, IBlueprintSettings, IBlueprintTrigger, IConnection 
 } from "../interfaces";
 
 import Flow from "./flow";
 
-export class Blueprint extends Singleton implements IBlueprint{
+export class Blueprint extends Singleton implements IBlueprint {
 
     public id: string;
     public settings: IBlueprintSettings | undefined;
@@ -23,7 +24,7 @@ export class Blueprint extends Singleton implements IBlueprint{
     private started = false;
 
     header: IBlueprintHeader = {
-        useInEditor: true,
+        useInEditor: false,
         namespace: "Blueprint",
         group: "Common"
     };
@@ -67,9 +68,12 @@ export class Blueprint extends Singleton implements IBlueprint{
         }
                 
         if(this.settings) {
-            for(let property in this.propertiesIndex){
-                if(this.settings[property])
-                    this.propertiesIndex[property].value = this.settings[property];
+            for(let property of Array.from(this.propertiesIndex)){
+                if(this.settings[property[0]] && this.propertiesIndex.has(property[0])){
+                    let propertyValue = this.propertiesIndex.get(property[0]);
+                    propertyValue.value = this.settings[property[0]];
+                    this.propertiesIndex.set(property[0], propertyValue);
+                }
             }
         }
 
@@ -78,10 +82,22 @@ export class Blueprint extends Singleton implements IBlueprint{
       
     public next(data: IBlueprintData, name: string = "_default"): Blueprint {
         if(this.started && this.outputs.has(name)){
+            Logger.log(`Dispatched to ${name}`, `Blueprint::${this.header.namespace}`);
+
             let output = this.outputs.get(name);
 
-            if(output && data.value != null && data.value != undefined)
+            if(output && data != null && data != undefined)
                 output?.next(data);
+            else if(!output)
+                Logger.error(`The output ${name} is not present in the blueprint configuration.`, `Blueprint::${this.header.namespace}`);
+            else
+                Logger.error(`The amount informed for transfer cannot be null or undefined`, `Blueprint::${this.header.namespace}`);
+        }
+        else if(!this.started){
+            Logger.error(`Error when trying to fire data because the blueprint has not been started yet.`, `Blueprint::${this.header.namespace}`);
+        }
+        else if(!this.outputs.has(name)){
+            Logger.error(`The output ${name} is not present in the blueprint configuration.`, `Blueprint::${this.header.namespace}`);
         }
 
         return this;
@@ -122,17 +138,67 @@ export class Blueprint extends Singleton implements IBlueprint{
             let output = this.outputs.get(outputName);
 
             if(output){
-                output?.subscribe((data: IBlueprintData) => {
+                output.subscribe((data: IBlueprintData) => {
                     if(data){
                         if(blueprint.receive && typeof(blueprint.receive) == "function")
                             blueprint.receive(data, inputName);
+                        else 
+                            throw new Error(`Blueprint ${blueprint.header.namespace} has no function to receive data`);
                     }                    
                 });
             }
             else{
-                Logger.error(`Output '${outputName}' not exists in ${this.header.namespace}`);
+                throw new Error(`Output '${outputName}' not exists in ${this.header.namespace}`);
             }
         }
+    }
+
+    public subscribePromise(outputName: string = "_default"): Promise<IBlueprintData> {
+        return new Promise((resolve, reject) => {
+            if(this.outputs.has(outputName)){
+                let output = this.outputs.get(outputName);
+
+                if(output)
+                    output?.subscribe((data) => { 
+                        if(data !== null && data !== undefined)
+                            resolve(data);
+                    });
+                else
+                    reject(`Output ${outputName} does not exist`);                    
+            }       
+            else{
+                reject(`Output ${outputName} does not exist`);
+            }
+        })
+    }
+
+    public intercept(outputName: string = "_default"): Promise<any>{
+        return new Promise((resolve, reject) => {
+            if(this.outputs.has(outputName)){
+                let output = this.outputs.get(outputName);
+                output?.subscribe((data: IBlueprintData) => resolve(data));
+            }
+            else{
+                reject();
+                throw new Error(`Output '${outputName}' not exists in ${this.header.namespace}`);
+            }
+        });
+    }
+
+    public interceptOnPromise(outputName: string = "_default"){
+        const _this = this as IBlueprint;
+        
+        return new Promise((resolve, reject) => {
+            this.intercept(outputName).then((data) => {
+                resolve(data);
+            }).catch((err) => reject(err));
+
+            if(_this.build && typeof(_this.build) == "function")
+                _this.build();
+
+            if(_this.execute && typeof(_this.execute) == "function")
+                _this.execute();
+        }); 
     }
 
     public listen(blueprint: IBlueprint, triggerName: string = "_default", eventName: string = "_default"){
@@ -160,20 +226,36 @@ export class Blueprint extends Singleton implements IBlueprint{
 
         let dataParsed = { value: null };
 
-        switch(typeof data){
-            case "object": dataParsed = { ...dataParsed, ...data }; break;
-            default: dataParsed.value = data; break;
+        if(Array.isArray(data)){
+            dataParsed.value = data;
+        }
+        else{
+            switch(typeof data){
+                case "object": dataParsed = { ...dataParsed, ...data }; break;
+                default: dataParsed.value = data; break;
+            }
         }
 
         return new BlueprintData(blueprint, mergedSettings, dataParsed);
     }
 
+    public generateError(blueprint: Blueprint, message: string, scope: string): IBlueprintData{
+        Logger.error(message, scope);
+        let error = new BlueprintDataError(blueprint, message, scope);
+        return error;
+    }
+
     public receive(data: IBlueprintData, inputName: string = "_default"): void {
+        Logger.log(`Receive data from ${data.parent.header.namespace} to ${inputName}`, `Blueprint::${this.header.namespace}`);
+
         if(this.inputs.has(inputName)){
             let input = this.inputs.get(inputName);
 
             if(input)
                 input.receive(data);
+        }
+        else{
+            Logger.error(`Input ${inputName} dont not exists`, `Blueprint::${this.header.namespace}`);
         }
     }
 
@@ -184,7 +266,7 @@ export class Blueprint extends Singleton implements IBlueprint{
 
         if(this.propertiesIndex.has(name)) {
             let property = this.propertiesIndex.get(name);
-            returnValue = (property.value && typeof property.value !== "boolean") ? this.header.properties[name].value : property.default;
+            returnValue = (property.value && typeof property.value !== "boolean") ? property.value : property.default;
 
             if(!returnValue)
                 returnValue = (!returnValue && returnValue !== false && defaultValue) ? defaultValue : null;
@@ -193,6 +275,28 @@ export class Blueprint extends Singleton implements IBlueprint{
         return returnValue;
     }
 
+    public getParameterObject(name: string, fieldKey: string): object | null {
+        let returnValue = {};
+
+        if(this.propertiesIndex.has(name)) {
+            let property = this.propertiesIndex.get(name);
+            let tmpValue = (property.value && typeof property.value !== "boolean") ? property.value : property.default;
+
+            if(Array.isArray(tmpValue)){  
+                for(let valueObject of tmpValue)
+                    returnValue[valueObject[fieldKey]] = { ...valueObject };      
+
+                return returnValue;
+            }
+            else{
+                return null
+            }
+        }
+        else{
+            return null;
+        }
+    }
+    
     public trigger(name: string = "_default") {
         if(this.triggers.has(name)) {
             return false;
@@ -210,7 +314,7 @@ export class Blueprint extends Singleton implements IBlueprint{
             trigger.next({ blueprint: this, name: issuer.header.namespace, timeout: new Date().getTime() });
         }
         else{
-            Logger.log(`Trigger ${name} dont exists` , issuer.header.namespace);
+            Logger.log(`Trigger ${name} dont exists`, issuer.header.namespace);
         }
     }
 
@@ -221,6 +325,19 @@ export class Blueprint extends Singleton implements IBlueprint{
     public incorporate(): { [name: string]: IBlueprintIncorporate } { return {}; }
     
     public async bind(flow: Flow) {};
+
+    public injectArgs(args?: IBlueprintInjectData[]){
+        if(args && Array.isArray(args)){
+            for(let arg of args){
+                if(this.inputs.has(arg.input))
+                    this.inputs.get(arg.input).receive(this.generateData(this, arg));
+                else
+                    Logger.error(`Error to inject ${arg.input}(${arg.value})`, `Blueprint::${this.header.namespace}`);
+            }
+        }
+        
+        return this;
+    }
 
     static execute(){
         try{

@@ -1,6 +1,6 @@
 import { CronJob } from 'cron';
 import * as timezones from "google-timezones-json";
-import { enumToList, Logger, objectKeysToList } from "@ucsjs/common";
+import { enumToList, objectKeysToList } from "@ucsjs/common";
 import { Types, IBlueprintHeader, Blueprint } from "@ucsjs/core";
 import { CronExpression } from "./cronexpression.enum";
 

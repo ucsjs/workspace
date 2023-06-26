@@ -1,9 +1,9 @@
 import { Types } from "../enums/types.enum";
-import { Blueprint } from "../core";
+import { Blueprint, Connection } from "../core";
 
 export interface IBlueprint {
-    id: string,
-    header: IBlueprintHeader,
+    id: string;
+    header: IBlueprintHeader;
     setup(args: IBlueprintSettings): void;
     build?(): Promise<void> | null;
     execute?(): boolean;
@@ -17,27 +17,33 @@ export interface IBlueprintSettings {
 
 export interface IBlueprintData {
     parent: Blueprint | undefined;
-    settings: IBlueprintSettings | undefined;
-    data: { [key: string]: any };
-    value: any;
+    settings?: IBlueprintSettings | undefined;
+    data?: { [key: string]: any };
+    value?: any;
+    error?: IBlueprintDataError;
     getDefault(): any;
     extend(newData: Blueprint, defaultValue?: any): IBlueprintData;
 }
 
+export interface IBlueprintDataError {
+    message: string;
+    scope: string;
+}
+
 export interface IBlueprintInput {
-    id?: string,
-    name: string,
-    alias?: string,
-    type: Types,
-    default?: any,
-    callback: Function
+    id?: string;
+    name: string;
+    alias?: string;
+    type: Types | any;
+    default?: any;
+    callback: Function;
 }
 
 export interface IBlueprintOutput {
     id?: string,
     name: string,
     alias?: string,
-    type: Types
+    type: Types | any
 }
 
 export interface IBlueprintProperties {
@@ -52,12 +58,21 @@ export interface IBlueprintProperties {
     fixed?:boolean;
     default?: any;
     value?: any;
-    options?: IBlueprintOptions[]
+    options?: IBlueprintOptions[],
+    objectArray?: IBlueprintObjectArrayItem[]
 }
 
 export interface IBlueprintOptions {
     name: string,
     value: any
+}
+
+export interface IBlueprintObjectArrayItem {
+    name: string,
+    type: Types,
+    required?: boolean,
+    default?: boolean,
+    options?: IBlueprintOptions[],
 }
 
 export interface IBlueprintIcon {
@@ -94,4 +109,13 @@ export interface IBlueprintHeader {
 export interface IBlueprintIncorporate {
     blueprint: string,
     args?: object,
+}
+
+export interface IBlueprintController {
+    created();
+}
+
+export interface IBlueprintInjectData {
+    input: string,
+    value: any
 }

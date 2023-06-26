@@ -49,6 +49,10 @@ export class TokenizerService implements ITokenizer{
         }
     }
 
+    async getToken(key: string){
+
+    }
+
     async removeToken(position: number){
         if(typeof position == "string")
             position = parseInt(position);

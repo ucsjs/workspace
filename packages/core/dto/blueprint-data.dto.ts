@@ -24,3 +24,18 @@ export class BlueprintData implements IBlueprintData {
         return new BlueprintData(blueprint, { ...this.settings, ...blueprint.settings }, { ...this.data, ...defaultValue });
     }
 }
+
+export class BlueprintDataError implements IBlueprintData{
+    public parent: Blueprint | undefined;
+    public message: string;
+    public scope: string;
+
+    constructor(parent: Blueprint | undefined, message: string, scope: string) {
+        this.parent = parent;
+        this.message = message;
+        this.scope = scope;
+    }
+
+    getDefault() { return null; }
+    extend(newData: Blueprint, defaultValue?: any): IBlueprintData { return null };
+}

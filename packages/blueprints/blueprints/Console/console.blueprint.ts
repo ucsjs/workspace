@@ -1,6 +1,6 @@
 import { 
     Types, IBlueprintData, IBlueprintHeader, IBlueprintSettings, 
-    IBlueprintTrigger, Blueprint, GlobalRegistry 
+    IBlueprintTrigger, Blueprint 
 } from "@ucsjs/core";
 
 export default class Console extends Blueprint {

@@ -125,6 +125,7 @@
 	"dependencies": {
 		"argv": "^0.0.3",
 		"body-parser": "^1.20.2",
+		"cache-manager": "^5.2.3",
 		"compression": "^1.7.4",
 		"concurrently": "^8.2.0",
 		"connect-livereload": "^0.6.1",
@@ -137,8 +138,8 @@
 		"express": "^4.18.2",
 		"express-session": "^1.17.3",
 		"fs-extra": "^11.1.1",
-		"glob": "^10.2.7",
-		"globby": "^13.1.4",
+		"glob": "^10.3.0",
+		"globby": "^13.2.0",
 		"google-timezones-json": "^1.1.0",
 		"helmet": "^7.0.0",
 		"import-fresh": "^3.3.0",

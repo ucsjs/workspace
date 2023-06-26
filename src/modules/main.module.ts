@@ -1,11 +1,18 @@
 import { Module } from "@ucsjs/common";
-import { BlueprintController, TokenizerController, LLMController } from "@controllers";
+
+import { 
+    BlueprintController, 
+    TokenizerController, 
+    LLMController, 
+    UsersController 
+} from "@controllers";
 
 @Module({
     controllers: [
         BlueprintController, 
         TokenizerController,
-        LLMController
+        LLMController,
+        UsersController
     ]
 })
 export class MainModule {};

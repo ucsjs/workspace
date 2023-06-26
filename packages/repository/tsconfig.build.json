@@ -4,12 +4,18 @@
         "outDir": ".",
         "rootDir": ".",
         "paths": {
+            "@ucsjs/blueprints": ["../blueprints"],
+            "@ucsjs/blueprints/*": ["../blueprints/*"],
             "@ucsjs/common": ["../common"],
             "@ucsjs/common/*": ["../common/*"],
+            "@ucsjs/core": ["../core"],
+            "@ucsjs/core/*": ["../core/*"]
         }
     },
     "exclude": ["node_modules", "dist", "test/**/*", "*.spec.ts"],
     "references": [
+        { "path": "../blueprints/tsconfig.build.json"},
         { "path": "../common/tsconfig.build.json"},
+        { "path": "../core/tsconfig.build.json"},
     ]
 }
