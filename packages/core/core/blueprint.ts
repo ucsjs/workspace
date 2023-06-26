@@ -3,12 +3,19 @@ import { v4 as uuidv4 } from 'uuid';
 import { Singleton, Logger } from "@ucsjs/common";
 
 import { BlueprintData, BlueprintDataError } from "../dto";
-import { GlobalRegistry } from "../utils";
+import { GlobalRegistry, HTTPUtils } from "../utils";
 
 import { 
-    IBlueprint, IBlueprintData, IBlueprintHeader, IBlueprintIncorporate, 
+    IBlueprint, 
+    IBlueprintController, 
+    IBlueprintControllerCatch, 
+    IBlueprintData, 
+    IBlueprintHeader, 
+    IBlueprintIncorporate, 
     IBlueprintInjectData, 
-    IBlueprintProperties, IBlueprintSettings, IBlueprintTrigger, IConnection 
+    IBlueprintProperties, 
+    IBlueprintSettings, 
+    IBlueprintTrigger 
 } from "../interfaces";
 
 import Flow from "./flow";

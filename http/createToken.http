@@ -2,7 +2,7 @@ POST http://localhost:3050/tokenizer HTTP/1.1
 Content-Type: application/json
 
 {
-    "label": "ChatGPT API3",
-    "key": "CHATGPT_API3",
-    "value": "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"
+    "label": "MongoDB Localhost",
+    "key": "MONGODB_CONN",
+    "value": "mongodb://localhost:27017/ucs"
 }

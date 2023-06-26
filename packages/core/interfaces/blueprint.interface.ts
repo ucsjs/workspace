@@ -119,3 +119,8 @@ export interface IBlueprintInjectData {
     input: string,
     value: any
 }
+
+export interface IBlueprintControllerCatch {
+    message: string,
+    scope: string
+}

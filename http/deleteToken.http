@@ -1,1 +1,1 @@
-DELETE http://localhost:3050/tokenizer/2 HTTP/1.1
+DELETE http://localhost:3050/tokenizer/0 HTTP/1.1

@@ -10,6 +10,7 @@ import {
 } from "@ucsjs/core";
 
 import { MongoDBConnection } from "../../connections";
+
 import { MongoDbTypes } from "../../enums";
 
 export default class MongoDB extends Blueprint {
@@ -25,6 +26,7 @@ export default class MongoDB extends Blueprint {
         ],
         properties: [
             { name: "name", type: Types.String, displayName: "Name", default: "MongoDBConn", required: true },
+            { name: "connectionString", type: Types.String, displayName: "Connection String"},
             { 
                 name: "protocol", 
                 type: Types.Options, 

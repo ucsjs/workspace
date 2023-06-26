@@ -2,6 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as crypto from "crypto";
 import * as readline from 'readline';
+import { glob } from "glob";
 import { Injectable } from "@ucsjs/common";
 import { v4 as uuidv4 } from "uuid";
 import * as NodeRSA from "node-rsa";
@@ -10,7 +11,9 @@ import { ITokenizer } from "@interfaces";
 import { TokenizerDTO } from "@dtos";
 
 @Injectable()
-export class TokenizerService implements ITokenizer{
+export class TokenizerService implements ITokenizer {
+    static tokenStorage = new Map<string, string>();
+
     async getAllTokens(){
         return (fs.existsSync(".secure/tokens.json")) ? JSON.parse(fs.readFileSync(".secure/tokens.json", "utf-8")) : {};
     }
@@ -38,8 +41,8 @@ export class TokenizerService implements ITokenizer{
         const sign = key.sign(body.value, "hex");
 
         index[body.key] = { sign, timeout: Date.now() + 24 * 60 * 60 * 1000, index: lineCount };
-        await fs.writeFileSync(certFilename, key.exportKey('public'));
-        await fs.appendFileSync(".secure/tokens.bin", key.encrypt(body.value, "hex") + "\n", "binary");
+        await fs.writeFileSync(certFilename, key.exportKey('private'));
+        await fs.appendFileSync(".secure/tokens.bin", key.encrypt(body.value, "base64") + "\n", "binary");
         index[body.key].cert = await crypto.createHash('sha256').update(fs.readFileSync(certFilename)).digest('hex');
         await fs.writeFileSync(".secure/tokens.json", JSON.stringify(index), { encoding: "utf-8" });
         
@@ -49,8 +52,24 @@ export class TokenizerService implements ITokenizer{
         }
     }
 
-    async getToken(key: string){
+    async getToken(key: string, certName?: string): Promise<string> {
+        if(TokenizerService.tokenStorage.has(key)){
+            return TokenizerService.tokenStorage.get(key);
+        }
+        else{
+            let index = (fs.existsSync(".secure/tokens.json")) ? JSON.parse(fs.readFileSync(".secure/tokens.json", "utf-8")) : {};
 
+            if(index[key] && fs.existsSync(".secure/tokens.bin")){           
+                const buffer = await this.getLine(".secure/tokens.bin", index[key].index);
+                const cert = await this.getCert(index[key].cert, certName);
+                const data = (cert) ? cert.decrypt(buffer, "utf8") : null;
+                TokenizerService.tokenStorage.set(key, data);
+                return data;     
+            }
+            else {
+                return "";
+            }
+        }
     }
 
     async removeToken(position: number){
@@ -73,6 +92,53 @@ export class TokenizerService implements ITokenizer{
         await fs.writeFileSync(".secure/tokens.json", JSON.stringify(newIndex), { encoding: "utf-8" });
 
         return "Token removed successfully!"
+    }
+
+    async getLine(filename: string, lineNumber: number){
+        let lineCount = 0;
+        const stream = fs.createReadStream(filename);
+        const rl = readline.createInterface({ input: stream });
+    
+        for await (const line of rl) {
+            if (lineCount === lineNumber) {
+                stream.close();
+                return line.replace("\n", "").trim();
+            }
+
+            lineCount++;
+        }
+    
+        throw new Error(`File has less than ${lineNumber} lines`);
+    }
+
+    async getCert(certHash: string, uuid?: string): Promise<NodeRSA>{
+        let keyData = null;
+
+        if(uuid){
+            const certFilename = path.join(".secure", uuid + ".pem");
+            keyData = fs.readFileSync(certFilename, "utf-8");
+        }
+        else {
+            const files = await glob(path.join(".secure", "*.pem"));
+
+            for await (let certFilename of files){
+                const hashCert = await crypto.createHash('sha256').update(fs.readFileSync(certFilename)).digest('hex');
+
+                if(hashCert == certHash){
+                    keyData = fs.readFileSync(certFilename, "utf-8");
+                    break;
+                }
+            }
+        }
+
+        if(keyData){
+            const key = new NodeRSA({ b: 512 });
+            key.importKey(keyData, 'private');
+            return key;
+        }
+        else{
+            return null;
+        }
     }
 
     textToBinary(data: string): Buffer{
