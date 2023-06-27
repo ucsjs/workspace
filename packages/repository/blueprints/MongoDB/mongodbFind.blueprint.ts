@@ -1,48 +1,54 @@
-import { Blueprint, BlueprintDataError, IBlueprintData, IBlueprintHeader, Types } from "@ucsjs/core";
-import { MongoDbTypes } from "../../enums";
+import { IBlueprintHeader, Types } from "@ucsjs/core";
 import { Logger } from "@ucsjs/common";
+import { MongoDbTypes } from "../../enums";
+import { MongoDBBlueprint } from "../../abstracts";
 
-export default class MongoDBFind extends Blueprint {
-    protected model: any;
-
-    protected query: object;
+export default class MongoDBFind extends MongoDBBlueprint {
 
     public header: IBlueprintHeader = {
         useInEditor: true,
         version: 1,
         namespace: "MongoDBFind",
         group: "MongoDB",
-        helpLink: "",
+        helpLink: "https://mongoosejs.com/docs/models.html#querying",
         inputs: [
-            { name: "model", type: MongoDbTypes.MogoDBModel, callback: this.receiveModel.bind(this) },
-            { name: "query", type: Types.Object, callback: this.reciveQuery.bind(this) }
+            { 
+                name: "model", 
+                type: MongoDbTypes.MongoDBModel, 
+                callback: (data) => this.receiveModel.apply(this, [data, "result"]) 
+            },
+            {
+                name: "id",
+                type: Types.String,
+                callback: (data) => this.receiveId.apply(this, [data, "result"])
+            },
+            { 
+                name: "query", 
+                type: Types.Object, 
+                callback: (data) => this.receiveQuery.apply(this, [data, "result"])
+            }
         ],
         outputs: [
-            { name: "result", type: Types.Object }
+            { 
+                name: "result", 
+                type: Types.Object 
+            }
         ],
         properties: [
-            { name: "limit", displayName: "Limit", type: Types.Int },
-            { name: "offset", displayName: "Offset", type: Types.Int }
+            { 
+                name: "limit", 
+                displayName: "Limit", 
+                type: Types.Int 
+            },
+            { 
+                name: "offset", 
+                displayName: "Offset", 
+                type: Types.Int 
+            }
         ]
     };
 
-    public receiveModel(data: IBlueprintData){
-        if(data instanceof BlueprintDataError){
-            Logger.error(`Recive error ${data.message}...`, "MongoDBFind");
-            this.next(data, "result");
-        }
-        else {
-            this.model = data.value;
-            this.executeAndSend();
-        }        
-    }
-
-    public reciveQuery(data: IBlueprintData){
-        this.query = data.value;
-        this.executeAndSend();
-    }
-
-    public async executeAndSend(){
+    public async run(){
         if(this.model && this.query){
             try{
                 let docs = await this.model.find(this.query).exec();

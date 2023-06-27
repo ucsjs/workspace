@@ -1,24 +1,23 @@
 import mongoose from "mongoose";
 import { Logger } from "@ucsjs/common";
-import { Blueprint, BlueprintDataError, Connection, IBlueprintData, IBlueprintHeader, Types, ConnectionsManager } from "@ucsjs/core";
+import { Blueprint, BlueprintDataError, IBlueprintData, IBlueprintHeader, Types, ConnectionsManager } from "@ucsjs/core";
 import { MongoDbTypes } from "../../enums";
 
 export default class MongoDBSchema extends Blueprint {
-    private conn: Connection;
 
     public header: IBlueprintHeader = {
         useInEditor: true,
         version: 1,
         namespace: "MongoDBSchema",
         group: "MongoDB",
-        helpLink: "",
+        helpLink: "https://mongoosejs.com/docs/guide.html",
         inputs: [{ 
             name: "connection", 
             type: MongoDbTypes.MongoDBConnection, 
             callback: this.createSchema.bind(this)  
         }],
         outputs: [
-            { name: "model", type: MongoDbTypes.MogoDBModel }
+            { name: "model", type: MongoDbTypes.MongoDBModel }
         ],
         properties: [
             { name: "name", displayName: "Name", type: Types.String },

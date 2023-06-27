@@ -4,7 +4,7 @@ enum _MongoDBTypes {
     MongoDBConnection,
     MongoDBSchema,
     MongoDBResult,
-    MogoDBModel
+    MongoDBModel
 }
 
 export const MongoDbTypes = { ...Types, ..._MongoDBTypes };

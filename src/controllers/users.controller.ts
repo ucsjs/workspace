@@ -1,14 +1,14 @@
 import { BlueprintController } from "@abstracts";
 import { CachingService, TokenizerService } from "@services";
 import { Controller, Get, Param } from "@ucsjs/common";
-import { Flow, HTTPUtils, IBlueprintController } from "@ucsjs/core";
+import { Flow, IBlueprintController } from "@ucsjs/core";
 
 @Controller("users")
 export class UsersController extends BlueprintController implements IBlueprintController {
 
     constructor(
-        private tokenizer: TokenizerService,
-        private caching: CachingService
+        private readonly tokenizer: TokenizerService,
+        private readonly caching: CachingService
     ) { 
         super();
         this.created();
@@ -42,15 +42,23 @@ export class UsersController extends BlueprintController implements IBlueprintCo
 
     @Get("/")
     async getAll(){
-        return await this.getOrCreateCaching(this.caching, "Users::all", this.flow.interceptOnPromise("MongoDBFind", "result", [
-            { input: "query", value: {} }
-        ]));   
+        return this.getOrCreateCaching(
+            this.caching, 
+            "Users::all", 
+            this.flow.interceptOnPromise("MongoDBFind", "result", [
+                { input: "query", value: {} }
+            ])
+        );   
     }
 
     @Get("/:id")
     async getById(@Param("id") id: string){
-        return await this.getOrCreateCaching(this.caching, `Users::${id}`, this.flow.interceptOnPromise("MongoDBFind", "result", [
-            { input: "query", value: { _id: id } }
-        ])); 
+        return this.getOrCreateCaching(
+            this.caching, 
+            `Users::${id}`, 
+            this.flow.interceptOnPromise("MongoDBFind", "result", [
+                { input: "query", value: { _id: id } }
+            ])
+        ); 
     }
 }

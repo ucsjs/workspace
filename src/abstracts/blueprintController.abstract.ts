@@ -1,7 +1,6 @@
 import { Flow, HTTPUtils, IBlueprintControllerCatch, IBlueprintData } from "@ucsjs/core";
 import { CachingService } from "@services";
 
-
 export abstract class BlueprintController{
     protected flow: Flow;
 

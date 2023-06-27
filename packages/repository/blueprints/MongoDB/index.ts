@@ -1,3 +1,4 @@
-export * from "./mongodb.blueprint";
-export * from "./mongodbSchema.blueprint";
-export * from "./mongodbFind.blueprint";
+export * from "./MongoDB.blueprint";
+export * from "./MongoDBSchema.blueprint";
+export * from "./MongoDBFind.blueprint";
+export * from "./MongoDBInsert.blueprint";

@@ -1,0 +1,83 @@
+{
+    "blueprints": [
+        {
+            "namespace": "MongoDB",
+            "blueprint": "MongoDB",
+            "args": {
+                "connectionString": "$TOKEN:MONGODB_CONN"
+            }
+        },
+        {
+            "namespace": "MongoDBSchema",
+            "blueprint": "MongoDBSchema",
+            "args": {
+                "name": "users",
+                "collection": "users",
+                "timestamps": true,
+                "fields": [
+                    { 
+                        "name": "user", 
+                        "type": "String", 
+                        "index": true, 
+                        "required": true 
+                    },
+                    {
+                        "name": "pass", 
+                        "type": "String", 
+                        "index": true, 
+                        "required": true
+                    }
+                ]
+            }
+        },
+        {
+            "namespace": "MongoDBFind",
+            "blueprint": "MongoDBFind",
+            "args": {
+                "limit": 10
+            }
+        }
+    ],
+    "connections": {
+        "MongoDB->_default": "MongoDBSchema->connection",
+        "MongoDBSchema->model": "MongoDBFind->model"
+    },
+    "controller": {
+        "name": "users",
+        "services": ["TokenizerService", "CachingService"],
+        "routes": [
+            {
+                "path": "/",
+                "cache": true,
+                "cacheKey": "Users::all",
+                "methodName": "getAll",
+                "intercept": { 
+                    "blueprint": "MongoDBFind",
+                    "output": "result",
+                    "args": [
+                        {
+                            "input": "query",
+                            "value": {}
+                        }
+                    ] 
+                }
+            },
+            {
+                "path": "/:id",
+                "cache": true,
+                "cacheKey": "Users::${id}",
+                "methodName": "getById",
+                "intercept": { 
+                    "blueprint": "MongoDBFind",
+                    "output": "result",
+                    "args": [
+                        {
+                            "input": "query",
+                            "value": { "_id": "${id}" }
+                        }
+                    ] 
+                }
+            }
+        ]
+    }
+}
