@@ -36,7 +36,7 @@ export interface IBlueprintInput {
     alias?: string;
     type: Types | any;
     default?: any;
-    callback: Function;
+    callback?: Function;
 }
 
 export interface IBlueprintOutput {
@@ -89,7 +89,7 @@ export interface IBlueprintTrigger {
 
 export interface IBlueprintEvent {
     name: string,
-    callback: Function
+    callback?: Function
 }
 
 export interface IBlueprintHeader {
@@ -123,4 +123,11 @@ export interface IBlueprintInjectData {
 export interface IBlueprintControllerCatch {
     message: string,
     scope: string
+}
+
+export interface IBlueprintTransform {
+    blueprint: string,
+    input: string,
+    output: string,
+    key: string
 }

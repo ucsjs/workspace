@@ -1,7 +1,8 @@
 import * as crypto from "crypto";
-import { Types, IBlueprintData, IBlueprintHeader, Blueprint } from "@ucsjs/core";
+import { Types, IBlueprintData, IBlueprintHeader, Blueprint, Input } from "@ucsjs/core";
 
 export default class Crypto extends Blueprint {
+
     public header: IBlueprintHeader = {
         useInEditor: true,
         version: 1,
@@ -13,12 +14,14 @@ export default class Crypto extends Blueprint {
             { 
                 name: "_default", 
                 alias: "value", 
-                type: Types.Any, 
-                callback: (data: IBlueprintData) => this.transform(data, this) 
+                type: Types.Any
             }
         ],
         outputs: [
-            { name: "_default", type: Types.String }
+            { 
+                name: "_default", 
+                type: Types.String 
+            }
         ],
         properties: [
             { 
@@ -50,17 +53,23 @@ export default class Crypto extends Blueprint {
         ]
     }
 
-    private transform(data: IBlueprintData, scope: Crypto) {
-        let value = data.value;
-        let algorithm = scope.getParameter("algorithm", "SHA256");
-        let encoding = scope.getParameter("encoding", "hex") as crypto.BinaryToTextEncoding;
+    @Input("_default")
+    private async createHash(data: IBlueprintData) {
+        try{
+            let value = data.value;
+            let algorithm = this.getParameter("algorithm", "SHA256");
+            let encoding = this.getParameter("encoding", "hex") as crypto.BinaryToTextEncoding;
 
-        switch(typeof value){
-            case "number": value = value.toString(); break;
-            case "object": value = JSON.stringify(value); break;
+            switch(typeof value){
+                case "number": value = value.toString(); break;
+                case "object": value = JSON.stringify(value); break;
+            }
+
+            const hash = (value) ? await crypto.createHash(algorithm).update(Buffer.from(value)).digest(encoding) : null;
+            this.next(data.extend(this, { raw: value, value: hash }));
         }
-
-        const hash = (value) ? crypto.createHash(algorithm).update(Buffer.from(value)).digest(encoding) : null;
-        this.next(data.extend(this, { raw: value, value: hash }));
+        catch(e){
+            this.next(this.generateError(this, e.message, `${this.header.namespace}::${this.id}`));
+        }
     }
 }

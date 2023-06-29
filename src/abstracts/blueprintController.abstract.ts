@@ -1,7 +1,7 @@
 import { Flow, HTTPUtils, IBlueprintControllerCatch, IBlueprintData } from "@ucsjs/core";
 import { CachingService } from "@services";
 
-export abstract class BlueprintController{
+export abstract class BlueprintController {
     protected flow: Flow;
 
     protected catchExeption: IBlueprintControllerCatch;
@@ -14,14 +14,25 @@ export abstract class BlueprintController{
         return (this.catchExeption) ? this.catchExeption : await caching.get(key).then((data) => data).catch(() => {
             return new Promise((resolve, reject) => {
                 createPromise.then(async (data) => {
-                    let dataHTTP = HTTPUtils.DataToHTTP(data); 
+                    if(!data.data.error){
+                        let dataHTTP = HTTPUtils.DataToHTTP(data); 
 
-                    if(dataHTTP){
-                        await caching.set(key, dataHTTP);
-                        resolve(dataHTTP);
+                        if(dataHTTP){
+                            await caching.set(key, dataHTTP);
+                            resolve(dataHTTP);
+                        }
+                        else{
+                            reject({ 
+                                message: "It was not possible to return data from the given function", 
+                                scope: "BlueprintController" 
+                            } as IBlueprintControllerCatch);
+                        }
                     }
                     else{
-                        reject({ message: "It was not possible to return data from the given function", scope: "BlueprintController" } as IBlueprintControllerCatch);
+                        reject({ 
+                            message: data.data.error, 
+                            scope: `${data.parent.header.namespace}::${data.parent.id}` 
+                        });
                     }
                 });
             });            

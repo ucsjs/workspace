@@ -3,7 +3,7 @@ import * as path from 'path';
 import { glob } from 'glob';
 
 import { Singleton, Logger } from "@ucsjs/common";
-import { IBlueprint, IBlueprintSettings } from "../interfaces";
+import { IBlueprint, IBlueprintSettings, IBlueprintTransform } from "../interfaces";
 import { Blueprint, Flow } from "../core";
 
 export class GlobalRegistry extends Singleton { 
@@ -99,12 +99,16 @@ export class GlobalRegistry extends Singleton {
             globalRegistry.registry.set(blueprintClass.prototype.Namespace, blueprintClass);
     }
 
-    static async retrieve(key: string, args?: IBlueprintSettings): Promise<Blueprint> {
+    static async retrieve(
+        key: string, 
+        args?: IBlueprintSettings, 
+        transforms?: { [key: string]: IBlueprintTransform[] }
+    ): Promise<Blueprint> {
         const globalRegistry = GlobalRegistry.getInstance();
 
         if(globalRegistry.registry.has(key)) {
             let classBase = globalRegistry.registry.get(key);
-            let component = new classBase(args);
+            let component = new classBase(args, transforms);
             await component.setup();
             
             return component;

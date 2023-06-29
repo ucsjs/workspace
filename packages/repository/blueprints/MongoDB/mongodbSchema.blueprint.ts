@@ -1,6 +1,15 @@
 import mongoose from "mongoose";
 import { Logger } from "@ucsjs/common";
-import { Blueprint, BlueprintDataError, IBlueprintData, IBlueprintHeader, Types, ConnectionsManager } from "@ucsjs/core";
+
+import { 
+    Blueprint, 
+    IBlueprintData, 
+    IBlueprintHeader, 
+    Types, 
+    ConnectionsManager,
+    Input 
+} from "@ucsjs/core";
+
 import { MongoDbTypes } from "../../enums";
 
 export default class MongoDBSchema extends Blueprint {
@@ -12,19 +21,34 @@ export default class MongoDBSchema extends Blueprint {
         group: "MongoDB",
         helpLink: "https://mongoosejs.com/docs/guide.html",
         inputs: [{ 
-            name: "connection", 
-            type: MongoDbTypes.MongoDBConnection, 
-            callback: this.createSchema.bind(this)  
+            name: "connectionName", 
+            type: Types.String 
         }],
         outputs: [
-            { name: "model", type: MongoDbTypes.MongoDBModel }
+            { 
+                name: "model", 
+                type: MongoDbTypes.MongoDBModel 
+            }
         ],
         properties: [
-            { name: "name", displayName: "Name", type: Types.String },
-            { name: "collection", displayName: "Collection", type: Types.String },
-            { name: "timestamps", displayName: "Timestamps", type: Types.Boolean, default: true },
+            { 
+                name: "name", 
+                displayName: "Name", 
+                type: Types.String 
+            },
+            { 
+                name: "collection", 
+                displayName: "Collection",
+                type: Types.String 
+            },
+            { 
+                name: "timestamps", 
+                displayName: "Timestamps", 
+                type: Types.Boolean, 
+                default: true 
+            },
             { name: "fields", displayName: "Fields", type: Types.Array, objectArray: [
-                { name: "name", type: Types.String, },
+                { name: "name", type: Types.String },
                 { name: "type", type: Types.Options, options: [
                     { name: "String", value: "String" },
                     { name: "Number", value: "Number" },
@@ -45,6 +69,7 @@ export default class MongoDBSchema extends Blueprint {
         ]
     }
 
+    @Input("connectionName")
     public async createSchema(data: IBlueprintData){
         const schemaName = this.getParameter<string>("name", "");
         const collection = this.getParameter<string>("collection", "");
@@ -53,16 +78,12 @@ export default class MongoDBSchema extends Blueprint {
 
         let conn = (await ConnectionsManager.getOrCreateConnection(data.value)).get() as mongoose.Connection;
 
-        if(data instanceof BlueprintDataError){
-            Logger.error(`Recive error ${data.message}...`, "MongoDBSchema");
-            this.next(data, "model");
-        }
-        else if(fields && !conn.modelNames().includes(schemaName)){
-            
+        if(fields && !conn.modelNames().includes(schemaName)){
             Logger.log(`Create schema ${schemaName}...`, "MongoDBSchema");
 
             const schema = new mongoose.Schema(fields, {
-                timestamps, collection, 
+                timestamps, 
+                collection, 
             });
     
             const model = conn.model(schemaName, schema);

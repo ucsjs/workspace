@@ -1,5 +1,4 @@
 import * as express from 'express';
-import { Request, Response } from "express";
 
 import { IRouteSettings, RequestMappingMetadata, RouteSettingsDefault } from "../../interfaces";
 import { PATH_METADATA, METHOD_METADATA, OPTIONS_METADATA } from "../../constants";
@@ -45,54 +44,68 @@ export const All = createMappingDecorator(RequestMethod.ALL);
 
 export const Param = (param: string): ParameterDecorator => {
 	return (target: any, key: string | symbol, index: number) => {
-	  const middleware = (req: Request) => req.params[param];
+	  const middleware = (req: express.Request) => req.params[param];
 	  addRouteMiddleware(target, key, index, middleware);
 	};
 };
 
 export const Params = (param: string): ParameterDecorator => {
 	return (target: any, key: string | symbol, index: number) => {
-	  const middleware = (req: Request) => req.params;
+	  const middleware = (req: express.Request) => req.params;
 	  addRouteMiddleware(target, key, index, middleware);
 	};
 };
 
 export const Querys = (param: string): ParameterDecorator => {
 	return (target: any, key: string | symbol, index: number) => {
-	  const middleware = (req: Request) => req.query;
+	  const middleware = (req: express.Request) => req.query;
 	  addRouteMiddleware(target, key, index, middleware);
 	};
 };
 
 export const Query = (param: string): ParameterDecorator => {
 	return (target: any, key: string | symbol, index: number) => {
-	  const middleware = (req: Request) => req.query[param];
+	  const middleware = (req: express.Request) => req.query[param];
 	  addRouteMiddleware(target, key, index, middleware);
 	};
 };
 
 export const Headers = (param: string): ParameterDecorator => {
 	return (target: any, key: string | symbol, index: number) => {
-	  const middleware = (req: Request) => req.headers[param];
+	  const middleware = (req: express.Request) => req.headers[param];
 	  addRouteMiddleware(target, key, index, middleware);
 	};
 };
 
 export const Body = (): ParameterDecorator => {
 	return (target: any, key: string | symbol, index: number) => {
-		const middleware = (req: Request) => req.body;
+		const middleware = (req: express.Request) => req.body;
 		addRouteMiddleware(target, key, index, middleware);
 	};
 };
 
 export function Header(name: string, value: string): MethodDecorator {
-	return (target: any, key: string | symbol, descriptor: PropertyDescriptor) => {
-		const middleware = (req: Request, res: Response) => res.setHeader(name, value);
+	return (target: any, key: string | symbol) => {
+		const middleware = (req: express.Request, res: express.Response) => res.setHeader(name, value);
 		addRouteMiddleware(target, key, 0, middleware);
 	};
 }
 
-function addRouteMiddleware(target: any, key: string | symbol, index: number, middleware: (req: Request, res: Response) => any) {
+export const Request = (): ParameterDecorator => {
+	return (target: any, key: string | symbol, index: number) => {
+	  const middleware = (req: express.Request) => req;
+	  addRouteMiddleware(target, key, index, middleware);
+	};
+};
+
+export const Response = (): ParameterDecorator => {
+	return (target: any, key: string | symbol, index: number) => {
+	  const middleware = (req: express.Request, res: express.Response) => res;
+	  addRouteMiddleware(target, key, index, middleware);
+	};
+};
+
+function addRouteMiddleware(target: any, key: string | symbol, index: number, middleware: (req: express.Request, res: express.Response) => any) {
 	if (!Reflect.hasMetadata('middlewares', target.constructor)) 
 	  Reflect.defineMetadata('middlewares', [], target.constructor);
 	  
@@ -101,7 +114,7 @@ function addRouteMiddleware(target: any, key: string | symbol, index: number, mi
 	Reflect.defineMetadata('middlewares', middlewares, target.constructor);
 }
 
-function getHandlerArgs(target:any, methodName: string, middlewares:[], req: Request, res: Response): any[] {
+function getHandlerArgs(target:any, methodName: string, middlewares:[], req: express.Request, res: express.Response): any[] {
 	if(middlewares && middlewares.length > 0){
 		let sortedMiddlewares = sortByKey(middlewares, "index");
 
@@ -117,7 +130,7 @@ function getHandlerArgs(target:any, methodName: string, middlewares:[], req: Req
 }
 
 function processRequest(handler: Function, methodName: string, middlewares: [], options: IRouteSettings = RouteSettingsDefault) {
-	return async (req: Request, res: Response) => {	
+	return async (req: express.Request, res: express.Response) => {	
 		try{
 			const startTimeout = new Date().getTime();
 			const args = getHandlerArgs(handler, methodName, middlewares, req, res);
@@ -144,13 +157,7 @@ function processRequest(handler: Function, methodName: string, middlewares: [], 
 		}
 		catch(e){
 			Logger.error(`Request HTTP 500: ${req.path}`, "Server");
-			console.error(e);
-
-			res.status(500).send({
-				status: 500,
-				error: e.message,
-				...e
-			}).end();
+			res.status(500).send({ status: 500, message: e && e.message ? e.message : e }).end();
 		}
 	};
 }

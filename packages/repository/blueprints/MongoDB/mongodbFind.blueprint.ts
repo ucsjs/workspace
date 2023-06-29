@@ -1,6 +1,6 @@
+import mongoose from "mongoose";
 import { IBlueprintHeader, Types } from "@ucsjs/core";
-import { Logger } from "@ucsjs/common";
-import { MongoDbTypes } from "../../enums";
+import { isObject, Logger } from "@ucsjs/common";
 import { MongoDBBlueprint } from "../../abstracts";
 
 export default class MongoDBFind extends MongoDBBlueprint {
@@ -11,53 +11,36 @@ export default class MongoDBFind extends MongoDBBlueprint {
         namespace: "MongoDBFind",
         group: "MongoDB",
         helpLink: "https://mongoosejs.com/docs/models.html#querying",
-        inputs: [
-            { 
-                name: "model", 
-                type: MongoDbTypes.MongoDBModel, 
-                callback: (data) => this.receiveModel.apply(this, [data, "result"]) 
-            },
-            {
-                name: "id",
-                type: Types.String,
-                callback: (data) => this.receiveId.apply(this, [data, "result"])
-            },
-            { 
-                name: "query", 
-                type: Types.Object, 
-                callback: (data) => this.receiveQuery.apply(this, [data, "result"])
-            }
-        ],
-        outputs: [
-            { 
-                name: "result", 
-                type: Types.Object 
-            }
-        ],
-        properties: [
-            { 
-                name: "limit", 
-                displayName: "Limit", 
-                type: Types.Int 
-            },
-            { 
-                name: "offset", 
-                displayName: "Offset", 
-                type: Types.Int 
-            }
-        ]
+        outputs: [{ 
+            name: "result", 
+            type: Types.Object 
+        }],
+        properties: [{ 
+            name: "limit", 
+            displayName: "Limit", 
+            type: Types.Int 
+        },
+        { 
+            name: "offset", 
+            displayName: "Offset", 
+            type: Types.Int 
+        }]
     };
 
     public async run(){
-        if(this.model && this.query){
-            try{
+        try{
+            if(this.model && this.queryById && this.queryById instanceof mongoose.Types.ObjectId){                
+                let docs = await this.model.findById(this.queryById).exec();
+                this.next(this.generateData(this, docs.toJSON()), "result");            
+            }
+            else if(this.model && isObject(this.query)){
                 let docs = await this.model.find(this.query).exec();
                 this.next(this.generateData(this, docs), "result");             
             }
-            catch(e){
-                Logger.error(e.message, `MongoDBFind::${this.id}`);
-                this.next(this.generateData(this, { error: e.message }), "result");
-            }            
         }
+        catch(e){
+            Logger.error(e.message, `MongoDBFind::${this.id}`);
+            this.next(this.generateData(this, { error: e.message }), "result");
+        } 
     }
 }

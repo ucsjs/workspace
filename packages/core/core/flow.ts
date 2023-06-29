@@ -1,15 +1,28 @@
 import { Logger } from "@ucsjs/common";
-import { IBlueprint, IBlueprintData, IBlueprintInjectData } from "../interfaces";
+
+import { 
+    IBlueprint, 
+    IBlueprintData, 
+    IBlueprintInjectData, 
+    IFlowBlueprintListItem 
+} from "../interfaces";
+
 import { GlobalRegistry } from "../utils";
 import { Blueprint } from "./blueprint";
 
 export class Flow {
+    public cachedBlueprintSettings: { [key: string]: any };
+
+    public cachedConnections: { [key: string]: string | Array<string> };
+
     public blueprints: Map<string, Blueprint & IBlueprint> = new Map();
 
     public outputIndex: Map<string, any> = new Map();
 
-    public static async create(blueprints: { [key: string]: any }, connections?: { [key: string]: string }): Promise<Flow> {
+    public static async create(blueprints: { [key: string]: any }, connections?: { [key: string]: string | Array<string> }): Promise<Flow> {
         let flow = new Flow();
+        flow.cachedBlueprintSettings = blueprints;
+        flow.cachedConnections = connections;
         
         await flow.setup(blueprints);
 
@@ -19,16 +32,26 @@ export class Flow {
         return flow;
     }
 
-    public async setup(blueprints: { [key: string]: any }){
+    public async setup(blueprints: { [key: string]: IFlowBlueprintListItem }): Promise<void>{
         for(let namespaceBlueprint in blueprints) {
-            const { blueprint, args } = blueprints[namespaceBlueprint];
-            let tmpBlueprint = await GlobalRegistry.retrieve(blueprint, args);
+            const { blueprint, args, transforms } = blueprints[namespaceBlueprint];
+            let tmpBlueprint = await GlobalRegistry.retrieve(blueprint, args, transforms);
 
             if(tmpBlueprint)
                 this.blueprints.set(namespaceBlueprint, tmpBlueprint);   
             else
                 throw new Error(`Unable to load Blueprint '${blueprint}'(${namespaceBlueprint}) `);
         }
+    }
+
+    public async reset(): Promise<this>{
+        this.blueprints.clear();
+        await this.setup(this.cachedBlueprintSettings);
+
+        if(this.cachedConnections)
+            this.subscribeMulti(this.cachedConnections);
+
+        return this;
     }
 
     public async build(): Promise<this> {
@@ -125,14 +148,12 @@ export class Flow {
     }
 
     public interceptOnPromise(blueprintName: string, outputName: string, args?: IBlueprintInjectData[]): Promise<IBlueprintData>{
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             try{
-                this.getBlueprint(blueprintName)
-                .injectArgs(args)
-                .subscribePromise(outputName)
-                .then(resolve)
-                .catch(reject);
-
+                await this.reset();
+                let blueprint = this.getBlueprint(blueprintName);
+                await blueprint.injectArgs(args);
+                blueprint.subscribePromise(outputName).then(resolve).catch(reject);
                 this.buildListenAndExecute();
             }
             catch(e){

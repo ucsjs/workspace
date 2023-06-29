@@ -21,9 +21,10 @@ export default class MongoDB extends Blueprint {
         namespace: "MongoDB",
         group: "MongoDB",
         helpLink: "https://mongoosejs.com/docs/connections.html",
-        outputs: [
-            { name: "_default", type: MongoDbTypes.MongoDBConnection }
-        ],
+        outputs: [{ 
+            name: "_default", 
+            type: MongoDbTypes.MongoDBConnection 
+        }],
         properties: [
             { name: "name", type: Types.String, displayName: "Name", default: "MongoDBConn", required: true },
             { name: "connectionString", type: Types.String, displayName: "Connection String"},

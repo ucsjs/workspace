@@ -1,6 +1,5 @@
 import { BehaviorSubject } from "rxjs";
-import { Logger } from "@ucsjs/common";
-import { Types, IBlueprintHeader, Blueprint, GlobalRegistry } from "@ucsjs/core";
+import { Types, IBlueprintHeader, Blueprint } from "@ucsjs/core";
 
 export default class Interval extends Blueprint {
     private count: BehaviorSubject<number> | undefined;
@@ -12,13 +11,36 @@ export default class Interval extends Blueprint {
         group: "Common",
         version: 1,
         outputs: [
-            { name: "_default", type: Types.Int }
+            { 
+                name: "_default", 
+                type: Types.Int 
+            }
         ],
         properties: [
-            { name: "start", type: Types.Int, displayName: "Initial value", default: 0 },
-            { name: "max", type: Types.Int, displayName: "Max value", default: 100 },
-            { name: "increment", type: Types.Int, displayName: "Increment", default: 1 },
-            { name: "timeout", type: Types.Int, displayName: "Timeout", default: 1000 }
+            { 
+                name: "start", 
+                type: Types.Int, 
+                displayName: "Initial value", 
+                default: 0 
+            },
+            { 
+                name: "max", type: 
+                Types.Int, 
+                displayName: "Max value", 
+                default: 100 
+            },
+            { 
+                name: "increment", 
+                type: Types.Int, 
+                displayName: "Increment", 
+                default: 1 
+            },
+            { 
+                name: "timeout", 
+                type: Types.Int, 
+                displayName: "Timeout", 
+                default: 1000 
+            }
         ]
     };
 
