@@ -12,6 +12,7 @@ import {
 } from "@ucsjs/core";
 
 export default class Console extends Blueprint {
+    
     public header: IBlueprintHeader = {
         useInEditor: true,
         version: 1,

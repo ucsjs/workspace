@@ -9,7 +9,7 @@ export default class Crypto extends Blueprint {
         namespace: "Crypto",
         group: "Crypto & Hash",
         icon: "fa-solid fa-lock",
-        helpLink: "https://www.w3schools.com/jsref/met_console_log.asp",
+        helpLink: "https://nodejs.org/api/crypto.html",
         inputs: [
             { 
                 name: "_default", 

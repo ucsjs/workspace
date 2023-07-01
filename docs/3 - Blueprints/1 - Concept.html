@@ -1,0 +1,276 @@
+<h1>Concept</h1><a id="concept"></a>
+<p>Blueprints are components that have configurations through a header, and may contain inputs, outputs, events and triggers that, when externalized, can be connected to other blueprints when the input and output have the same type of data, and it is also possible to contain adjustable configuration properties in visual mode, and transformers whose function is to manipulate the data before it is delivered to the blueprints that listen to the outputs of the component, to make this process efficient, the RxJS library (<a href="https://rxjs.dev/">https://rxjs.dev/</a>) was used, providing reactivity in the triggers and outputs, so whenever a change occurs, all hanging blueprints receive this update to continue their processing flow.</p>
+<p><img src="/blueprint-core.png" alt="Blueprint core" title="Blueprint core"></p>
+<p>Below is an example of two real simple blueprints, I follow with a comment on how it works:</p>
+<pre><code class="hljs"><span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> crypto <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;crypto&quot;</span>;
+<span class="hljs-keyword">import</span> { 
+    <span class="hljs-title class_">Types</span>, 
+    <span class="hljs-title class_">IBlueprintData</span>, 
+    <span class="hljs-title class_">IBlueprintHeader</span>, 
+    <span class="hljs-title class_">Blueprint</span>, 
+    <span class="hljs-title class_">Input</span> 
+} <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;@ucsjs/core&quot;</span>;
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Crypto</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_ inherited__">Blueprint</span> {
+
+    <span class="hljs-keyword">public</span> <span class="hljs-attr">header</span>: <span class="hljs-title class_">IBlueprintHeader</span> = {
+        <span class="hljs-attr">useInEditor</span>: <span class="hljs-literal">true</span>,
+        <span class="hljs-attr">version</span>: <span class="hljs-number">1</span>,
+        <span class="hljs-attr">namespace</span>: <span class="hljs-string">&quot;Crypto&quot;</span>,
+        <span class="hljs-attr">group</span>: <span class="hljs-string">&quot;Crypto &amp; Hash&quot;</span>,
+        <span class="hljs-attr">icon</span>: <span class="hljs-string">&quot;fa-solid fa-lock&quot;</span>,
+        <span class="hljs-attr">helpLink</span>: <span class="hljs-string">&quot;https://nodejs.org/api/crypto.html&quot;</span>,
+        <span class="hljs-attr">inputs</span>: [
+            { 
+                <span class="hljs-attr">name</span>: <span class="hljs-string">&quot;_default&quot;</span>, 
+                <span class="hljs-attr">alias</span>: <span class="hljs-string">&quot;value&quot;</span>, 
+                <span class="hljs-attr">type</span>: <span class="hljs-title class_">Types</span>.<span class="hljs-property">Any</span>
+            }
+        ],
+        <span class="hljs-attr">outputs</span>: [
+            { 
+                <span class="hljs-attr">name</span>: <span class="hljs-string">&quot;_default&quot;</span>, 
+                <span class="hljs-attr">type</span>: <span class="hljs-title class_">Types</span>.<span class="hljs-property">String</span> 
+            }
+        ],
+        <span class="hljs-attr">properties</span>: [
+            { 
+                <span class="hljs-attr">name</span>: <span class="hljs-string">&quot;algorithm&quot;</span>, 
+                <span class="hljs-attr">displayName</span>: <span class="hljs-string">&quot;Algorithm&quot;</span>, 
+                <span class="hljs-attr">type</span>: <span class="hljs-title class_">Types</span>.<span class="hljs-property">Options</span>, 
+                <span class="hljs-attr">default</span>: <span class="hljs-string">&quot;SHA256&quot;</span>,
+                <span class="hljs-attr">required</span>: <span class="hljs-literal">true</span>, 
+                <span class="hljs-attr">options</span>: [
+                    { <span class="hljs-attr">name</span>: <span class="hljs-string">&quot;SHA256&quot;</span>, <span class="hljs-attr">value</span>: <span class="hljs-string">&quot;SHA256&quot;</span> },
+                    { <span class="hljs-attr">name</span>: <span class="hljs-string">&quot;SHA3-256&quot;</span>, <span class="hljs-attr">value</span>: <span class="hljs-string">&quot;SHA3-256&quot;</span> },
+                    { <span class="hljs-attr">name</span>: <span class="hljs-string">&quot;SHA3-384&quot;</span>, <span class="hljs-attr">value</span>: <span class="hljs-string">&quot;SHA3-384&quot;</span> },
+                    { <span class="hljs-attr">name</span>: <span class="hljs-string">&quot;SHA3-512&quot;</span>, <span class="hljs-attr">value</span>: <span class="hljs-string">&quot;SHA3-512&quot;</span> },
+                    { <span class="hljs-attr">name</span>: <span class="hljs-string">&quot;SHA384&quot;</span>, <span class="hljs-attr">value</span>: <span class="hljs-string">&quot;SHA384&quot;</span> },
+                    { <span class="hljs-attr">name</span>: <span class="hljs-string">&quot;SHA512&quot;</span>, <span class="hljs-attr">value</span>: <span class="hljs-string">&quot;SHA512&quot;</span> }
+                ] 
+            },
+            { 
+                <span class="hljs-attr">name</span>: <span class="hljs-string">&quot;encoding&quot;</span>, 
+                <span class="hljs-attr">displayName</span>: <span class="hljs-string">&quot;Encoding&quot;</span>,
+                <span class="hljs-attr">default</span>: <span class="hljs-string">&quot;hex&quot;</span>, 
+                <span class="hljs-attr">required</span>: <span class="hljs-literal">true</span>, 
+                <span class="hljs-attr">type</span>: <span class="hljs-title class_">Types</span>.<span class="hljs-property">Options</span>,  
+                <span class="hljs-attr">options</span>: [
+                    { <span class="hljs-attr">name</span>: <span class="hljs-string">&quot;BASE64&quot;</span>, <span class="hljs-attr">value</span>: <span class="hljs-string">&quot;base64&quot;</span> },
+                    { <span class="hljs-attr">name</span>: <span class="hljs-string">&quot;HEX&quot;</span>, <span class="hljs-attr">value</span>: <span class="hljs-string">&quot;hex&quot;</span> }
+                ]
+            }
+        ]
+    }
+
+    <span class="hljs-meta">@Input</span>(<span class="hljs-string">&quot;_default&quot;</span>)
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">async</span> <span class="hljs-title function_">createHash</span>(<span class="hljs-params">data: IBlueprintData</span>) {
+        <span class="hljs-keyword">try</span>{
+            <span class="hljs-keyword">let</span> value = data.<span class="hljs-property">value</span>;
+            <span class="hljs-keyword">let</span> algorithm = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">getParameter</span>(<span class="hljs-string">&quot;algorithm&quot;</span>, <span class="hljs-string">&quot;SHA256&quot;</span>);
+            <span class="hljs-keyword">let</span> encoding = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">getParameter</span>(<span class="hljs-string">&quot;encoding&quot;</span>, <span class="hljs-string">&quot;hex&quot;</span>) <span class="hljs-keyword">as</span> crypto.<span class="hljs-property">BinaryToTextEncoding</span>;
+
+            <span class="hljs-keyword">switch</span>(<span class="hljs-keyword">typeof</span> value){
+                <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;number&quot;</span>: value = value.<span class="hljs-title function_">toString</span>(); <span class="hljs-keyword">break</span>;
+                <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;object&quot;</span>: value = <span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">stringify</span>(value); <span class="hljs-keyword">break</span>;
+            }
+
+            <span class="hljs-keyword">const</span> hash = (value) ? <span class="hljs-keyword">await</span> crypto
+            .<span class="hljs-title function_">createHash</span>(algorithm)
+            .<span class="hljs-title function_">update</span>(<span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(value))
+            .<span class="hljs-title function_">digest</span>(encoding) : <span class="hljs-literal">null</span>;
+
+            <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">next</span>(data.<span class="hljs-title function_">extend</span>(<span class="hljs-variable language_">this</span>, { 
+                <span class="hljs-attr">raw</span>: value, 
+                <span class="hljs-attr">value</span>: hash 
+            }));
+        }
+        <span class="hljs-keyword">catch</span>(e){
+            <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">next</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">generateError</span>(
+                <span class="hljs-variable language_">this</span>, e.<span class="hljs-property">message</span>, 
+                <span class="hljs-string">`<span class="hljs-subst">${<span class="hljs-variable language_">this</span>.header.<span class="hljs-keyword">namespace</span>}</span>::<span class="hljs-subst">${<span class="hljs-variable language_">this</span>.id}</span>`</span>
+            ));
+        }
+    }
+}
+</code></pre>
+<p>The first blueprint for creating encrypted and hashed data through the native Node.js library Crypto, notice that initially an extended class of the Blueprint class imported from “@ucsjs/core” was created, the default header was defined using the interface “IBlueprintHeader”, namespace, group, icon, help link on how the blueprint works, data input of type Any, output of string type, and configuration properties for algorithm and output encoding.</p>
+<p>Then, using the @Input decorator, it will be intercepted every time the blueprint receives a new data entry through another blueprint or even by direct injection via code, the received value always comes as a parameter of the intercept function in the “IBlueprintData” format inside the function to create a hash I use the function “this.getParameter” to get the necessary data predefined in the header, and why not get it directly from this.header? because these properties can be changed via code or by the editor and will have values different from their defaults defined in the header, so it is recommended to use the getParameter function to return the value correctly, the return type can be passed directly in the request, example:</p>
+<pre><code class="hljs"><span class="hljs-keyword">let</span> encoding = <span class="hljs-variable language_">this</span>.<span class="hljs-property">getParameter</span>&lt;crypto.<span class="hljs-property">BinaryToTextEncoding</span>&gt;(<span class="hljs-string">&quot;encoding&quot;</span>, <span class="hljs-string">&quot;hex&quot;</span>);
+</code></pre>
+<p>Next, the script checks the typeof of the input since the input was defined as Any, and in case the input is an object, it uses JSON.stringify to make it a text, executes the hash creation process by the Crypto library, returning the generated hash using the “this.next” function, in turn, as the type of data that travels between blueprints, it always needs to be of type IBlueprintData, it is possible to pack using “this.generateData” or “data.extend”, and in the first case it will be an output containing only kinship data of the blueprint that generated the information is generated, when using data.extend, a history of all the blueprints that this information passed will be created, and how it was changed throughout the process, an excellent option for flow debug.</p>
+<p>A pertinent observation that the “this.next” function only has an effect between input and output, in the case of events and triggers the correct function would be “this.dispatch” the triggers do not send data from one blueprint to another, it only triggers events from other blueprints, being a more used mechanism for event-driven blueprints such as HTML elements, for example: I want a fetch request to be performed when a button is clicked, so the control blueprint needs to contain the onclick trigger coupled to an event that triggers a certain action.</p>
+<p>The second example is the implementation of a simple blueprint that prints to the console:</p>
+<pre><code class="hljs"><span class="hljs-keyword">import</span> { isFunction } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;@ucsjs/common&quot;</span>;
+
+<span class="hljs-keyword">import</span> { 
+    <span class="hljs-title class_">Types</span>, 
+    <span class="hljs-title class_">Input</span>,
+    <span class="hljs-title class_">IBlueprintData</span>, 
+    <span class="hljs-title class_">IBlueprintHeader</span>, 
+    <span class="hljs-title class_">IBlueprintSettings</span>, 
+    <span class="hljs-title class_">IBlueprintTrigger</span>, 
+    <span class="hljs-title class_">Blueprint</span>, 
+    <span class="hljs-title class_">Trigger</span>
+} <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;@ucsjs/core&quot;</span>;
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Console</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_ inherited__">Blueprint</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-attr">header</span>: <span class="hljs-title class_">IBlueprintHeader</span> = {
+        <span class="hljs-attr">useInEditor</span>: <span class="hljs-literal">true</span>,
+        <span class="hljs-attr">version</span>: <span class="hljs-number">1</span>,
+        <span class="hljs-attr">namespace</span>: <span class="hljs-string">&quot;Console&quot;</span>,
+        <span class="hljs-attr">group</span>: <span class="hljs-string">&quot;Debug&quot;</span>,
+        <span class="hljs-attr">helpLink</span>: <span class="hljs-string">&quot;https://www.w3schools.com/jsref/met_console_log.asp&quot;</span>,
+        <span class="hljs-attr">inputs</span>: [
+            { 
+                <span class="hljs-attr">name</span>: <span class="hljs-string">&quot;_default&quot;</span>, 
+                <span class="hljs-attr">alias</span>: <span class="hljs-string">&quot;value&quot;</span>, 
+                <span class="hljs-attr">type</span>: <span class="hljs-title class_">Types</span>.<span class="hljs-property">Any</span>
+            }
+        ],
+        <span class="hljs-attr">events</span>: [
+            { 
+                <span class="hljs-attr">name</span>: <span class="hljs-string">&quot;_default&quot;</span>
+            }
+        ]
+    }
+
+    <span class="hljs-keyword">private</span> customOutput = <span class="hljs-function">(<span class="hljs-params">data: IBlueprintData</span>) =&gt;</span> { 
+        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(data.<span class="hljs-property">value</span>); 
+    };
+
+    <span class="hljs-title function_">constructor</span>(<span class="hljs-params">settings?: IBlueprintSettings</span>) {
+        <span class="hljs-variable language_">super</span>(settings);
+
+        <span class="hljs-keyword">if</span>(settings &amp;&amp; settings.<span class="hljs-property">customOutput</span> &amp;&amp; <span class="hljs-title function_">isFunction</span>(settings.<span class="hljs-property">customOutput</span>))
+            <span class="hljs-variable language_">this</span>.<span class="hljs-property">customOutput</span> = settings.<span class="hljs-property">customOutput</span>;
+    }
+
+    <span class="hljs-meta">@Trigger</span>(<span class="hljs-string">&quot;_default&quot;</span>)
+    <span class="hljs-keyword">private</span> <span class="hljs-title function_">eventTrigger</span>(<span class="hljs-params">trigger: IBlueprintTrigger</span>){
+        <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">display</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">triggerIdentify</span>(trigger))
+    }
+
+    <span class="hljs-meta">@Input</span>(<span class="hljs-string">&quot;_default&quot;</span>)
+    <span class="hljs-keyword">private</span> <span class="hljs-title function_">display</span>(<span class="hljs-params">data: IBlueprintData</span>){
+        <span class="hljs-keyword">if</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">customOutput</span> &amp;&amp; <span class="hljs-title function_">isFunction</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">customOutput</span>))
+            <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">customOutput</span>(data)
+    }
+}
+</code></pre>
+<p>In this example, the header was defined as in the previous example, in the class constructor the default blueprint constructor was overridden, obviously executing the base functions through the “super(settings);” function. and check if in the specific case of this blueprint there is an additional parameter called “customOutput” which must be of type Function, if it exists it will replace the standard output “console.log” so the blueprint can be extensible to use some more complex log integration like NewRelic, Bugsnag and others.</p>
+<p>Note that in this blueprint the “_default” event was implemented and a function that uses the @Trigger decorator that triggers the console.log passing the “triggerIdentify” function as data that will transform the IBlueprintTrigger into IBlueprintData. Obviously there will not be a value being transacted between the blueprints, but in debug terms it serves as a method of identifying when the previous blueprint fired a certain trigger.</p>
+<h3>Flow</h3><a id="flow"></a>
+<p>I’m going to give a general overview on the concept of flows, but we have a more in-depth topic on the topic in the side menu, since it is part of the core of the application and is vital for the functioning of the system. The blueprints themselves have a series of behavioral information, but the great magic occurs when several blueprints are coupled, exchanging information between them in order to generate a final output that can be an HTTP response, triggering an event, sending a email, among others, or simply externalize this output so that other flows consume in format, thus creating infinite possibilities of interconnections between blueprints and complex cascading flows, so that this is possible the flow controls the connections between the blueprints and is responsible for configuring, build and execute all the blueprints, in the example below we will use 3 blueprints, the first general a continuous flow of integer intervals internally using the “setInterval” function of Javascript and for each looping it sends the incremented value to the output, configurable.</p>
+<p>The second blueprint will be the Crypto commented above configured to export hash in SHA1 hexadecimal, finally the blueprint console that will show the final result in the console.</p>
+<pre><code class="hljs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Logger</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;@ucsjs/common&quot;</span>;
+<span class="hljs-keyword">import</span> { 
+    <span class="hljs-title class_">Blueprint</span>, 
+    <span class="hljs-title class_">Flow</span>, 
+    <span class="hljs-title class_">IBlueprintData</span>, 
+    <span class="hljs-title class_">IBlueprintIncorporate</span> 
+} <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;@ucsjs/core&quot;</span>;
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CryptoSample</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_ inherited__">Blueprint</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">incorporate</span>(): { [<span class="hljs-attr">key</span>: <span class="hljs-built_in">string</span>]: <span class="hljs-title class_">IBlueprintIncorporate</span> } {
+        <span class="hljs-keyword">return</span> {
+            <span class="hljs-string">&quot;bp:1&quot;</span>: { <span class="hljs-attr">blueprint</span>: <span class="hljs-string">&quot;Interval&quot;</span> },
+            <span class="hljs-string">&quot;hs:1&quot;</span>: { 
+                <span class="hljs-attr">blueprint</span>: <span class="hljs-string">&quot;Crypto&quot;</span>, 
+                <span class="hljs-attr">args</span>: { 
+                    <span class="hljs-attr">algorithm</span>: <span class="hljs-string">&quot;sha1&quot;</span>, 
+                    <span class="hljs-attr">encoding</span>: <span class="hljs-string">&quot;hex&quot;</span> 
+                } 
+            },
+            <span class="hljs-string">&quot;out:1&quot;</span>: { <span class="hljs-attr">blueprint</span>: <span class="hljs-string">&quot;Console&quot;</span>, <span class="hljs-attr">args</span>: {
+                <span class="hljs-attr">customOutput</span>: <span class="hljs-function">(<span class="hljs-params">data: IBlueprintData</span>) =&gt;</span> 
+                <span class="hljs-title class_">Logger</span>.<span class="hljs-title function_">debug</span>(<span class="hljs-string">`<span class="hljs-subst">${data.data.raw}</span>: <span class="hljs-subst">${data.value}</span>`</span>, <span class="hljs-string">&quot;CryptoSample&quot;</span>) 
+            } }
+        };
+    } 
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">async</span> <span class="hljs-title function_">bind</span>(<span class="hljs-params">flow: Flow</span>){
+        flow.<span class="hljs-title function_">subscribeMulti</span>({
+            <span class="hljs-string">&quot;bp:1-&gt;_default&quot;</span>: <span class="hljs-string">&quot;hs:1-&gt;_default&quot;</span>,
+            <span class="hljs-string">&quot;hs:1-&gt;_default&quot;</span>: <span class="hljs-string">&quot;out:1-&gt;_default&quot;</span>
+        });
+    }
+}
+</code></pre>
+<p>In this implementation I used functions from the blueprint class itself, the ‘incorporate’ function must return a list of blueprints and their configurations, this return object assigns an identification to the key, therefore the connections must be made using this reference because the blueprints will be instantiated using the namespace of the key, then the “bind” function was configured, which receives as a parameter the flow previously created by the class, inside the flow I configure the subscribe passing an object where the key would be the input and the value the ouput that must be connected, where the value can be a list or string.</p>
+<p>In a previous version of the application, this function would have 4 parameters, source blueprint, output, destination blueprint, input, but I simplified this format using “-&gt;” as a flow indicator inside the string, honestly I found the way the final code remains, and is still extensible to multiple connections.</p>
+<p>Another way to create a flow would be to directly instantiate the Flow class, some application controllers used this method, let’s analyze one of these implementations below:</p>
+<pre><code class="hljs"><span class="hljs-keyword">let</span> connectionString = <span class="hljs-keyword">await</span> <span class="hljs-variable language_">this</span>.<span class="hljs-property">tokenizer</span>.<span class="hljs-title function_">getToken</span>(<span class="hljs-string">&quot;MONGODB_CONN&quot;</span>);
+        
+<span class="hljs-keyword">if</span>(connectionString) {
+    <span class="hljs-variable language_">this</span>.<span class="hljs-property">flow</span> = <span class="hljs-keyword">await</span> <span class="hljs-title class_">Flow</span>.<span class="hljs-title function_">create</span>({
+        <span class="hljs-string">&quot;MongoDB&quot;</span>: { <span class="hljs-attr">blueprint</span>: <span class="hljs-string">&quot;MongoDB&quot;</span>, <span class="hljs-attr">args</span>: { connectionString } },
+        <span class="hljs-string">&quot;MongoDBSchema&quot;</span>: { <span class="hljs-attr">blueprint</span>: <span class="hljs-string">&quot;MongoDBSchema&quot;</span>, <span class="hljs-attr">args</span>: { 
+            <span class="hljs-attr">name</span>: <span class="hljs-string">&quot;users&quot;</span>,
+            <span class="hljs-attr">collection</span>: <span class="hljs-string">&quot;users&quot;</span>,
+            <span class="hljs-attr">timestamps</span>: <span class="hljs-literal">true</span>,
+            <span class="hljs-attr">fields</span>: [
+                { 
+                    <span class="hljs-attr">name</span>: <span class="hljs-string">&quot;user&quot;</span>, 
+                    <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;String&quot;</span>, 
+                    <span class="hljs-attr">index</span>: <span class="hljs-literal">true</span>, 
+                    <span class="hljs-attr">required</span>: <span class="hljs-literal">true</span> 
+                },
+                { 
+                    <span class="hljs-attr">name</span>: <span class="hljs-string">&quot;pass&quot;</span>, 
+                    <span class="hljs-attr">type</span>: <span class="hljs-string">&quot;String&quot;</span>, 
+                    <span class="hljs-attr">index</span>: <span class="hljs-literal">true</span>, 
+                    <span class="hljs-attr">required</span>: <span class="hljs-literal">true</span> 
+                },
+            ]
+        } },
+        <span class="hljs-string">&quot;MongoDBFind&quot;</span>: { 
+            <span class="hljs-attr">blueprint</span>: <span class="hljs-string">&quot;MongoDBFind&quot;</span>, 
+            <span class="hljs-attr">args</span>: { <span class="hljs-attr">limit</span>: <span class="hljs-number">10</span> } 
+        },
+        <span class="hljs-string">&quot;MongoDBInsert&quot;</span>: { 
+            <span class="hljs-attr">blueprint</span>: <span class="hljs-string">&quot;MongoDBInsert&quot;</span>, 
+            <span class="hljs-attr">transforms</span>: {
+                <span class="hljs-attr">query</span>: [
+                    { 
+                        <span class="hljs-attr">blueprint</span>: <span class="hljs-string">&quot;Crypto&quot;</span>, 
+                        <span class="hljs-attr">input</span>: <span class="hljs-string">&quot;_default&quot;</span>, 
+                        <span class="hljs-attr">output</span>: <span class="hljs-string">&quot;_default&quot;</span>, 
+                        <span class="hljs-attr">key</span>: <span class="hljs-string">&quot;pass&quot;</span> 
+                    }
+                ]
+            } 
+        },
+        <span class="hljs-string">&quot;MongoDBUpdate&quot;</span>: { <span class="hljs-attr">blueprint</span>: <span class="hljs-string">&quot;MongoDBUpdate&quot;</span>, <span class="hljs-attr">transforms</span>: {
+            <span class="hljs-attr">set</span>: [
+                { 
+                    <span class="hljs-attr">blueprint</span>: <span class="hljs-string">&quot;Crypto&quot;</span>, 
+                    <span class="hljs-attr">input</span>: <span class="hljs-string">&quot;_default&quot;</span>,
+                    <span class="hljs-attr">output</span>: <span class="hljs-string">&quot;_default&quot;</span>, 
+                    <span class="hljs-attr">key</span>: <span class="hljs-string">&quot;pass&quot;</span> 
+                }
+            ]
+        } },
+        <span class="hljs-string">&quot;MongoDBDelete&quot;</span>: { <span class="hljs-attr">blueprint</span>: <span class="hljs-string">&quot;MongoDBDelete&quot;</span> }
+    }, {
+        <span class="hljs-string">&quot;MongoDB-&gt;_default&quot;</span>: <span class="hljs-string">&quot;MongoDBSchema-&gt;connectionName&quot;</span>,
+        <span class="hljs-string">&quot;MongoDBSchema-&gt;model&quot;</span>: [
+            <span class="hljs-string">&quot;MongoDBFind-&gt;model&quot;</span>, 
+            <span class="hljs-string">&quot;MongoDBInsert-&gt;model&quot;</span>, 
+            <span class="hljs-string">&quot;MongoDBUpdate-&gt;model&quot;</span>, 
+            <span class="hljs-string">&quot;MongoDBDelete-&gt;model&quot;</span>
+        ]
+    });
+}
+<span class="hljs-keyword">else</span> {
+    <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">catch</span>(
+        <span class="hljs-string">`Error when trying to retrieve the necessary token for the controller to work`</span>, 
+        <span class="hljs-string">&quot;UsersController&quot;</span>
+    );
+}
+</code></pre>
+<p>Note that in the example above, the tokenization service was used to retrieve previously defined data for the connection with the MongoDB database, the documentation has a specific topic on tokenization, if you want to understand it better, just search in the menu on the side, continuing the manual instantiation of the Flow class using the “create” function as a parameter, first the list of blueprints and their settings will be passed, then an object with the connections, it is clear that this example performs a simple CRUD using MongoDB blueprints available in the application.</p>
+<p>At this point I will not delve into how MongoDB blueprints work since we have specific documentation on this topic, but note that transformers were used to encrypt the password and multiple connections in MongoDBSchema so that all blueprints simultaneously receive the model as soon as it is generated . however, this flow is not started at any time, so it will not have any expected output, this code uses a more advanced concept of interceptors to process the data by the blueprint in the HTTP request of a controller, injecting the query data, set, id on demand, obviously blueprints were created for this type of implementation, however, I created devices to be used via code on demand for cases where the triggering of the flow occurs by human intervention, whether by http request, webhooks, or even a play by the editor.</p>
+<p>In the topic about controllers I show the complete example test code injecting the data and retrieving the outputs through Promises and returning as a response to the request.</p>
+<p><img src="/flow-core.png" alt="Flow core" title="Flow core"></p>
+<p>Above contains Flow’s operating scheme, note that it is possible to inject data into the flow, configure data interceptors before executing the flow, and after executing the flow it stays in standby mode, in case there are other movements within the blueprints, so the same flow can be defined for several functionalities as was the case with the CRUD example above and after being configured and running the flow does not need to be instantiated again, if the application no longer needs the flow it is possible to destroy it by overriding the variable or calling the “destroy” function that will end the flow by pausing the blueprints, so any subsequent calls will not be processed.</p>

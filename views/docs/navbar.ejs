@@ -1,0 +1,85 @@
+<ul class="p-4 select-none">
+    <% navbar.forEach(function(item){ %>
+        <li>
+            <div class="flex hover:text-blue-700 itemRoot" opened="false" id="<%= item.name.replace(/\s/,'_') %>" onclick="toggle('#<%= item.name.replace(/\s/, `_`) %>')">
+                <div class="flex flex-1 font-bold text-sm cursor-pointer">
+                    <% if(!item.isDir){ %>
+                    <a href="<%= item.uri %>"><%= item.name %></a>
+                    <% } else { %>
+                        <%= item.name %>
+                    <% }; %>
+                </div>
+
+                <% if(item.isDir){ %>
+                <div class="justify-between cursor-pointer">
+                    <i class="fa-solid fa-angle-down" id="<%= item.name.replace(/\s/, `_`) %>_open"></i>
+                    <i class="fa-solid fa-angle-up"style="display: none;" id="<%= item.name.replace(/\s/, `_`) %>_close"></i>
+                </div>
+                <% }; %>
+            </div>
+
+            <% if(item.children.length > 0){ %>
+                <ul id="<%= item.name.replace(/\s/, `_`) %>_contents" class="p-2 py-1 text-sm" style="display: none">
+                <% item.children.forEach(function(child){ %>
+                    <li>
+                        <div class="hover:text-blue-700" style="font-size: 12px">
+                            <a href="<%= child.uri %>"><%= child.name %></a>
+                        </div>
+                    </li>
+                <% }); %>
+                </ul>
+            <% }; %>
+        </li>
+    <% }); %>
+</ul>
+
+<script>
+function toggle(id, value){
+    const opened = ($(id).attr('opened') === "true");
+    $(id).attr('opened', !opened)
+    $(`${id}_contents`).css("display", !opened ? 'block' : 'none');
+
+    if(!opened){
+        $(`${id}_open`).css("display", 'none');
+        $(`${id}_close`).css("display", 'block');        
+    }
+    else{
+        $(`${id}_open`).css("display", 'block');
+        $(`${id}_close`).css("display", 'none');
+    }
+
+    saveState();
+}
+
+function saveState(){
+    const state = {};
+
+    $('.itemRoot').each(function(){
+        state[$(this).attr('id')] = $(this).attr('opened');
+    });
+
+    localStorage.setItem('navbar', JSON.stringify(state));
+}
+
+function loadState(){
+    const state = JSON.parse(localStorage.getItem('navbar'));
+
+    if(state){
+        for(const key in state){
+            $(`#${key}`).attr('opened', state[key]);
+            $(`#${key}_contents`).css("display", (state[key] === "true") ? 'block' : 'none');
+
+            if(state[key] === "false"){
+                $(`#${key}_open`).css("display", 'none');
+                $(`#${key}_close`).css("display", 'block');        
+            }
+            else{
+                $(`#${key}_open`).css("display", 'block');
+                $(`#${key}_close`).css("display", 'none');
+            }
+        }
+    }
+}
+
+loadState();
+</script>

@@ -1,0 +1,96 @@
+<h1>First steps</h1><a id="first-steps"></a>
+<p>In these articles you will be introduced to the fundamental concepts of UCS.js and its functioning understand that this tool is not a framework for casual use and many codes will seem confusing in comparison to others, however the way it was built was not to work at the level of code is visually through the editor, therefore what was once simple and trivial, through the UCS requires a series of compensations for the full functioning of the blueprints, and as the editor automatically generates controllers, managers and flow from metadata files , creating a code from scratch for the UCS plugin will not be a simple task as it would be to implement directly, but think that the application was not developed for programmers, but to provide a way for users without technical knowledge to create applications, websites, apps and system of fully visual and assisted by artificial intelligence.</p>
+<p>At the end of reading this documentation, it will be possible to understand the entire workflow of the blueprints, how to create new blueprints, interconnect transformers, controllers, with pre-existing blueprints, and even contribute to the project’s public repositories, or create complete applications that can be sold on the marketplace or distributed free of charge to the community.</p>
+<h2>Language</h2><a id="language"></a>
+<p>The entire project was built using Typescript(<a href="https://www.typescriptlang.org/">https://www.typescriptlang.org/</a>), using Node.js (<a href="https://nodejs.org/">https://nodejs.org/</a>) as a platform so it is possible to create components and blueprints using Typescript and Javascript, the application editor was built using Vue 3 (<a href="https://vuejs.org/">https://vuejs.org/</a>) and Typescript to maintain the maximum possible standardization between the parts of the application, Many concepts and part of the application’s core code come from the Nestjs (<a href="https://nestjs.com/">https://nestjs.com/</a>) framework, but not all packages were implemented, not even the implementation of the server and controller management, since the base principle of Nestjs has differences in applicability while Nestjs is a Typescript framework for developers who use SOLID, Angular and React concepts in order to provide a robust framework for scalability, testing and maintainability solutions, UCS.js is premised on implementing blueprint solutions used in game engines such as Unreal Engine to simplify development to non-technical users.</p>
+<h2>Prerequisites</h2><a id="prerequisites"></a>
+<p>To run UCS.js it will be necessary to have <em><strong>Node.js (version &gt;= 16.14)</strong></em> installed in your operating system.</p>
+<h2>Setup</h2><a id="setup"></a>
+<p>Currently UCS.js does not have any CI system, so to install the project you will need to download directly from the public repository on github.</p>
+<pre><code class="hljs">$ git <span class="hljs-built_in">clone</span> https://github.com/ucsjs/workspace
+$ <span class="hljs-built_in">cd</span> workspace
+$ yarn || npm install
+$ yarn dev || npm run dev
+</code></pre>
+<p>in the future, all packages of the complete project will be made available as modules in NPM that can be used separately, but at the moment, to gain access, it will be necessary to download all the complete repository.</p>
+<h2>Structure</h2><a id="structure"></a>
+<p>By default, the project uses the Express (<a href="https://expressjs.com">https://expressjs.com</a>) web server to control HTTP routes coupled to a Websocket (<a href="https://www.npmjs.com/package/ws">https://www.npmjs.com/package/ws</a>), which can be coupled to terminal adapters using Node-Pty (<a href="https://www.npmjs.com/package/node-pty">https://www.npmjs.com/package/node-pty</a>) and Visual Code Language Server (<a href="https://learn.microsoft.com/en-us/visualstudio/extensibility/language-server-protocol?view=vs-2022">https://learn.microsoft.com/en-us/visualstudio/extensibility/language-server-protocol?view=vs-2022</a>) for integration with Monaco (<a href="https://microsoft.github.io/monaco-editor/">https://microsoft.github.io/monaco-editor/</a>), all adapters are optional and configurable , the project brings controllers for managing blueprints through the editor, documentation, LLM integrations, file management, and data tokenization.</p>
+<p>Every application flow starts in the <em><strong>src/index.ts</strong></em> file which is responsible for starting the HTTP server and its adapters.</p>
+<pre><code class="hljs"><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Logger</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;@ucsjs/common&quot;</span>;
+<span class="hljs-keyword">import</span> { <span class="hljs-title class_">GlobalRegistry</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;@ucsjs/core&quot;</span>;
+<span class="hljs-keyword">import</span> { <span class="hljs-title class_">MainModule</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;@modules&quot;</span>;
+<span class="hljs-keyword">import</span> { <span class="hljs-title class_">Express</span> } <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;./servers&quot;</span>;
+
+(<span class="hljs-keyword">async</span> () =&gt; {
+    <span class="hljs-keyword">await</span> <span class="hljs-title class_">GlobalRegistry</span>.<span class="hljs-title function_">load</span>();
+    <span class="hljs-keyword">const</span> <span class="hljs-attr">port</span>: <span class="hljs-built_in">number</span> = <span class="hljs-built_in">parseInt</span>(process.<span class="hljs-property">env</span>.<span class="hljs-property">PORT</span>) || <span class="hljs-number">3000</span>;
+    <span class="hljs-keyword">let</span> server = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Express</span>(<span class="hljs-title class_">MainModule</span>).<span class="hljs-title function_">create</span>();    
+    server.<span class="hljs-title function_">listen</span>(port).<span class="hljs-title function_">then</span>(<span class="hljs-function">() =&gt;</span> <span class="hljs-title class_">Logger</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`Start on port <span class="hljs-subst">${port}</span>`</span>, <span class="hljs-string">&quot;Server&quot;</span>));
+})();
+</code></pre>
+<p>It is possible to perform configurations through the .env file without having to change the application source code, even in the future we will provide other HTTP server modules.</p>
+<p>GlobalRegistry performs the loading of blueprint classes for dynamic instantiation in a static way, being accessible in any part of the code, it also has functions for creating a flow with multiple Blueprints and interconnections between them, transformer configurations and plugins.</p>
+<p>The default directories that come with the project are the following:</p>
+<pre><code class="hljs">.
+└── src/
+    ├── blueprints/
+    ├── controllers/
+    ├── dto/
+    ├── interfaces/
+    ├── modules/
+    ├── services/
+    └── index.ts
+</code></pre>
+<p>I believe it is self-explanatory, but it is always good to reinforce, the blueprints directory is stored in .blueprint.ts files that contain blueprints created in visual mode and downloaded from the marketplace and can be organized by subdirectories, this directory is automatically loaded by GlobalRegistry when loading the application and can be dynamically updated by the editor.</p>
+<p>The controllers directory stores files with the .controller.ts extension and has route controllers for HTTP requests. For more information about controllers, access the menu on the side. Dto and interfaces stores files that contain data definitions either for creating subclasses or moving customized data as in the case of POST and PUT requests, or information trafficked through queue services, in the case of schemas for databases I recommend the creation of a separate directory.</p>
+<p>The module directory contains functionality organization classes, that is, it is possible to fragment the application into smaller parts that may or may not be loaded by the main application through the <em><strong>main.module.ts</strong></em> file. Finally, the services directory contains support classes for controllers and adapters containing the business logic of operation, normally they are self-instantiated injectable classes.</p>
+<p>It is important to remember that the files in the /src directory will be built for the production application, so any code that is essential for the application to work must be inside this directory.</p>
+<h3>Static files</h3><a id="static-files"></a>
+<p>The recommendation regarding static files is to always use the CDN integration features available in the editor, as whenever the application is built all static files will be automatically uploaded and updated on the CDN, however if you want to maintain the availability of the files being served by the application, the system is configured to map a directory /public, if this directory exists in the export and deployment of the application, its files will be copied automatically, becoming available for public access without access control.</p>
+<h2>Editor</h2><a id="editor"></a>
+<p>The visual editor is written in Vue3 in Typescript complemented by plugins being stored all files in <em><strong>/editor/src</strong></em>, static CSS files, favicons, images and Javascript bundles in <em><strong>/editor/assets</strong></em>.</p>
+<pre><code class="hljs">.
+└── src/
+    ├── components/
+    ├── interfaces/
+    ├── lib/
+    ├── stores/
+    ├── App.vue
+    └── main.ts
+</code></pre>
+<p>The main file of the module that will be loaded will be <em><strong>/src/main.ts</strong></em>, this file is responsible for starting the application, loading necessary plugins. The editor primarily makes HTTP requests to the server to manage files, blueprints, etc., but in specific cases such as Language Server, Hot reload, realtime execution of blueprints, event buffering, this communication takes place via Websocket.</p>
+<pre><code class="hljs"><span class="hljs-keyword">import</span> { createApp } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;vue&#x27;</span>;
+<span class="hljs-keyword">import</span> { createPinia } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;pinia&#x27;</span>;
+<span class="hljs-keyword">import</span> <span class="hljs-title class_">PerfectScrollbar</span> <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;vue3-perfect-scrollbar&#x27;</span>;
+<span class="hljs-keyword">import</span> <span class="hljs-variable constant_">UUID</span> <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;vue3-uuid&quot;</span>;
+<span class="hljs-keyword">import</span> <span class="hljs-title class_">Draggable</span> <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;vue3-draggable&quot;</span>;
+<span class="hljs-keyword">import</span> <span class="hljs-string">&#x27;vue3-perfect-scrollbar/dist/vue3-perfect-scrollbar.css&#x27;</span>
+
+<span class="hljs-keyword">import</span> <span class="hljs-title class_">App</span> <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./App.vue&#x27;</span>;
+
+<span class="hljs-keyword">const</span> app = <span class="hljs-title function_">createApp</span>(<span class="hljs-title class_">App</span>);
+app.<span class="hljs-title function_">use</span>(<span class="hljs-variable constant_">UUID</span>);
+app.<span class="hljs-title function_">use</span>(<span class="hljs-title class_">PerfectScrollbar</span>);
+app.<span class="hljs-title function_">use</span>(<span class="hljs-title class_">Draggable</span>);
+app.<span class="hljs-title function_">use</span>(<span class="hljs-title function_">createPinia</span>());
+app.<span class="hljs-title function_">mount</span>(<span class="hljs-string">&#x27;#app&#x27;</span>);
+</code></pre>
+<h2>Dev mode</h2><a id="dev-mode"></a>
+<p>To start the application in development mode you can use the following command.</p>
+<pre><code class="hljs">$ yarn dev || npm run dev
+</code></pre>
+<p>In this way, the initial application watches in parallel with the nodemon that checks for changes in the files and automatically reloads in case of changes, the server that provides the API will be loaded following the pure Typescript settings, the editor will be compiled for Javascript with Webpack, generating a file bundle containing all the files necessary for the editor to work, finally Tailwindcss generates a bundle of Javscript and CSS for use by the editor.</p>
+<p>The generated files are stored in <em><strong>/editor/assets</strong></em>, and should not be changed since every time development mode is started or an application build is generated, these files will be regenerated.</p>
+<h2>Docs</h2><a id="docs"></a>
+<p>To generate the documentation I created a simple form of organization through directories and .md files that are processed through the command below.</p>
+<pre><code class="hljs">$ yarn generate:docs
+</code></pre>
+<p>When executing this command, the html files are created based on the .md files and are managed by the docs.controller.ts controller for public access, in the production version the export of the documentation is optional, in addition it is possible to define automatic documentation of the classes using docoradores that will export the documentation through Swagger (<a href="https://www.npmjs.com/package/swagger">https://www.npmjs.com/package/swagger</a>), obviously only being useful in the case of public APIs that require documentation, to document the blueprints a consistent model has not yet been defined.</p>
+<h2>Linting and formatting</h2><a id="linting-and-formatting"></a>
+<p>Like most public web applications that use Typescript, I use eslint and prettier to format and organize the code, making it possible to perform checks and corrections using the commands below</p>
+<pre><code class="hljs"><span class="hljs-comment"># Lint with eslint</span>
+$ yarn lint
+
+<span class="hljs-comment"># Format with prettier</span>
+$ yarn format
+</code></pre>

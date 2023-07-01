@@ -9,7 +9,7 @@ export default class MongoDBUpdate extends MongoDBBlueprint {
         version: 1,
         namespace: "MongoDBUpdate",
         group: "MongoDB",
-        helpLink: "https://mongoosejs.com/docs/models.html#deleting",
+        helpLink: "https://mongoosejs.com/docs/documents.html#updating-using-queries",
         outputs: [{ 
             name: "result", 
             type: Types.Boolean 

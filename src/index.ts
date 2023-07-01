@@ -1,5 +1,3 @@
-import * as path from "path";
-
 import { Logger } from "@ucsjs/common";
 import { GlobalRegistry } from "@ucsjs/core";
 import { MainModule } from "@modules";

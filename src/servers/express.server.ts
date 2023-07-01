@@ -25,6 +25,10 @@ export class Express {
 
     public create(){
         this.app = express();
+
+        this.app.set('view engine', 'ejs');
+        //this.app.setBaseViewsDir('views');
+
         this.app.disable('x-powered-by');
         this.app.use(express.json());
         this.app.use(bodyParser.json({limit: "50mb"}));
@@ -32,9 +36,10 @@ export class Express {
         this.app.use(compression());
         this.app.use(cors());
         this.app.use(helmet({
-            contentSecurityPolicy: false,
+            contentSecurityPolicy: false
         }));        
         this.app.use(express.static('editor'));
+        this.app.use(express.static('public'));
         this.app.use(session({
             secret: process.env.SESSION_KEY || "secret",
             resave: false,

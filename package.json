@@ -15,6 +15,7 @@
 		"dev:editor": "export NODE_ENV=dev && nodemon --watch ./src --exec 'webpack --config webpack.config.js --watch'",
 		"dev:css": "tailwindcss -i ./editor/assets/tailwind.css -o ./editor/assets/tailwind.min.css --quiet --minify --no-warnings> /dev/null 2>&1",
 		"dev": "yarn clean && npm-run-all --parallel dev:*",
+		"generate:docs": "./node_modules/.bin/ts-node -r tsconfig-paths/register ./src/docs.ts",
 		"clean:tsfiles": "find ./src -name \"*.d.ts,*.js\" -delete",
 		"clean:packages": "find ./packages -name \"*.d.ts,*.js\" -delete",
 		"clean": "yarn clean:tsfiles && yarn clean:packages",
@@ -23,6 +24,8 @@
 		"format": "prettier \"**/*.ts\" \"packages/**/*.json\" --ignore-path ./.prettierignore --write && git status",
 		"test": "mocha packages/**/*.spec.ts",
 		"test:dev": "mocha -w --watch-files \"packages\" packages/**/*.spec.ts",
+		"test:docker:up": "docker-compose -f integration/docker-compose.yml up -d",
+		"test:docker:down": "docker-compose -f integration/docker-compose.yml down",
 		"lint": "concurrently 'npm run lint:packages' 'npm run lint:integration' 'npm run lint:spec'",
 		"lint:fix": "concurrently 'npm run lint:packages -- --fix' 'npm run lint:integration -- --fix' 'npm run lint:spec -- --fix'",
 		"lint:integration": "eslint 'integration/*/{,!(node_modules)/**/}/*.ts'",
@@ -53,6 +56,15 @@
 		"packages/**/*.json": [
 			"prettier --ignore-path ./.prettierignore --write"
 		]
+	},
+	"mocha": {
+		"require": [
+			"ts-node/register",
+			"tsconfig-paths/register",
+			"node_modules/reflect-metadata/Reflect.js",
+			"hooks/mocha-init-hook.ts"
+		],
+		"exit": true
 	},
 	"devDependencies": {
 		"@types/chai": "^4.3.5",
@@ -134,6 +146,7 @@
 		"cron": "^2.3.1",
 		"csurf": "^1.11.0",
 		"dotenv": "^16.1.4",
+		"ejs": "^3.1.9",
 		"events": "^3.3.0",
 		"express": "^4.18.2",
 		"express-session": "^1.17.3",
@@ -142,9 +155,12 @@
 		"globby": "^13.2.0",
 		"google-timezones-json": "^1.1.0",
 		"helmet": "^7.0.0",
+		"highlight.js": "^11.8.0",
 		"import-fresh": "^3.3.0",
 		"livereload": "^0.9.3",
 		"llama-node": "^0.1.6",
+		"markdown-it": "^13.0.1",
+		"markdown-to-html": "^0.0.13",
 		"module-alias": "^2.2.3",
 		"node-rsa": "^1.1.1",
 		"pinia": "^2.1.3",

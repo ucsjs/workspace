@@ -89,7 +89,7 @@ export class Flow {
             let toBlueprint = this.getBlueprint(toNamespace);
 
             if(fromBlueprint && toBlueprint){
-                Logger.log(`Subscribe ${fromNamespace}::${fromOutput} => ${toNamespace}::${toInput}`, "Flow");
+                //Logger.log(`Subscribe ${fromNamespace}::${fromOutput} => ${toNamespace}::${toInput}`, "Flow");
                 fromBlueprint.subscribe(toBlueprint, fromOutput, toInput);
             }                
             else 
@@ -101,7 +101,7 @@ export class Flow {
                 let toBlueprint = this.getBlueprint(toNamespace);
 
                 if(fromBlueprint && toBlueprint){
-                    Logger.log(`Subscribe ${fromNamespace}::${fromOutput} => ${toNamespace}::${toInput}`, "Flow");
+                    //Logger.log(`Subscribe ${fromNamespace}::${fromOutput} => ${toNamespace}::${toInput}`, "Flow");
                     fromBlueprint.subscribe(toBlueprint, fromOutput, toInput);
                 }                    
                 else 

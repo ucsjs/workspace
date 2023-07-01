@@ -4,7 +4,8 @@ import {
     BlueprintController, 
     TokenizerController, 
     LLMController, 
-    UsersController 
+    UsersController,
+    DocsController 
 } from "@controllers";
 
 @Module({
@@ -12,7 +13,8 @@ import {
         BlueprintController, 
         TokenizerController,
         LLMController,
-        UsersController
+        UsersController,
+        DocsController
     ]
 })
 export class MainModule {};

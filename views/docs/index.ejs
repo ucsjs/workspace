@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>UCS.js Documentation</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" rel="stylesheet" />
+        <link rel="icon" type="image/png" href="/assets/favicon.ico" />
+        <link href="/assets/docs.css" rel="stylesheet" />
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    </head>
+
+    <body>
+        <div id="app">
+            <div class="bg-neutral-800 h-16 top-0 w-full fixed flex z-50 shadow-lg">
+                <div class="w-60">
+                    <a href="/" title="UCS.js">
+                        <img src="/assets/img/logo_invert.png" class="h-16 p-4" />
+                    </a>
+                </div>
+
+                <div class="justify-between text-center w-full">
+                    <div class="w-80 m-auto relative">
+                        <div class="absolute text-white z-40 top-5 left-12">
+                            <i class="fa-solid fa-search"></i>
+                        </div>
+                        <div>
+                            <input 
+                            type="text" 
+                                class="p-1.5 pl-10 mt-3 bg-neutral-700 rounded-lg text-white border border-black" 
+                                placeholder="Search" 
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="justify-between align-middle text-center mr-2 text-white flex">
+                    <a href="https://github.com/ucsjs" title="Github" target="_blank" class="text-2xl p-2 mt-2 hover:text-neutral-300">
+                        <i class="fa-brands fa-github"></i>
+                    </a>
+
+                    <a href="https://discord.gg/XtUH9sJP" title="Discord" target="_blank" class="text-2xl p-2 mt-2 hover:text-neutral-300">
+                        <i class="fa-brands fa-discord"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="w-screen h-screen">
+                <div class="w-60 bg-neutral-100 fixed top-16" style="height: calc(100% - 64px)">
+                    <%- include('../../views/docs/navbar'); -%>
+                </div>
+
+                <div class="mt-20 ml-64 text-justify relative" style="width: calc(100% - 240px)">
+                    <div class="m-4 p-4 px-20" style="width: calc(100% - 300px)">
+                        <%- include('../../views/docs/breadcrumb'); -%>
+                        <%- include('../../views/docs/anchors'); -%>
+
+                        <div class="content max-w-screen-lg">
+                            <%- index -%>
+                        </div>
+                    </div>
+
+                    <%- include('../../views/docs/footer'); -%>
+                </div>
+            </div>
+        </div>
+
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/vs2015.min.css">
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js"></script>
+        <script>
+            hljs.highlightAll();
+
+            var $root = $('html, body');
+
+            $('a[href^="#"]').click(function(event) {
+                event.preventDefault();
+                var href = $.attr(this, 'href');
+                $('.current').removeClass('current');
+                $(this).parent().addClass("current");
+
+                $root.animate({
+                    scrollTop: $(href).position().top
+                }, 500, function () {
+                    window.location.hash = href;
+                });
+
+                return false;
+            });
+
+            $(window).scroll(function (event) {
+                var scroll = $(window).scrollTop();
+                $('.current').removeClass('current');
+                let repoint = false
+
+                $("#anchors>li").each((index, value) => {
+                    if($($("a", value).attr('href')).position().top >= scroll && !repoint){
+                        repoint = true;
+                        $(value).addClass('current');
+                    }
+                });
+            });
+
+            $($("#anchors>li")[0]).addClass("current");
+        </script>
+    </body>
+</html>
+
