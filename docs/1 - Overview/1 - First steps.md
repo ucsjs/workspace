@@ -10,7 +10,7 @@ The entire project was built using Typescript(https://www.typescriptlang.org/), 
 
 ## Prerequisites
 
-To run UCS.js it will be necessary to have ***Node.js (version >= 16.14)*** installed in your operating system.
+To run UCS.js it will be necessary to have `Node.js (version >= 16.14)` installed in your operating system.
 
 ## Setup
 
@@ -29,9 +29,9 @@ in the future, all packages of the complete project will be made available as mo
 
 By default, the project uses the Express (https://expressjs.com) web server to control HTTP routes coupled to a Websocket (https://www.npmjs.com/package/ws), which can be coupled to terminal adapters using Node-Pty (https://www.npmjs.com/package/node-pty) and Visual Code Language Server (https://learn.microsoft.com/en-us/visualstudio/extensibility/language-server-protocol?view=vs-2022) for integration with Monaco (https://microsoft.github.io/monaco-editor/), all adapters are optional and configurable , the project brings controllers for managing blueprints through the editor, documentation, LLM integrations, file management, and data tokenization.
 
-Every application flow starts in the ***src/index.ts*** file which is responsible for starting the HTTP server and its adapters.
+Every application flow starts in the `src/index.ts` file which is responsible for starting the HTTP server and its adapters.
 
-```ts
+```typescript
 import { Logger } from "@ucsjs/common";
 import { GlobalRegistry } from "@ucsjs/core";
 import { MainModule } from "@modules";
@@ -62,11 +62,11 @@ The default directories that come with the project are the following:
     └── index.ts
 ```
 
-I believe it is self-explanatory, but it is always good to reinforce, the blueprints directory is stored in .blueprint.ts files that contain blueprints created in visual mode and downloaded from the marketplace and can be organized by subdirectories, this directory is automatically loaded by GlobalRegistry when loading the application and can be dynamically updated by the editor.
+I believe it is self-explanatory, but it is always good to reinforce, the blueprints directory is stored in `.blueprint.ts` files that contain blueprints created in visual mode and downloaded from the marketplace and can be organized by subdirectories, this directory is automatically loaded by `GlobalRegistry` when loading the application and can be dynamically updated by the editor.
 
-The controllers directory stores files with the .controller.ts extension and has route controllers for HTTP requests. For more information about controllers, access the menu on the side. Dto and interfaces stores files that contain data definitions either for creating subclasses or moving customized data as in the case of POST and PUT requests, or information trafficked through queue services, in the case of schemas for databases I recommend the creation of a separate directory.
+The controllers directory stores files with the `.controller.ts` extension and has route controllers for HTTP requests. For more information about controllers, access the menu on the side. Dto and interfaces stores files that contain data definitions either for creating subclasses or moving customized data as in the case of POST and PUT requests, or information trafficked through queue services, in the case of schemas for databases I recommend the creation of a separate directory.
 
-The module directory contains functionality organization classes, that is, it is possible to fragment the application into smaller parts that may or may not be loaded by the main application through the ***main.module.ts*** file. Finally, the services directory contains support classes for controllers and adapters containing the business logic of operation, normally they are self-instantiated injectable classes.
+The module directory contains functionality organization classes, that is, it is possible to fragment the application into smaller parts that may or may not be loaded by the main application through the `main.module.ts` file. Finally, the services directory contains support classes for controllers and adapters containing the business logic of operation, normally they are self-instantiated injectable classes.
 
 It is important to remember that the files in the /src directory will be built for the production application, so any code that is essential for the application to work must be inside this directory.
 
@@ -76,7 +76,7 @@ The recommendation regarding static files is to always use the CDN integration f
 
 ## Editor
 
-The visual editor is written in Vue3 in Typescript complemented by plugins being stored all files in ***/editor/src***, static CSS files, favicons, images and Javascript bundles in ***/editor/assets***.
+The visual editor is written in Vue3 in Typescript complemented by plugins being stored all files in `/editor/src`, static CSS files, favicons, images and Javascript bundles in `/editor/assets`.
 
 ```
 .
@@ -89,9 +89,9 @@ The visual editor is written in Vue3 in Typescript complemented by plugins being
     └── main.ts
 ```
 
-The main file of the module that will be loaded will be ***/src/main.ts***, this file is responsible for starting the application, loading necessary plugins. The editor primarily makes HTTP requests to the server to manage files, blueprints, etc., but in specific cases such as Language Server, Hot reload, realtime execution of blueprints, event buffering, this communication takes place via Websocket.
+The main file of the module that will be loaded will be `/src/main.ts`, this file is responsible for starting the application, loading necessary plugins. The editor primarily makes HTTP requests to the server to manage files, blueprints, etc., but in specific cases such as Language Server, Hot reload, realtime execution of blueprints, event buffering, this communication takes place via Websocket.
 
-```ts
+```typescript
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import PerfectScrollbar from 'vue3-perfect-scrollbar';
@@ -119,17 +119,17 @@ $ yarn dev || npm run dev
 
 In this way, the initial application watches in parallel with the nodemon that checks for changes in the files and automatically reloads in case of changes, the server that provides the API will be loaded following the pure Typescript settings, the editor will be compiled for Javascript with Webpack, generating a file bundle containing all the files necessary for the editor to work, finally Tailwindcss generates a bundle of Javscript and CSS for use by the editor.
 
-The generated files are stored in ***/editor/assets***, and should not be changed since every time development mode is started or an application build is generated, these files will be regenerated.
+The generated files are stored in `/editor/assets`, and should not be changed since every time development mode is started or an application build is generated, these files will be regenerated.
 
 ## Docs
 
-To generate the documentation I created a simple form of organization through directories and .md files that are processed through the command below.
+To generate the documentation I created a simple form of organization through directories and `.md` files that are processed through the command below.
 
 ```bash
 $ yarn generate:docs
 ```
 
-When executing this command, the html files are created based on the .md files and are managed by the docs.controller.ts controller for public access, in the production version the export of the documentation is optional, in addition it is possible to define automatic documentation of the classes using docoradores that will export the documentation through Swagger (https://www.npmjs.com/package/swagger), obviously only being useful in the case of public APIs that require documentation, to document the blueprints a consistent model has not yet been defined.
+When executing this command, the html files are created based on the `.md` files and are managed by the `docs.controller.ts` controller for public access, in the production version the export of the documentation is optional, in addition it is possible to define automatic documentation of the classes using docoradores that will export the documentation through Swagger (https://www.npmjs.com/package/swagger), obviously only being useful in the case of public APIs that require documentation, to document the blueprints a consistent model has not yet been defined.
 
 ## Linting and formatting
 

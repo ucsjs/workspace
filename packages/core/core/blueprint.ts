@@ -65,7 +65,7 @@ export class Blueprint extends Singleton implements IBlueprint {
         const triggersBinds = Reflect.getMetadata(BLUEPRINT_TRIGGERS, this);
 
         if(this.header.inputs && this.header.inputs.length > 0) {
-            for(let input of this.header.inputs){
+            for(let input of this.header.inputs) {
                 let callback = (input.callback && typeof input.callback === "function") ? input.callback.bind(this) : null;
 
                 if(!callback)
@@ -82,14 +82,14 @@ export class Blueprint extends Singleton implements IBlueprint {
         }
 
         if(this.header.properties && this.header.properties.length > 0) {
-            for(let property of this.header.properties){
+            for(let property of this.header.properties) {
                 if(!this.propertiesIndex.has(property.name))
                     this.propertiesIndex.set(property.name, property);
             }  
         }
 
         if(this.header.events && this.header.events.length > 0){
-            for(let event of this.header.events){
+            for(let event of this.header.events) {
                 let callback = (event.callback && typeof event.callback === "function") ? event.callback.bind(this) : null;
 
                 if(!callback)
@@ -105,7 +105,7 @@ export class Blueprint extends Singleton implements IBlueprint {
         }
                 
         if(this.settings) {
-            for(let property of Array.from(this.propertiesIndex)){
+            for(let property of Array.from(this.propertiesIndex)) {
                 if(this.settings[property[0]] && this.propertiesIndex.has(property[0])){
                     let propertyValue = this.propertiesIndex.get(property[0]);
                     propertyValue.value = this.settings[property[0]];
@@ -118,7 +118,7 @@ export class Blueprint extends Singleton implements IBlueprint {
     }
       
     public next(data: IBlueprintData, name: string = "_default"): Blueprint {
-        if(this.started && this.outputs.has(name)){
+        if(this.started && this.outputs.has(name)) {
             Logger.log(`Dispatched to ${name}`, `Blueprint::${this.header.namespace}`);
 
             let output = this.outputs.get(name);
@@ -130,10 +130,10 @@ export class Blueprint extends Singleton implements IBlueprint {
             else
                 Logger.error(`The amount informed for transfer cannot be null or undefined`, `Blueprint::${this.header.namespace}`);
         }
-        else if(!this.started){
+        else if(!this.started) {
             Logger.error(`Error when trying to fire data because the blueprint has not been started yet.`, `Blueprint::${this.header.namespace}`);
         }
-        else if(!this.outputs.has(name)){
+        else if(!this.outputs.has(name)) {
             Logger.error(`The output ${name} is not present in the blueprint configuration.`, `Blueprint::${this.header.namespace}`);
         }
 
@@ -377,7 +377,7 @@ export class Blueprint extends Singleton implements IBlueprint {
         }
     }
     
-    public trigger(name: string = "_default") {
+    public trigger(name: string = "_default"): boolean {
         if(this.triggers.has(name)) {
             return false;
         }
@@ -398,7 +398,7 @@ export class Blueprint extends Singleton implements IBlueprint {
         }
     }
 
-    public triggerIdentify(trigger: IBlueprintTrigger): IBlueprintData{
+    public triggerIdentify(trigger: IBlueprintTrigger): IBlueprintData {
         return new BlueprintData(trigger.blueprint, null, { value: `${trigger.name}::${trigger.blueprint.id}::${trigger.timeout}` })
     }
 

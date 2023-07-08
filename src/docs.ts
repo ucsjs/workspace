@@ -6,6 +6,8 @@ import { glob } from "glob";
 
 class GenerateDocs {
     async convertMarkdownToHTML(){
+        hljs.registerLanguage('ts', require('highlight.js/lib/languages/typescript'));
+
         const markdown = MarkdownIt({
             html: true,
             linkify: true,
@@ -15,8 +17,8 @@ class GenerateDocs {
                 if (lang && hljs.getLanguage(lang)) {
                     try {
                         return (
-                        '<pre><code class="hljs">' +
-                        hljs.highlight(str, { language: lang, ignoreIllegals: true }).value +
+                        '<pre><code class="hljs language-'+lang+'" lang="'+lang+'">' +
+                        markdown.utils.escapeHtml(str) + 
                         "</code></pre>"
                         );
                     } catch (__) {}
@@ -31,6 +33,7 @@ class GenerateDocs {
         for(let file of docsFiles){
             const content = await fs.readFileSync(path.resolve(file), "utf8");
             let rendered = await markdown.render(content);
+            rendered = this.fixLinks(rendered);
             rendered = this.addAnchorLinks(rendered);
             await fs.writeFileSync(file.replace(".md", ".html"), rendered, "utf8");
         } 
@@ -65,8 +68,15 @@ class GenerateDocs {
         return cleanURL;
     }
 
+    fixLinks(html: string): string {
+        const regex = /<a([^>]*)>/gi;
+        const replacement = '<a$1 target="_blank" rel="nofollow">';
+        const modifiedHtml = html.replace(regex, replacement);
+        return modifiedHtml;
+    }
+
     addAnchorLinks(html: string): string {
-        const headerTags = ['h1', 'h2', 'h3'];
+        const headerTags = ['h1', 'h2'];
         const modifiedHtml = headerTags.reduce((html, tag) => {
         const regex = new RegExp(`(<${tag}[^>]*>)(.*?)(<\/${tag}>)`, 'gi');
         const matches = html.match(regex);
@@ -75,7 +85,7 @@ class GenerateDocs {
             matches.forEach(match => {
                 const text = match.replace(/<\/?[^>]+(>|$)/g, '');
                 const id = text.toLowerCase().replace(/\s/g, '-').replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
-                const anchorLink = `<a id="${id}"></a>`;
+                const anchorLink = `<a id="${id}" title="${text}"></a>`;
                 html = html.replace(match, `${match}${anchorLink}`);
             });
         }

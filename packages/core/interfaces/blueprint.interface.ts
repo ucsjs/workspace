@@ -1,5 +1,5 @@
 import { Types } from "../enums/types.enum";
-import { Blueprint, Connection } from "../core";
+import { Blueprint } from "../core";
 
 export interface IBlueprint {
     id: string;

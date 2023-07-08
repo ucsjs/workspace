@@ -1,0 +1,153 @@
+<h1>Header</h1><a id="header" title="Header"></a>
+<p>Every blueprint needs an identification header of the type <code>IBlueprintHeader</code> or similar extensions, below is the complete description of the interface, below we will individually list each possible type of data present in the header and its function within the editor.</p>
+<p>The data described in the header is sent via API to the editor so that it is possible to manage and configure blueprints, therefore it is fundamental to precisely configure the data of inputs, output, triggers, events and properties, it is also possible to define a category, version, icon and help link on the context of the blueprint, below is the complete interface for analysis:</p>
+<pre><code class="hljs language-typescript" lang="typescript">export interface IBlueprintHeader {
+    namespace: string,
+    version?: number | number[],
+    group: string | string[],
+    icon?: string | IBlueprintIcon,
+    helpLink?: string,
+    inputs?: IBlueprintInput[],
+    outputs?: IBlueprintOutput[],
+    properties?: IBlueprintProperties[],
+    triggers?: IBlueprintTrigger[]
+    events?: IBlueprintEvent[]
+    useInEditor: boolean
+}
+</code></pre>
+<h2>Namespace</h2><a id="namespace" title="Namespace"></a>
+<p>The Blueprint namespace is used as a reference to retrieve the class by <code>GlobalRegistry</code>, Flow creates the blueprint instance automatically and stores it internally, which can be retrieved by Id or by the instance namespace defined when creating the flow, as it is possible to create multiple instances of it blueprint references are different when instantiated. Therefore, the instance ID and the blueprint namespace are different and can be retrieved as follows:</p>
+<pre><code class="hljs language-typescript" lang="typescript">this.header.namespace //Returns the Blueprint namespace
+this.id //Returns the ID of the instance
+</code></pre>
+<h2>Version (Optional)</h2><a id="version-optional" title="Version (Optional)"></a>
+<p>Blueprint version, which will be considered for update in the marketplace, and maintain project compatibility that use specific versions of a blueprint.</p>
+<h2>Group</h2><a id="group" title="Group"></a>
+<p>The group parameter will be used by the editor to segment and categorize all blueprints in the project.</p>
+<h2>Help Link (Optional)</h2><a id="help-link-optional" title="Help Link (Optional)"></a>
+<p>When informed the help link creates an icon in the blueprint by the editor when clicked opens the link.</p>
+<h2>Icon (Optional)</h2><a id="icon-optional" title="Icon (Optional)"></a>
+<p>Defines the icon that will appear in the blueprint in the editor, it can be used only the name of the Fontawesome icon or a link to a public image, it is still possible to pass the image through SVG or Base64 using local conversion functions.</p>
+<h2>Use In Editor (Optional)</h2><a id="use-in-editor-optional" title="Use In Editor (Optional)"></a>
+<p>This parameter whether or not a blueprint will be used in the editor.</p>
+<h2>Inputs / Outputs</h2><a id="inputs--outputs" title="Inputs / Outputs"></a>
+<p>Now let’s start talking about the fundamental parameters for the Blueprint to work, below is the interface of an input:</p>
+<pre><code class="hljs language-typescript" lang="typescript">export interface IBlueprintInput {
+    id?: string;
+    name: string;
+    alias?: string;
+    type: Types | any;
+    default?: any;
+    callback?: Function;
+}
+</code></pre>
+<p>It is then possible to configure a default value for the input, define the type (important for internal checks), the alias field defines a nickname for this entry to be retrieved in addition to the name, and it is even possible to define a callback for when the input is to receive a value new. However, it is recommended to use <code>@Input</code> decorator to link a data receiving function as in the example below:</p>
+<pre><code class="hljs language-typescript" lang="typescript">@Input(&quot;_default&quot;)
+private async createHash(data: IBlueprintData) {
+    try{
+        let value = data.value;
+        let algorithm = this.getParameter(&quot;algorithm&quot;, &quot;SHA256&quot;);
+        let encoding = this.getParameter(&quot;encoding&quot;, &quot;hex&quot;) as crypto.BinaryToTextEncoding;
+
+        switch(typeof value){
+            case &quot;number&quot;: value = value.toString(); break;
+            case &quot;object&quot;: value = JSON.stringify(value); break;
+        }
+
+        const hash = (value) ? await crypto
+        .createHash(algorithm)
+        .update(Buffer.from(value))
+        .digest(encoding) : null;
+        
+        this.next(data.extend(this, { raw: value, value: hash }));
+    }
+    catch(e){
+        this.next(this.generateError(this, e.message, `${this.header.namespace}::${this.id}`));
+    }
+}
+</code></pre>
+<p>In the Crypto example above, the decorator will be linked to the blueprint’s standard input, and upon receiving a new value, it will perform a series of functions to create a hash following the algorithm and encoding settings defined when creating the flow or configured manually by the editor, after create the hash the value is sent to all blueprints that are encrypting the blueprint standard output that was defined in the header.</p>
+<p>To ensure a standard data flow through the blueprints and for debugging purposes, the data needs to be packaged in the IBlueprintData format. Below is the interface for analysis:</p>
+<pre><code class="hljs language-typescript" lang="typescript">export interface IBlueprintData {
+    parent: Blueprint | undefined;
+    settings?: IBlueprintSettings | undefined;
+    data?: { [key: string]: any };
+    value?: any;
+    error?: IBlueprintDataError;
+    getDefault(): any;
+    extend(newData: Blueprint, defaultValue?: any): IBlueprintData;
+}
+</code></pre>
+<p>When the values are packaged either through the <code>this.generateData</code> function or through <code>data.extend</code>, the system automatically defines the blueprint it generated, being stored in the <code>parent</code>, the settings of this blueprint at the time of data generation is stored in <code>settings</code>, all data that was processed throughout the process is stored in <code>data</code>, the current state of the data is stored in <code>value</code>, in case of any processing error the blueprint must generate an error and send to the blueprints with subscribe in the outputs using the function <code>this.generateError</code>, this error will be stored in <code>error</code>.</p>
+<p>Following the understanding of the inputs, the outputs receive post-processed values, in the example above the command <code>this.next</code> was used to pass data to the standard output, however it is possible to create several outputs and inputs, so that it is possible to define which output the data must be forwarded, just inform it in the second parameter of the function, as in the example below:</p>
+<pre><code class="hljs language-typescript" lang="typescript">this.next(data.extend(this, { raw: value, value: hash }), &quot;output namespace&quot;);
+</code></pre>
+<p>if you do not want to define a customized name for the input and output, by default the name <code>_default</code> will always be assigned, however in case of multiple inputs and outputs without definition of name, it will be superimposed by the last one, so it is recommended to always define a namespace for blueprint inputs and outputs. As a matter of curiosity, I’ll leave here the interface of the outputs</p>
+<pre><code class="hljs language-typescript" lang="typescript">export interface IBlueprintOutput {
+    id?: string,
+    name: string,
+    alias?: string,
+    type: Types | any
+}
+</code></pre>
+<h2>Events / Triggers</h2><a id="events--triggers" title="Events / Triggers"></a>
+<p>In case of data transfer between blueprints, there are Inputs/Outputs, for triggering events and functionality that do not need data, it is recommended to use Triggers/Events, as it is more efficient and simple, the operation has the same behavior, see:</p>
+<pre><code class="hljs language-typescript" lang="typescript">public header: IBlueprintHeader = {
+    ...
+    events: [
+        { 
+            name: &quot;_default&quot;
+        }
+    ]
+}
+</code></pre>
+<p>Below is the event interface, note that a callback can be defined directly in the header or defined later by the <code>@Trigger</code> decorator</p>
+<pre><code class="hljs language-typescript" lang="typescript">export interface IBlueprintEvent {
+    name: string,
+    callback?: Function
+}
+</code></pre>
+<p>When defining the event, it will be necessary to define a trigger that will be executed as soon as the event is invoked.</p>
+<pre><code class="hljs language-typescript" lang="typescript">@Trigger(&quot;_default&quot;)
+private eventTrigger(trigger: IBlueprintTrigger){
+    this.display(this.triggerIdentify(trigger))
+}
+</code></pre>
+<p>In the example below, the <code>@Trigger</code> decorator was used to define the function that will be triggered as soon as the event is called, thus receiving the parameter of type <code>IBlueprintTrigger</code> that contains basic information for future debugging.</p>
+<pre><code class="hljs language-typescript" lang="typescript">export interface IBlueprintTrigger {
+    name: string,
+    blueprint?: Blueprint,
+    timeout?: number;
+}
+</code></pre>
+<p>Note that every trigger receives as a parameter of the blueprint that requested the trigger and the trigger timeout.</p>
+<h2>Properties</h2><a id="properties" title="Properties"></a>
+<p>The property parameter is a little more complex since there are several possibilities of configurable parameters, there is still a series of important settings to complement the editor.</p>
+<pre><code class="hljs language-typescript" lang="typescript">export interface IBlueprintProperties {
+    id?: string,
+    name: string,
+    displayName: string,
+    type: Types,
+    description?: string;
+	hint?: string;
+    placeholder?: string;
+    required?: boolean;
+    fixed?:boolean;
+    default?: any;
+    value?: any;
+    options?: IBlueprintOptions[],
+    objectArray?: IBlueprintObjectArrayItem[]
+}
+</code></pre>
+<p>See that the interface allows you to define a value that will be displayed in the <code>displayName</code> editor, different from the name of the property itself, but for manipulation via code use the Id or Name, the <code>description</code> field will be displayed in a help icon on the side of the property name, <code>placeholder</code> will be the value displayed in the input in case of Text, Number properties.</p>
+<p>Continuing the <code>required</code> parameter defines that the information needs to be filled in for the blueprint to work, the <code>default</code> field defines a value that will be filled in in the editor when creating a new blueprint, the <code>value</code> field will be defined automatically in case of alteration of properties in the editor or via code, if the value is not changed, the default will be used.</p>
+<p>Last but not least, there is the <code>options</code> property, which must be used if the property is of the Options type, which will be displayed in the editor by a simple select, in the case of complex data such as lists of objects such as routes, or any other type of data in a list as data in JSON, use the parameter in the <code>Object</code> type, and define the format in <code>objectArray</code>, so that the data is parsed automatically. Below is the interface of <code>objectArray</code>:</p>
+<pre><code class="hljs language-typescript" lang="typescript">export interface IBlueprintObjectArrayItem {
+    name: string,
+    type: Types,
+    required?: boolean,
+    default?: boolean,
+    options?: IBlueprintOptions[],
+}
+</code></pre>
+<p>If the data returned by the editor does not follow the pattern defined in the blueprint, it will not be possible to execute the blueprint loading flow, and an error will be returned when parsing the data.</p>

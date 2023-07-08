@@ -1,0 +1,240 @@
+<h1>Core</h1><a id="core" title="Core"></a>
+<p>In this topic, we will go deeper into the main Blueprint class and its functionality, as most of the application subsystems are derived from this class, it is important to understand its operation and limitations, the Blueprint class extends from Singleton, and implements functions of the IBlueprint interface, all the files are available in the <code>@ucsjs/core</code> package and can be loaded directly via the Typescript alias in case of downloading the complete project and or by importing a dependency through NPM in independent projects.</p>
+<h2>Settings</h2><a id="settings" title="Settings"></a>
+<p>The class constructor can receive a series of settings that will be coupled to the Blueprint header as well as the definition of transforms occurs in this step, the transforms in turn are other blueprints that will make changes to the blueprint input data, such as encrypting a password before being sent to the database, or validating data from a JSON, etc, the function of transforms can be of the most diverse and easily configurable both in code and by the editor, later on I will comment in more detail about them, a priori let’s focus on the settings.</p>
+<p>The configuration interface does not limit any type of data input as the header definitions can vary, so the configuration interface will be a simple object that can receive any parameters.</p>
+<pre><code class="hljs language-ts" lang="ts">export interface IBlueprintSettings {
+    [key: string]: any;
+}
+</code></pre>
+<p>However, the configuration will only be stored from the constructor and will be effectively validated from the “setup” function call, the function still has the scope to read metadata recorded through decorators using reflection and thus binding the input functions and trigger in addition to changing property values previously defined in the header, in this step the system checks all the possibilities of inputs and outputs and configures callbacks or subscribe values according to the need, in case outputs and triggers will be used reactivity using the RxJS (<a href="https://rxjs.dev/" target="_blank" rel="nofollow">https://rxjs.dev/</a>) library.</p>
+<h2>Lifecycle</h2><a id="lifecycle" title="Lifecycle"></a>
+<p><img src="/blueprint-lifecycle.png" alt="Blueprint lifecycle" title="Blueprint lifecycle"></p>
+<p>As soon as a blueprint is created, the outputs are active waiting for changes and the pre-configured inputs in case they receive new data entries, as mentioned in the concept topic, it is recommended to use GlobalRegistry to call blueprints and use flows to control data, as the blueprint setup call occurs automatically, if the blueprint is imported manually and instantiated, it will be necessary to call the setup function manually before starting the build flow and any other configurations such as interceptors and injectors.</p>
+<p>Using the Flow class, it is still possible to automatically start the blueprint lifecycle using the buildListenAndExecute function, internally the Flow class requests all blueprints through <code>GlobalRegistry</code>, calling the retrieve function, in the side menu it is possible to find a specific flow topic with all the internal functions of the class.</p>
+<h2>Functions</h2><a id="functions" title="Functions"></a>
+<h3>next</h3>
+<br/>
+<pre><code class="hljs language-ts" lang="ts">next(data: IBlueprintData, name: string = &quot;_default&quot;): Blueprint
+</code></pre>
+<p>The next function will be responsible for changing the output value which in turn automatically transmits the change to all subscribers by reactivity, by default all data transferred between blueprints are of type IBlueprintData, the second parameter defines the name of the output, which must be previously defined in the blueprint header, if this is not done, the system will return an error whenever the next function is called, warning that the output has not been defined, so it will not be possible to continue the application flow.</p>
+<h3>nextAll</h3>
+<pre><code class="hljs language-ts" lang="ts">nextAll(data: IBlueprintData): Blueprint
+</code></pre>
+<p>The <code>nextAll</code> function has the premise of changing all outputs present, normally used to propagate errors between blueprints so that the final output stream is the error message.</p>
+<h3>output</h3>
+<pre><code class="hljs language-ts" lang="ts">output&lt;T extends IBlueprintData&gt;(name: string = &quot;_default&quot;): boolean
+</code></pre>
+<p>The output function can be used within the blueprint creation flow to dynamically configure outputs that were not previously defined in the blueprint header, and must contain the type of data it can receive, which by default is always recommended to be <code>IBlueprintData</code>, as a parameter it is enough define the name of the output and its return returns boolean, because if an output with the same name already exists, it will not be possible to register another one in overlapping, the system will always respect the first output defined with the same name.</p>
+<h3>input</h3>
+<pre><code class="hljs language-ts" lang="ts">input(callback: Function, name: string = &quot;_default&quot;, header: IBlueprintInput): boolean
+</code></pre>
+<p>The input function aims to dynamically create input in the blueprint, and can be used in any internal function of the blueprint. Respecting any input previously defined in the blueprint header. As the function’s first parameter, it receives callback. Which will be executed every time a new data entry is received by. The second parameter defines the input name. And the third parameter? The input header. The header needs to be defined to complement the data entry information such as type. Among other information already defined and explained and commented in this documentation. The return of the function will be of boolean type, If the input has already been defined in the header or previously by another function, an input with the same name. The return will be negative.</p>
+<h3>event</h3>
+<pre><code class="hljs language-ts" lang="ts">event(callback: Function, name: string = &quot;_default&quot;): boolean
+</code></pre>
+<p>The purpose of the function event is to dynamically define events that can be triggered by other blueprints first parameter of the function receives a callback will be executed every time a Trigger referenced to this event was issued second parameter defines the name of the event just like the previous examples the return of the function is boolean since If there are events with the same name, the function will return false.</p>
+<h3>trigger</h3>
+<pre><code class="hljs language-ts" lang="ts">trigger(name: string = &quot;_default&quot;): boolean
+</code></pre>
+<p>The trigger function must be used to dynamically create a trigger, as all functions for dynamic creation return false when there is already a previously defined trigger in the header.</p>
+<h3>subscribe</h3>
+<pre><code class="hljs language-ts" lang="ts">subscribe(blueprint: IBlueprint, outputName: string = &quot;_default&quot;, inputName: string = &quot;_default&quot;): void
+</code></pre>
+<p>the subscribe function creates a link between the output of a Blueprint and the input of another bluprint by means of reactivity whenever the output undergoes a change in value, the input receives the information and executes the internal process if there is a need to make some kind of conversion, data treatment or even perform a search function as in the case of a database. For each output it is possible to have a series of inputs that will receive changes on demand, so in practice the subscribe function performs the subscription of data previously configured with the RxJS library.</p>
+<h3>subscribePromise</h3>
+<pre><code class="hljs language-ts" lang="ts">subscribePromise(outputName: string = &quot;_default&quot;): Promise&lt;IBlueprintData&gt;
+</code></pre>
+<p>In specific cases of need to intercept changed values of an output, it is possible to use the subscribePromise function, passing only as a parameter the name of the output that you want to monitor. Through this function it is possible to create interceptors through the Flow class, it is still possible to create Rest and GraphQL controllers using blueprints for data processing.</p>
+<h3>intercept</h3>
+<pre><code class="hljs language-ts" lang="ts">intercept(outputName: string = &quot;_default&quot;): Promise&lt;any&gt;
+</code></pre>
+<p>The intercept function creates a subscribe to an output and returns a promise that will be executed as soon as the output value is changed, as it is a promise return if there are several value changes, only the first one will be returned.</p>
+<h3>interceptOnPromise</h3>
+<pre><code class="hljs language-ts" lang="ts">interceptOnPromise(outputName: string = &quot;_default&quot;)
+</code></pre>
+<p>The interceptOnPromise function has almost the same function as intercept, but reconfigures the blueprint and runs the flow again from scratch as if it had just been created, this function is used for intermittent processing flows such as HTTP requests through controllers.</p>
+<h3>listen</h3>
+<pre><code class="hljs language-ts" lang="ts">listen(blueprint: IBlueprint, triggerName: string = &quot;_default&quot;, eventName: string = &quot;_default&quot;)
+</code></pre>
+<p>The purpose of the listen function is to link an event of a bluprint with a trigger of another, so when the trigger is fired, it calls the event coupled to the output, it follows the same principle of Input/Output, however there is no data transfer between the blueprints, only an event call.</p>
+<h3>dispatch</h3>
+<pre><code class="hljs language-ts" lang="ts">dispatch(triggerData: IBlueprintTrigger, eventName: string = &quot;_default&quot;)
+</code></pre>
+<p>The dispatch function is responsible for receiving triggers and executing the linked events.</p>
+<h3>emit</h3>
+<pre><code class="hljs language-ts" lang="ts">emit(issuer: Blueprint, name: string = &quot;_default&quot;)
+</code></pre>
+<p>The dispatch function fires a previously defined trigger in the blueprint header, if there are events hanging from the trigger output, they will all be fired simultaneously in parallel.</p>
+<h3>generateData</h3>
+<pre><code class="hljs language-ts" lang="ts">generateData(blueprint: Blueprint, data: any): IBlueprintData
+</code></pre>
+<p>The generateData function receives a blueprint and a set of data of any type and packs it in an IBlueprintData format, necessary for communication between blueprints, in case of data chaining for debugging the recommendation and use data.extent provided in the interface is implemented in the <code>BlueprintData</code> class and <code>BlueprintDataError</code>.</p>
+<h3>generateError</h3>
+<pre><code class="hljs language-ts" lang="ts">generateError(blueprint: Blueprint, message: string, scope: string): IBlueprintData
+</code></pre>
+<p>The generateError function generates a package of type <code>IBlueprintData</code> but containing an internal error that may have occurred in some blueprint during the process, being transmitted throughout the flow to the final output of the application, which in the case of HTTP will be returned as 500 and the error message generated is the blueprint reference that originated the error, in case of other outputs the error will be displayed according to the implementation.</p>
+<h3>receive</h3>
+<pre><code class="hljs language-ts" lang="ts">async receive(data: IBlueprintData, inputName: string = &quot;_default&quot;): Promise&lt;void&gt;
+</code></pre>
+<p>The receive function is used internally to receive all data streams sent by other blueprints, and directs to the input informed in the second parameter, the function can also be used to inject data to an input previously configured in the header, this stream is most used in case of using blueprints in controllers, it is recommended to use them whenever it is necessary to manipulate blueprint data via code.</p>
+<h3>getParameter</h3>
+<pre><code class="hljs language-ts" lang="ts">getParameter&lt;T&gt;(name: string, defaultValue: T): T
+getParameter(name: string, defaultValue: any): any | null
+</code></pre>
+<p>The getParameter function returns a previously defined property in the header that may have been changed during the setup or build of the blueprint or through metadata via the editor, in the example below we will analyze the implementation and use of the function in the Crypto blueprint:</p>
+<pre><code class="hljs language-ts" lang="ts">properties: [
+    { 
+        name: &quot;algorithm&quot;, 
+        displayName: &quot;Algorithm&quot;, 
+        type: Types.Options, 
+        default: &quot;SHA256&quot;,
+        required: true, 
+        options: [
+            { name: &quot;SHA256&quot;, value: &quot;SHA256&quot; },
+            { name: &quot;SHA3-256&quot;, value: &quot;SHA3-256&quot; },
+            { name: &quot;SHA3-384&quot;, value: &quot;SHA3-384&quot; },
+            { name: &quot;SHA3-512&quot;, value: &quot;SHA3-512&quot; },
+            { name: &quot;SHA384&quot;, value: &quot;SHA384&quot; },
+            { name: &quot;SHA512&quot;, value: &quot;SHA512&quot; }
+        ] 
+    },
+    { 
+        name: &quot;encoding&quot;, 
+        displayName: &quot;Encoding&quot;,
+        default: &quot;hex&quot;, 
+        required: true, 
+        type: Types.Options,  
+        options: [
+            { name: &quot;BASE64&quot;, value: &quot;base64&quot; },
+            { name: &quot;HEX&quot;, value: &quot;hex&quot; }
+        ]
+    }
+]
+
+...
+
+let value = data.value;
+let algorithm = this.getParameter(&quot;algorithm&quot;, &quot;SHA256&quot;);
+let encoding = this.getParameter&lt;crypto.BinaryToTextEncoding&gt;(&quot;encoding&quot;, &quot;hex&quot;);
+
+switch(typeof value){
+    case &quot;number&quot;: value = value.toString(); break;
+    case &quot;object&quot;: value = JSON.stringify(value); break;
+}
+
+const hash = (value) ? await crypto.
+createHash(algorithm).
+update(Buffer.from(value)).
+digest(encoding) : null;
+
+this.next(data.extend(this, { raw: value, value: hash }));
+</code></pre>
+<p>In the example above, the algorithm and encoding properties were defined, by default they would return “SHA256” and “HEX” respectively, but these properties can be changed both when instantiating the blueprint and when creating the Flow, as follows:</p>
+<pre><code class="hljs language-ts" lang="ts">export default class CryptoSample extends Blueprint {
+    public incorporate(): { [key: string]: IBlueprintIncorporate } {
+        return {
+            &quot;bp:1&quot;: { blueprint: &quot;Interval&quot; },
+            &quot;hs:1&quot;: { blueprint: &quot;Crypto&quot;, args: { algorithm: &quot;sha1&quot;, encoding: &quot;hex&quot; } },
+            &quot;out:1&quot;: { blueprint: &quot;Console&quot;, args: {
+                customOutput: (data: IBlueprintData) =&gt; Logger.debug(`${data.data.raw}: ${data.value}`, &quot;CryptoSample&quot;) 
+            } }
+        };
+    } 
+
+    public async bind(flow: Flow){
+        flow.subscribeMulti({
+            &quot;bp:1-&gt;_default&quot;: &quot;hs:1-&gt;_default&quot;,
+            &quot;hs:1-&gt;_default&quot;: &quot;out:1-&gt;_default&quot;
+        });
+    }
+}
+</code></pre>
+<p>Notice that using the dynamic creation of the blueprint’s standard flow through the incorporate function, an object is returned whose key will be the internal namespace of the blueprints, and through the “args” parameter, different values are defined for the properties defined in the header, so when calling getParameter the return will be “SHA1” and “HEX” respectively.</p>
+<pre><code class="hljs language-ts" lang="ts">const flow = Flow.create({
+    &quot;bp:1&quot;: { blueprint: &quot;Interval&quot; },
+    &quot;hs:1&quot;: { blueprint: &quot;Crypto&quot;, args: { algorithm: &quot;sha1&quot;, encoding: &quot;hex&quot; } },
+    &quot;out:1&quot;: { blueprint: &quot;Console&quot;, args: {
+        customOutput: (data: IBlueprintData) =&gt; Logger.debug(`${data.data.raw}: ${data.value}`, &quot;CryptoSample&quot;) 
+    } }
+}, {
+    &quot;bp:1-&gt;_default&quot;: &quot;hs:1-&gt;_default&quot;,
+    &quot;hs:1-&gt;_default&quot;: &quot;out:1-&gt;_default&quot;
+});
+
+await flow.build();
+await flow.execute();
+</code></pre>
+<p>Another possible way would be to create the flow manually, for more details about the flow you can see the complete topic in the side menu, however in this option it will be necessary to run the build and run it manually, unlike implementation through the blueprint class. In practice internally, when the blueprint has the incorporate function and a flow is automatically created and saved in a variable that will be passed to the bind function, I always recommend creating a flow by understanding the Blueprint class.</p>
+<h3>getParameterObject</h3>
+<pre><code class="hljs language-ts" lang="ts">getParameterObject(name: string, fieldKey: string): object | null
+</code></pre>
+<p>If the property is a list and you want it to return in object format assigning the values, this function is used in some specific cases such as the list of fields in a database, below I will demonstrate the implementation and use of the function:</p>
+<pre><code class="hljs language-json" lang="json">{ name: &quot;fields&quot;, displayName: &quot;Fields&quot;, type: Types.Array, objectArray: [
+    { name: &quot;name&quot;, type: Types.String },
+    { name: &quot;type&quot;, type: Types.Options, options: [
+        { name: &quot;String&quot;, value: &quot;String&quot; },
+        { name: &quot;Number&quot;, value: &quot;Number&quot; },
+        { name: &quot;Date&quot;, value: &quot;Date&quot; },
+        { name: &quot;Buffer&quot;, value: &quot;Buffer&quot; },
+        { name: &quot;Boolean&quot;, value: &quot;Boolean&quot; },
+        { name: &quot;Mixed&quot;, value: &quot;Mixed&quot; },
+        { name: &quot;ObjectId&quot;, value: &quot;ObjectId&quot; },
+        { name: &quot;Array&quot;, value: &quot;Array&quot; },
+        { name: &quot;Decimal128&quot;, value: &quot;Decimal128&quot; },
+        { name: &quot;Map&quot;, value: &quot;Map&quot; },
+        { name: &quot;Schema&quot;, value: &quot;Schema&quot; }
+    ] },
+    { name: &quot;index&quot;, type: Types.Boolean, default: false },
+    { name: &quot;unique&quot;, type: Types.Boolean, default: false },
+    { name: &quot;required&quot;, type: Types.Boolean, default: false },
+] }
+</code></pre>
+<p>In the MongoDBSchema blueprint, the property fields of type Array was defined, and defined how each item of the array should be in an object format using the parameter <code>objectArray</code>, in sequence defined the base of the object with the parameters “name”, &quot;type &quot;, “index”, “unique”, “required”, each with its respective type and default value.</p>
+<pre><code class="hljs language-json" lang="json">&quot;MongoDB&quot;: { blueprint: &quot;MongoDB&quot;, args: { connectionString } },
+&quot;MongoDBSchema&quot;: { blueprint: &quot;MongoDBSchema&quot;, args: { 
+    name: &quot;users&quot;,
+    collection: &quot;users&quot;,
+    timestamps: true,
+    fields: [
+        { name: &quot;user&quot;, type: &quot;String&quot;, index: true, required: true },
+        { name: &quot;pass&quot;, type: &quot;String&quot;, index: true, required: true },
+    ]
+} },
+</code></pre>
+<p>Internally, to create the MongoDB model, the fields parameter is called by the getParameterObject function, defining name as the object’s key.</p>
+<pre><code class="hljs language-ts" lang="ts">const fields = this.getParameterObject(&quot;fields&quot;, &quot;name&quot;);
+</code></pre>
+<p>The final return that will be stored in the fields constant will be:</p>
+<pre><code class="hljs language-json" lang="json">{
+    &quot;user&quot;: {
+        &quot;type&quot;: &quot;String&quot;,
+        &quot;index&quot;: true,
+        &quot;required&quot;: true
+    },
+    &quot;pass&quot;: {
+        &quot;type&quot;: &quot;String&quot;,
+        &quot;index&quot;: true,
+        &quot;required&quot;: true
+    }
+}
+</code></pre>
+<h3>triggerIdentify</h3>
+<pre><code class="hljs language-ts" lang="ts">triggerIdentify(trigger: IBlueprintTrigger): IBlueprintData
+</code></pre>
+<p>The Identify trigger function wraps the Blueprint Trigger type in <code>IBlueprintData</code></p>
+<h3>incorporate</h3>
+<pre><code class="hljs language-ts" lang="ts">incorporate(): { [name: string]: IBlueprintIncorporate } { return {}; }
+</code></pre>
+<h3>bind</h3>
+<pre><code class="hljs language-ts" lang="ts">async bind(flow: Flow) {};
+</code></pre>
+<h3>injectArgs</h3>
+<pre><code class="hljs language-ts" lang="ts">injectArgs(args?: IBlueprintInjectData[]): Promise&lt;void&gt;
+</code></pre>
+<h3>validateInputData</h3>
+<pre><code class="hljs language-ts" lang="ts">validateInputData(header: IBlueprintInput, data: IBlueprintData): boolean
+</code></pre>
+<h3>execute</h3>
+<pre><code class="hljs language-ts" lang="ts">static execute()
+</code></pre>

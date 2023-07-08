@@ -1,0 +1,66 @@
+# Import Alias
+
+To avoid import reference problems and even facilitate the implementation of complements and blueprints in the project, a series of aliases were created in the Typescript configuration, yet all packages were also configured so that it is not necessary to send unstable versions to NPM, making it possible to test how each package will work locally before publishing.
+
+Below is the list of aliases previously configured in the project, to add a custom alias just access the `tsconfig.json` file.
+
+<table>
+  <tbody>
+    <tr>
+      <td><code>@ucsjs/common</code></td>
+      <td>Import all scripts from the `packages/common` directory</td>
+    </tr>
+    <tr>
+      <td><code>@ucsjs/core</code></td>
+      <td>Import all scripts from the `packages/core` directory</td>
+    </tr>
+    <tr>
+      <td><code>@ucsjs/blueprints</code></td>
+      <td>Import all scripts from the `packages/blueprints` directory</td>
+    </tr>
+    <tr>
+      <td><code>@ucsjs/repository</code></td>
+      <td>Import all scripts from the `packages/repository` directory</td>
+    </tr>
+    <tr>
+      <td><code>@abstracts</code></td>
+      <td>Import all scripts from the `src/abstracts` directory</td>
+    </tr>
+    <tr>
+      <td><code>@blueprints</code></td>
+      <td>Import all scripts from the `src/blueprints` directory</td>
+    </tr>
+    <tr>
+      <td><code>@controllers</code></td>
+      <td>Import all scripts from the `src/controllers` directory</td>
+    </tr>
+    <tr>
+      <td><code>@core</code></td>
+      <td>Import all scripts from the `src/core` directory</td>
+    </tr>
+    <tr>
+      <td><code>@decorators</code></td>
+      <td>Import all scripts from the `src/decorators` directory</td>
+    </tr>
+    <tr>
+      <td><code>@dtos</code></td>
+      <td>Import all scripts from the `src/dtos` directory</td>
+    </tr>
+    <tr>
+      <td><code>@enums</code></td>
+      <td>Import all scripts from the `src/enums` directory</td>
+    </tr>
+    <tr>
+      <td><code>@interfaces</code></td>
+      <td>Import all scripts from the `src/interfaces` directory</td>
+    </tr>
+    <tr>
+      <td><code>@modules</code></td>
+      <td>Import all scripts from the `src/modules` directory</td>
+    </tr>
+    <tr>
+      <td><code>@services</code></td>
+      <td>Import all scripts from the `src/services` directory</td>
+    </tr>
+  </tbody>
+</table>

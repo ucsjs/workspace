@@ -3,8 +3,6 @@ import * as express from 'express';
 import { IRouteSettings, RequestMappingMetadata, RouteSettingsDefault } from "../../interfaces";
 import { PATH_METADATA, METHOD_METADATA, OPTIONS_METADATA } from "../../constants";
 import { RequestMethod } from "../../enums";
-import { Logger } from '../../services';
-import { Injector } from '../core';
 
 export const RequestMapping = (metadata: RequestMappingMetadata = { [PATH_METADATA]: '/', [METHOD_METADATA]: RequestMethod.GET, [OPTIONS_METADATA]: {} }): MethodDecorator => {
 	const pathMetadata = metadata[PATH_METADATA];
@@ -112,109 +110,4 @@ function addRouteMiddleware(target: any, key: string | symbol, index: number, mi
 	const middlewares = Reflect.getMetadata('middlewares', target.constructor) as any[];
 	middlewares.push({ key, index, middleware });
 	Reflect.defineMetadata('middlewares', middlewares, target.constructor);
-}
-
-function getHandlerArgs(target:any, methodName: string, middlewares:[], req: express.Request, res: express.Response): any[] {
-	if(middlewares && middlewares.length > 0){
-		let sortedMiddlewares = sortByKey(middlewares, "index");
-
-		const params = sortedMiddlewares.map((data: { key: string, index: number, middleware: Function }) => {
-			return (methodName == data.key) ? data.middleware(req, res) : null;
-		}).filter(item => item);
-
-		return params;
-	}
-	else {
-		return [];
-	}
-}
-
-function processRequest(handler: Function, methodName: string, middlewares: [], options: IRouteSettings = RouteSettingsDefault) {
-	return async (req: express.Request, res: express.Response) => {	
-		try{
-			const startTimeout = new Date().getTime();
-			const args = getHandlerArgs(handler, methodName, middlewares, req, res);
-			const buffer = await handler(...args);
-			const endTimeout = new Date().getTime();
-			
-			if((typeof buffer === "string" && buffer.length > 0) || typeof buffer === "object") {
-				if(options.raw){
-					Logger.debug(`Request HTTP 200: ${req.path}`, "Server");
-					res.status(200).send(buffer);
-				}
-				else {
-					Logger.debug(`Request HTTP 200: ${req.path}`, "Server");
-
-					res.status(200).send({ 
-						status: 200, 
-						processTimeout: (endTimeout - startTimeout) / 1000,
-						data: buffer 
-					});
-				}
-			}
-			else
-				res.status(204).end();
-		}
-		catch(e){
-			Logger.error(`Request HTTP 500: ${req.path}`, "Server");
-			res.status(500).send({ status: 500, message: e && e.message ? e.message : e }).end();
-		}
-	};
-}
-
-function sortByKey(list: any[], key: string): any[] {
-	return list.sort((a, b) => {
-	  const valueA = a[key];
-	  const valueB = b[key];
-	  
-	  if (valueA < valueB) 
-		return -1;
-	  else if (valueA > valueB) 
-		return 1;
-	  else 
-		return 0;
-	});
-}
-
-export function createRouterFromController(controller): express.Router {
-	const router = express.Router();
-	const properties = Object.getOwnPropertyNames(controller.prototype);
-	const prefixController = Reflect.getMetadata(PATH_METADATA, controller);
-
-	if(properties){
-		for (const property of properties) {
-			if (typeof controller.prototype[property] === 'function' && property !== "constructor") {
-				const routeMetadata = Reflect.getMetadata(PATH_METADATA, controller.prototype[property]);
-				const methodMetadata = Reflect.getMetadata(METHOD_METADATA, controller.prototype[property]);
-				const optionsMetadata = Reflect.getMetadata(OPTIONS_METADATA, controller.prototype[property]);
-				const middlewares = Reflect.getMetadata('middlewares', controller);
-							
-				if (routeMetadata) {
-					const methodName = property || "";
-					const scope = Injector.inject(controller);
-					
-					if(scope[property]){
-						const handler = scope[property]?.bind(scope);
-						const path = "/" + prefixController + routeMetadata;
-					
-						Logger.log(`Listing route ${controller.name}::${RequestMethod[methodMetadata]} (${path})`, "Server");
-		
-						switch (methodMetadata) {
-							case RequestMethod.GET: router.get(path, processRequest(handler, methodName, middlewares, optionsMetadata)); break;
-							case RequestMethod.POST: router.post(path, processRequest(handler, methodName, middlewares, optionsMetadata)); break;
-							case RequestMethod.PUT: router.put(path, processRequest(handler, methodName, middlewares, optionsMetadata)); break;
-							case RequestMethod.PATCH: router.patch(path, processRequest(handler, methodName, middlewares, optionsMetadata)); break;
-							case RequestMethod.DELETE: router.delete(path, processRequest(handler, methodName, middlewares, optionsMetadata)); break;
-							case RequestMethod.HEAD: router.head(path, processRequest(handler, methodName, middlewares, optionsMetadata)); break;
-						}
-					}
-					else{
-						Logger.error(`Method ${property} does not exist in the context of controller ${controller.name}`, "HTTP Decorator");
-					}					
-				}
-			}
-		}
-	}
-	
-	return router;
 }

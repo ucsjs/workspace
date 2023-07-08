@@ -82,13 +82,13 @@ export class DocsService {
         }
 
         if(strutucture.index){
-            const regex = /<a id="(.*?)".*?>/g;
+            const regex = /<a id="(.*?)" title="(.*?)".*?>/g;
             let match;
 
             while ((match = regex.exec(strutucture.index)) !== null) {
                 strutucture.anchors.push({
                     id: match[1],
-                    label: this.fixedLabel(match[1])
+                    label: this.fixedLabel(match[2])
                 });
             }
         }

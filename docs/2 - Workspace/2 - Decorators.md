@@ -1,0 +1,116 @@
+# Decorators
+
+The project uses decorators to inject metadata into classes, methods and parameters in addition to making the project code cleaner, it optimizes some implementations, currently there are some decorators implemented but there is a list to be implemented until the first release, I will list them all below the decorators planned for the project:
+
+<table>
+  <tbody>
+    <tr>
+      <td><code>@Module</code></td>
+      <td>@ucsjs/common</td>
+      <td>Decorator used to define an application module, unlike other frameworks, modules do not isolate scope and do not require defining providers, just informing controllers and adapters</td>
+    </tr>
+    <tr>
+      <td><code>@Controller</code></td>
+      <td>@ucsjs/common</td>
+      <td>Decorator used to define an HTTP route controller, must be used at the base of a class</td>
+    </tr>
+    <tr>
+      <td><code>@Get</code></td>
+      <td>@ucsjs/common</td>
+      <td>Function decorator to create a GET type route that will be coupled to Express or any other server configured in the application</td>
+    </tr>
+    <tr>
+      <td><code>@Post</code></td>
+      <td>@ucsjs/common</td>
+      <td>Function decorator to create a POST type route that will be coupled to Express or any other server configured in the application</td>
+    </tr>
+    <tr>
+      <td><code>@Put</code></td>
+      <td>@ucsjs/common</td>
+      <td>Function decorator to create a PUT type route that will be coupled to Express or any other server configured in the application</td>
+    </tr>
+    <tr>
+      <td><code>@Delete</code></td>
+      <td>@ucsjs/common</td>
+      <td>Function decorator to create a DELETE type route that will be coupled to Express or any other server configured in the application</td>
+    </tr>
+    <tr>
+      <td><code>@Patch</code></td>
+      <td>@ucsjs/common</td>
+      <td>Function decorator to create a PATH type route that will be coupled to Express or any other server configured in the application</td>
+    </tr>
+    <tr>
+      <td><code>@Options</code></td>
+      <td>@ucsjs/common</td>
+      <td>Function decorator to create a OPTIONS type route that will be coupled to Express or any other server configured in the application</td>
+    </tr>
+    <tr>
+      <td><code>@Head</code></td>
+      <td>@ucsjs/common</td>
+      <td>Function decorator to create a HEAD type route that will be coupled to Express or any other server configured in the application</td>
+    </tr>
+    <tr>
+      <td><code>@All</code></td>
+      <td>@ucsjs/common</td>
+      <td>Function decorator that creates a route for all available methods.</td>
+    </tr>
+    <tr>
+      <td><code>@Param</code></td>
+      <td>@ucsjs/common</td>
+      <td>Parameter decorator, returns a parameter defined in the URL of the request, eg `Param("id) id: string`, the name of the parameter must be defined as the route path example `Get("/:id")`.</td>
+    </tr>
+    <tr>
+      <td><code>@Params</code></td>
+      <td>@ucsjs/common</td>
+      <td>Parameter decorator, return an object with all parameters defined in the route path.</td>
+    </tr>
+    <tr>
+      <td><code>@Query</code></td>
+      <td>@ucsjs/common</td>
+      <td>Parameter decorator, return a specific query by name as exemplified below.</td>
+    </tr>
+    <tr>
+      <td><code>@Querys</code></td>
+      <td>@ucsjs/common</td>
+      <td>Parameter decorator, return all parameters defined in the URL query, this is everything that comes after the ?, example http://localhost?param1=123, to retrieve this information use @Query("param1") or @Querys() querys, querys["param1"];</td>
+    </tr>
+    <tr>
+      <td><code>@Headers</code></td>
+      <td>@ucsjs/common</td>
+      <td>Parameter decorator, return information sent by the header of the HTTP request, useful to recover JWT sent by Authorization, among others.</td>
+    </tr>
+    <tr>
+      <td><code>@Body</code></td>
+      <td>@ucsjs/common</td>
+      <td>Parameter decorator, data sent by the body of the POST or PUT request.</td>
+    </tr>
+    <tr>
+      <td><code>@Header</code></td>
+      <td>@ucsjs/common</td>
+      <td>Function decorator to assign information in the request return header, can be used for various purposes such as cache control, cookie creation, among others.</td>
+    </tr>
+    <tr>
+      <td><code>@Request</code></td>
+      <td>@ucsjs/common</td>
+      <td>Function decorator returns the request structured according to the type of web server being used (default express.Request).</td>
+    </tr>
+    <tr>
+      <td><code>@Response</code></td>
+      <td>@ucsjs/common</td>
+      <td>Function decorator returns the structured response according to the type of web server being used (default express.Response).</td>
+    </tr>
+  </tbody>
+</table>
+
+## Access control
+
+Access controllers can be integrated into IAM systems or through basic login via JWT and the implementation of access validation must be defined individually per route, or using a global guard that defines all routes as private and requires access scope for each request.
+
+## Blueprint
+
+Blueprints have decorators that help bind functions to Inputs and Triggers in a cleaner way than implementing callbacks via header or injecting through dynamic creation functions, and the recommended way for blueprints that will be publicly released on the marketplace.
+
+## Queues
+
+For queue services, decorators facilitate the implementation of consumers and adapters, decorators are transparent, regardless of the queue system configured in the system, because if there is no prior integration of a RabbitMQ or Kaffa, the queue will be made in memory through the Bull library (https://www.npmjs.com/package/bull).
+

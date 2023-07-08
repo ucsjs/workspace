@@ -54,10 +54,17 @@ h2 {
     margin-top: 40px !important;
 }
 
+h3 {
+    font-weight: bold !important;
+    margin-top: 20px !important;
+}
+
 p {
     color: #404040;
-    line-height: 26px;
+    line-height: 28px;
     display: block;
+    font-size: 16px;
+    font-weight: 400;
     margin-top: 1em !important;
     margin-bottom: 1em !important;
 }
@@ -147,6 +154,84 @@ p {
     left: -3px;
     color: cornflowerblue;
     font-weight: 600;
+}
+
+code {
+    font-family: Inconsolata,Consolas,Courier New,monospace;
+    font-display: swap;
+    padding: 2px 6px;
+    color: #2876d2;
+    border-radius: 4px;
+    font-size: 15px;
+    white-space: pre-wrap;
+    background: #f0f2f3;
+}
+
+blockquote {
+    line-height: 1.6;
+    position: relative;
+    margin: 35px 0 !important;
+    background: #f9eff1;
+    padding: 20px;
+    border-radius: 3px;
+    display: block;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 40px;
+    margin-inline-end: 40px;
+}
+
+blockquote.info:before {
+    background: #0894e2;
+}
+
+blockquote:before {
+    height: 100%;
+    width: 4px;
+    content: "";
+    background: #ed2945;
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+}
+
+table {
+    display: table;
+    border-collapse: separate !important;
+    box-sizing: border-box;
+    text-indent: initial !important;
+    border-spacing: 2px;
+    border-color: gray !important;
+    width: 100%;
+    margin: 40px 0;
+}
+
+tr {
+    display: table-row;
+    vertical-align: inherit;
+    border-color: inherit;
+}
+
+tr:nth-of-type(odd) td:first-of-type {
+    border-right: 1px solid #f0f2f3;
+}
+
+tr:nth-of-type(even) td {
+    background: #f7f7f7;
+}
+
+tr td {
+    padding: 20px 30px;
+    vertical-align: top;
+}
+
+td {
+    display: table-cell;
+    vertical-align: inherit;
 }
 
 .hljs{
