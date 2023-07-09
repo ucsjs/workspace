@@ -121,7 +121,6 @@ export class MongoDBBlueprint extends Blueprint {
             }
         }
         catch(e){
-            console.log(e);
             this.next(
                 this.generateError(this, e.message, `${this.header.namespace}::${this.id}`), 
                 outputName

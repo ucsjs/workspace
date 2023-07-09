@@ -1,7 +1,7 @@
 {
-	"name": "@ucsjs/repository",
+	"name": "@ucsjs/editor",
 	"version": "1.0.0",
-	"description": "UCS.js (@repository)",
+	"description": "UCS.js (@editor)",
 	"funding": {
 		"type": "opencollective",
 		"url": "https://opencollective.com/ucsjs"
@@ -18,12 +18,5 @@
 	"bugs": {
 		"url": "https://github.com/ucsjs/workspace/issues"
 	},
-	"homepage": "https://ucsjs.io/",
-	"dependencies": {
-		"mongoose": "^7.3.2",
-		"typeorm": "^0.3.17"
-	},
-	"devDependencies": {
-		"prisma": "^4.16.2"
-	}
+	"homepage": "https://ucsjs.io/"
 }

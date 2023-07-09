@@ -1,74 +1,56 @@
-import { BlueprintController } from "@abstracts";
 import { UsersDTO, UsersUpdateDTO } from "@dtos";
-import { CachingService, TokenizerService, BlueprintService } from "@services";
+import { TokenizerService, BlueprintService } from "@services";
 import { Body, Controller, Delete, Get, Param, Post, Put, Response } from "@ucsjs/common";
-import { Flow, IBlueprintController } from "@ucsjs/core";
+
+import { 
+    Flow, 
+    IBlueprintController, 
+    Cache, 
+    GlobalModules, 
+    CacheModule, 
+    Intercept, 
+    BlueprintController 
+} from "@ucsjs/core";
 
 @Controller("users")
 export class UsersController extends BlueprintController implements IBlueprintController {
 
     constructor(
         private readonly tokenizer: TokenizerService,
-        private readonly caching: CachingService,
         private readonly blueprint: BlueprintService,
     ) { 
         super();
-        this.created();
     }
 
     async created(){
         let connectionString = await this.tokenizer.getToken("MONGODB_CONN");
         
-        if(connectionString) {
-            this.flow = await Flow.create({
-                "MongoDB": { blueprint: "MongoDB", args: { connectionString } },
-                "MongoDBSchema": { blueprint: "MongoDBSchema", args: { 
-                    name: "users",
-                    collection: "users",
-                    timestamps: true,
-                    fields: [
-                        { name: "user", type: "String", index: true, required: true },
-                        { name: "pass", type: "String", index: true, required: true },
-                    ]
-                } },
-                "MongoDBFind": { blueprint: "MongoDBFind", args: { limit: 10 } },
-                "MongoDBInsert": { blueprint: "MongoDBInsert", transforms: {
-                    query: [
-                        { blueprint: "Crypto", input: "_default", output: "_default", key: "pass" }
-                    ]
-                } },
-                "MongoDBUpdate": { blueprint: "MongoDBUpdate", transforms: {
-                    set: [
-                        { blueprint: "Crypto", input: "_default", output: "_default", key: "pass" }
-                    ]
-                } },
-                "MongoDBDelete": { blueprint: "MongoDBDelete" }
-            }, {
-                "MongoDB->_default": "MongoDBSchema->connectionName",
-                "MongoDBSchema->model": [
-                    "MongoDBFind->model", 
-                    "MongoDBInsert->model", 
-                    "MongoDBUpdate->model", 
-                    "MongoDBDelete->model"
-                ]
-            });
-        }
-        else {
-            this.catch(`Error when trying to retrieve the necessary token for the controller to work`, "UsersController");
-        }
+        if(connectionString) 
+            this.flow = await Flow.fromMetadata("users", { connectionString });        
+        else 
+            this.catch(`Error when trying to retrieve the necessary token for the controller to work`, "UsersController");        
     }
 
     @Get("/")
-    async getAll(@Response() res) {
-        return await this.blueprint.intercept(
-            this.flow, res, 
-            "MongoDBFind", "result",
-            [ { input: "query", value: {} } ],
-            this.caching, `Users::all`
-        );  
+    @Cache("Users::all")
+    async getAll(
+        @Intercept("MongoDBFind", "result", [ { input: "query", value: {} } ]) data
+    ) {
+        await GlobalModules.retrieve(CacheModule)?.set("Users::all", data);
+        return data;
     }
 
     @Get("/:id")
+    async getById(
+        @Param("id") id: string, 
+        @Intercept("MongoDBFind", "result", [ { input: "id", value: "$param.id" } ]) data
+    ) {
+        console.log(id, data);
+        //await GlobalModules.retrieve(CacheModule)?.set(`Users::${id}`, data);
+        return data;
+    }
+
+    /*@Get("/:id")
     async getById(@Param("id") id: string, @Response() res) {
         return await this.blueprint.intercept(
             this.flow, res, 
@@ -125,5 +107,5 @@ export class UsersController extends BlueprintController implements IBlueprintCo
                 }                
             }).catch(reject);
         }); 
-    }
+    }*/
 }

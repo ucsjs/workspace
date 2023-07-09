@@ -1,4 +1,3 @@
-import * as path from "path";
 import { DocsService } from "@services";
 import { Controller, Get, Param, Response } from "@ucsjs/common";
 

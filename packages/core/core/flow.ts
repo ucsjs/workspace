@@ -4,6 +4,7 @@ import {
     IBlueprint, 
     IBlueprintData, 
     IBlueprintInjectData, 
+    IBlueprintMetadata, 
     IFlowBlueprintListItem 
 } from "../interfaces";
 
@@ -30,6 +31,15 @@ export class Flow {
             flow.subscribeMulti(connections);
 
         return flow;
+    }
+
+    public static async fromMetadata(metadataName: string, args?: { [key: string]: any }): Promise<Flow>{
+        const metadata = GlobalRegistry.retrieveMetadata(metadataName, args) as IBlueprintMetadata;
+        
+        if(metadata) 
+            return await Flow.create(metadata.blueprints, metadata.connections);
+        else
+            return null;
     }
 
     public async setup(blueprints: { [key: string]: IFlowBlueprintListItem }): Promise<void>{
@@ -152,6 +162,7 @@ export class Flow {
             try{
                 await this.reset();
                 let blueprint = this.getBlueprint(blueprintName);
+                console.log(args);
                 await blueprint.injectArgs(args);
                 blueprint.subscribePromise(outputName).then(resolve).catch(reject);
                 this.buildListenAndExecute();

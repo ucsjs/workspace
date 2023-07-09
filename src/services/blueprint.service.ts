@@ -27,7 +27,6 @@ export class BlueprintService {
             }
         }
         else{
-            console.log(flow);
             throw new Error(`Error when trying to run a flow`);
         }
     }

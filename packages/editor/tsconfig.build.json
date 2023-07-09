@@ -1,0 +1,15 @@
+{
+    "extends": "../tsconfig.build.json",
+    "compilerOptions": {
+        "outDir": ".",
+        "rootDir": ".",
+        "paths": {
+            "@ucsjs/common": ["../common"],
+            "@ucsjs/common/*": ["../common/*"],
+        }
+    },
+    "exclude": ["node_modules", "dist", "test/**/*", "*.spec.ts"],
+    "references": [
+        { "path": "../common/tsconfig.build.json"},
+    ]
+}

@@ -11,7 +11,8 @@ export interface IRouteSettings {
 }
 
 export let RouteSettingsDefault = {
-    raw: false
+    raw: false,
+    cache: false,
 }
 
 export type RequestHandler<TRequest = any, TResponse = any> = {

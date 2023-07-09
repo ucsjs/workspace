@@ -15,6 +15,7 @@ import { METHOD_METADATA, MODULE_METADATA, OPTIONS_METADATA, PATH_METADATA } fro
 import { Logger } from '../services';
 import { Injector } from '../decorators';
 import { RequestMethod } from '../enums';
+import { isFunction } from '../utils';
 
 export class ExpressAdapter extends AbstractHttpAdapter<
     http.Server | https.Server
@@ -55,7 +56,7 @@ export class ExpressAdapter extends AbstractHttpAdapter<
 
         if(controllers){
             for(let controller of controllers) {
-                const router = this.createRouters(controller);
+                const router = await this.createRouters(controller);
                 this.use(router);
             }
         }
@@ -152,7 +153,7 @@ export class ExpressAdapter extends AbstractHttpAdapter<
         }
     }
 
-    private createRouters(controller): express.Router{
+    private async createRouters(controller): Promise<express.Router>{
         const router = express.Router();
         const properties = Object.getOwnPropertyNames(controller.prototype);
         const prefixController = Reflect.getMetadata(PATH_METADATA, controller);
@@ -160,34 +161,36 @@ export class ExpressAdapter extends AbstractHttpAdapter<
         if(properties){
             for (const property of properties) {
                 if (typeof controller.prototype[property] === 'function' && property !== "constructor") {
-                    const routeMetadata = Reflect.getMetadata(PATH_METADATA, controller.prototype[property]);
+                    const routeMetadata = Reflect.getMetadata(PATH_METADATA, controller.prototype[property]) as string;
                     const methodMetadata = Reflect.getMetadata(METHOD_METADATA, controller.prototype[property]);
                     const optionsMetadata = Reflect.getMetadata(OPTIONS_METADATA, controller.prototype[property]);
+                    const routeMiddlewares = Reflect.getMetadata('middlewares', controller.prototype[property]);
                     const middlewares = Reflect.getMetadata('middlewares', controller);
-                                
+
                     if (routeMetadata) {
                         const methodName = property || "";
-                        const scope = Injector.inject(controller);
+                        const scope = await Injector.inject(controller);
                         
                         if(scope[property]){
                             const handler = scope[property]?.bind(scope);
-                            const path = "/" + prefixController + routeMetadata;
+                            const path = ((prefixController.startsWith("/")) ? prefixController: "/" + prefixController) + 
+                            ((routeMetadata.startsWith("/")) ? routeMetadata : "/" + routeMetadata);
                         
                             Logger.log(`Listing route ${controller.name}::${RequestMethod[methodMetadata]} (${path})`, "Server");
             
                             switch (methodMetadata) {
                                 case RequestMethod.GET: router.get(path, 
-                                    this.processRequest(handler, methodName, middlewares, optionsMetadata)); break;
+                                    this.processRequest(scope, handler, methodName, middlewares, routeMiddlewares, optionsMetadata)); break;
                                 case RequestMethod.POST: router.post(path, 
-                                    this.processRequest(handler, methodName, middlewares, optionsMetadata)); break;
+                                    this.processRequest(scope, handler, methodName, middlewares, routeMiddlewares, optionsMetadata)); break;
                                 case RequestMethod.PUT: router.put(path, 
-                                    this.processRequest(handler, methodName, middlewares, optionsMetadata)); break;
+                                    this.processRequest(scope, handler, methodName, middlewares, routeMiddlewares, optionsMetadata)); break;
                                 case RequestMethod.PATCH: router.patch(path, 
-                                    this.processRequest(handler, methodName, middlewares, optionsMetadata)); break;
+                                    this.processRequest(scope, handler, methodName, middlewares, routeMiddlewares, optionsMetadata)); break;
                                 case RequestMethod.DELETE: router.delete(path, 
-                                    this.processRequest(handler, methodName, middlewares, optionsMetadata)); break;
+                                    this.processRequest(scope, handler, methodName, middlewares, routeMiddlewares, optionsMetadata)); break;
                                 case RequestMethod.HEAD: router.head(path, 
-                                    this.processRequest(handler, methodName, middlewares, optionsMetadata)); break;
+                                    this.processRequest(scope, handler, methodName, middlewares, routeMiddlewares, optionsMetadata)); break;
                             }
                         }
                         else{
@@ -201,12 +204,12 @@ export class ExpressAdapter extends AbstractHttpAdapter<
         return router;
     }
 
-    private getHandlerArgs(target:any, methodName: string, middlewares:[], req: express.Request, res: express.Response): any[] {
+    private getHandlerArgs(scope, target:any, methodName: string, middlewares:[], req: express.Request, res: express.Response): any[] {
         if(middlewares && middlewares.length > 0){
             let sortedMiddlewares = this.sortByKey(middlewares, "index");
-    
+
             const params = sortedMiddlewares.map((data: { key: string, index: number, middleware: Function }) => {
-                return (methodName == data.key) ? data.middleware(req, res) : null;
+                return (methodName == data.key) ? data.middleware(req, res, scope) : null;
             }).filter(item => item);
     
             return params;
@@ -216,14 +219,33 @@ export class ExpressAdapter extends AbstractHttpAdapter<
         }
     }
 
-    private processRequest(handler: Function, methodName: string, middlewares: [], options: IRouteSettings = RouteSettingsDefault) {
+    private processRequest(
+        scope,
+        handler: Function, 
+        methodName: string, 
+        middlewares: [], 
+        routeMiddlewares: [] = [], 
+        options: IRouteSettings = RouteSettingsDefault
+    ) {
         return async (req: express.Request, res: express.Response) => {	
             try{
-                const startTimeout = new Date().getTime();
-                const args = this.getHandlerArgs(handler, methodName, middlewares, req, res);
-                const buffer = await handler(...args);
-                const endTimeout = new Date().getTime();
+                const startTimeout = new Date().getTime();                
+                let buffer = null;
+
+                if(routeMiddlewares.length > 0){
+                    for await(let middleware of routeMiddlewares){
+                        if(isFunction(middleware))
+                            buffer = await (middleware as Function).call(handler, req, res);
+                    }
+                }
                 
+                if(!buffer){
+                    const args = this.getHandlerArgs(scope, handler, methodName, middlewares, req, res);
+                    buffer = await handler(...args);
+                }
+                    
+                const endTimeout = new Date().getTime();
+
                 if((typeof buffer === "string" && buffer.length > 0) || typeof buffer === "object") {
                     if(options.raw){
                         Logger.debug(`Request HTTP 200: ${req.path}`, "Server");
@@ -262,4 +284,8 @@ export class ExpressAdapter extends AbstractHttpAdapter<
             return 0;
         });
     }
+}
+
+function CACHE_PATH(CACHE_PATH: any, arg1: any) {
+    throw new Error('Function not implemented.');
 }

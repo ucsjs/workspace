@@ -3,6 +3,7 @@ import * as express from 'express';
 import { IRouteSettings, RequestMappingMetadata, RouteSettingsDefault } from "../../interfaces";
 import { PATH_METADATA, METHOD_METADATA, OPTIONS_METADATA } from "../../constants";
 import { RequestMethod } from "../../enums";
+import { extendArrayMetadata } from '../../utils';
 
 export const RequestMapping = (metadata: RequestMappingMetadata = { [PATH_METADATA]: '/', [METHOD_METADATA]: RequestMethod.GET, [OPTIONS_METADATA]: {} }): MethodDecorator => {
 	const pathMetadata = metadata[PATH_METADATA];
@@ -40,30 +41,16 @@ export const Options = createMappingDecorator(RequestMethod.OPTIONS);
 export const Head = createMappingDecorator(RequestMethod.HEAD);
 export const All = createMappingDecorator(RequestMethod.ALL);
 
-export const Param = (param: string): ParameterDecorator => {
+export const Param = (name?: string): ParameterDecorator => {
 	return (target: any, key: string | symbol, index: number) => {
-	  const middleware = (req: express.Request) => req.params[param];
+	  const middleware = (req: express.Request) => (name) ? req.params[name] : req.params;
 	  addRouteMiddleware(target, key, index, middleware);
 	};
 };
 
-export const Params = (param: string): ParameterDecorator => {
+export const Query = (name?: string): ParameterDecorator => {
 	return (target: any, key: string | symbol, index: number) => {
-	  const middleware = (req: express.Request) => req.params;
-	  addRouteMiddleware(target, key, index, middleware);
-	};
-};
-
-export const Querys = (param: string): ParameterDecorator => {
-	return (target: any, key: string | symbol, index: number) => {
-	  const middleware = (req: express.Request) => req.query;
-	  addRouteMiddleware(target, key, index, middleware);
-	};
-};
-
-export const Query = (param: string): ParameterDecorator => {
-	return (target: any, key: string | symbol, index: number) => {
-	  const middleware = (req: express.Request) => req.query[param];
+	  const middleware = (req: express.Request) => (name) ? req.query[name] : req.query;
 	  addRouteMiddleware(target, key, index, middleware);
 	};
 };
@@ -75,9 +62,9 @@ export const Headers = (param: string): ParameterDecorator => {
 	};
 };
 
-export const Body = (): ParameterDecorator => {
+export const Body = (name?: string): ParameterDecorator => {
 	return (target: any, key: string | symbol, index: number) => {
-		const middleware = (req: express.Request) => req.body;
+		const middleware = (req: express.Request) => (name) ? req.body[name] : req.body;
 		addRouteMiddleware(target, key, index, middleware);
 	};
 };
@@ -104,10 +91,5 @@ export const Response = (): ParameterDecorator => {
 };
 
 function addRouteMiddleware(target: any, key: string | symbol, index: number, middleware: (req: express.Request, res: express.Response) => any) {
-	if (!Reflect.hasMetadata('middlewares', target.constructor)) 
-	  Reflect.defineMetadata('middlewares', [], target.constructor);
-	  
-	const middlewares = Reflect.getMetadata('middlewares', target.constructor) as any[];
-	middlewares.push({ key, index, middleware });
-	Reflect.defineMetadata('middlewares', middlewares, target.constructor);
+	extendArrayMetadata<any>("middlewares", { key, index, middleware }, target.constructor);
 }

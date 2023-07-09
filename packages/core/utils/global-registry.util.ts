@@ -2,7 +2,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import { glob } from 'glob';
 
-import { Singleton, Logger } from "@ucsjs/common";
+import { Singleton, Logger, isObject, isString } from "@ucsjs/common";
 import { IBlueprint, IBlueprintSettings, IBlueprintTransform } from "../interfaces";
 import { Blueprint, Flow } from "../core";
 
@@ -10,6 +10,8 @@ export class GlobalRegistry extends Singleton {
     private directory: string | Array<string>;
 
     public registry: Map<string, any> = new Map();
+
+    public metadatas: Map<string, any> = new Map();
 
     static async registerDirectory(directories: string | Array<string>, clearRegistry: boolean = true) {
         const globalRegistry = GlobalRegistry.getInstance();
@@ -53,10 +55,30 @@ export class GlobalRegistry extends Singleton {
         }            
     }
 
+    static async loadMetadata(directories: string | Array<string>, clearRegistry: boolean = true){
+        const globalRegistry = GlobalRegistry.getInstance();
+        const files = await glob(directories, {  });
+
+        for (const file of files) {
+            const metadata = require(file);
+            const namespace = path.basename(file).replace(".metadata.json", "");
+
+            if(!globalRegistry.metadatas.has(namespace))
+                globalRegistry.metadatas.set(namespace, metadata);
+        }
+    }
+
     static async load() {
+        //Load Blueprints
         let directoryPackages = path.resolve((process.env.NODE_ENV == "prod") ? "./node_modules/@ucsjs/**/*.blueprint.js" : "./packages/**/*.blueprint.ts");
         let directory = path.resolve((process.env.NODE_ENV == "prod") ? "./dist/**/*.blueprint.js" : "./src/**/*.blueprint.ts");
         await GlobalRegistry.registerDirectory([directoryPackages, directory]);
+
+        //Load Metadatas
+        let directoryMetadata = path.resolve((process.env.NODE_ENV == "prod") ? "./dist/.metadata/*.metadata.json" : "./src/.metadata/*.metadata.json");
+        let directorySubMetadata = path.resolve((process.env.NODE_ENV == "prod") ? "./dist/.metadata/**/*.metadata.json" : "./src/.metadata/**/*.metadata.json");
+        await GlobalRegistry.loadMetadata([directoryMetadata, directorySubMetadata])
+
         return this;
     }
 
@@ -116,6 +138,36 @@ export class GlobalRegistry extends Singleton {
         else{
             return null;
         };
+    }
+
+    static retrieveMetadata(key: string, args?: { [key: string]: any }): any{
+        const globalRegistry = GlobalRegistry.getInstance();
+        let metadata = (globalRegistry.metadatas.has(key)) ? globalRegistry.metadatas.get(key) : null;
+
+        if(metadata){
+            try{
+                for (let blueprintKey in metadata.blueprints) {
+                    if(isObject(metadata.blueprints[blueprintKey].args)) {
+                        for(let argKey in metadata.blueprints[blueprintKey].args){
+                            if(
+                                isString(metadata.blueprints[blueprintKey].args[argKey]) &&
+                                metadata.blueprints[blueprintKey].args[argKey].includes("$args:")
+                            ){
+                                const key = metadata.blueprints[blueprintKey].args[argKey].replace("$args:", "").trim();
+    
+                                if(args[key])
+                                    metadata.blueprints[blueprintKey].args[argKey]= args[key];
+                            }
+                        }
+                    }
+                }
+            } catch { }
+            
+            return metadata;
+        }
+        else{
+            return null;
+        }
     }
 
     static retrieveAll(): any[] {

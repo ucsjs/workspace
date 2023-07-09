@@ -131,3 +131,8 @@ export interface IBlueprintTransform {
     output: string,
     key: string
 }
+
+export interface IBlueprintMetadata {
+    blueprints: { [key: string]: any },
+    connections?: { [key: string]: string | Array<string> }
+}

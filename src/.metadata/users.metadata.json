@@ -1,0 +1,58 @@
+{
+    "blueprints": {
+        "MongoDB": { 
+            "blueprint": "MongoDB", 
+            "args": { "connectionString": "$args:connectionString" } 
+        },
+        "MongoDBSchema": { "blueprint": "MongoDBSchema", "args": { 
+            "name": "users",
+            "collection": "users",
+            "timestamps": true,
+            "fields": [
+                { 
+                    "name": "user", 
+                    "type": "String", 
+                    "index": true, 
+                    "required": true 
+                },
+                { 
+                    "name": "pass", 
+                    "type": "String", 
+                    "index": true, 
+                    "required": true 
+                }
+            ]
+        } },
+        "MongoDBFind": { "blueprint": "MongoDBFind", "args": { "limit": 10 } },
+        "MongoDBInsert": { "blueprint": "MongoDBInsert", "transforms": {
+            "query": [
+                { 
+                    "blueprint": "Crypto", 
+                    "input": "_default", 
+                    "output": "_default", 
+                    "key": "pass" 
+                }
+            ]
+        } },
+        "MongoDBUpdate": { "blueprint": "MongoDBUpdate", "transforms": {
+            "set": [
+                { 
+                    "blueprint": "Crypto", 
+                    "input": "_default", 
+                    "output": "_default", 
+                    "key": "pass" 
+                }
+            ]
+        } },
+        "MongoDBDelete": { "blueprint": "MongoDBDelete" }
+    },
+    "connections": {
+        "MongoDB->_default": "MongoDBSchema->connectionName",
+        "MongoDBSchema->model": [
+            "MongoDBFind->model", 
+            "MongoDBInsert->model", 
+            "MongoDBUpdate->model", 
+            "MongoDBDelete->model"
+        ]
+    }
+}

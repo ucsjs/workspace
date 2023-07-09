@@ -1,5 +1,5 @@
-import { Flow, HTTPUtils, IBlueprintControllerCatch, IBlueprintData } from "@ucsjs/core";
-import { CachingService } from "@services";
+import { Flow } from "../core";
+import { IBlueprintControllerCatch } from "../interfaces";
 
 export abstract class BlueprintController {
     protected flow: Flow;
@@ -10,7 +10,11 @@ export abstract class BlueprintController {
         this.catchExeption = { message, scope };
     }
 
-    protected async getOrCreateCaching(caching: CachingService, key: string, createPromise: Promise<IBlueprintData>){
+    public getFlow(){
+        return this.flow;
+    }
+
+    /*protected async getOrCreateCaching(caching: CachingService, key: string, createPromise: Promise<IBlueprintData>){
         return (this.catchExeption) ? this.catchExeption : await caching.get(key).then((data) => data).catch(() => {
             return new Promise((resolve, reject) => {
                 createPromise.then(async (data) => {
@@ -37,7 +41,7 @@ export abstract class BlueprintController {
                 });
             });            
         });  
-    }
+    }*/
 
     created(){ }
 }
