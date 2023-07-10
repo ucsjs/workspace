@@ -1,11 +1,15 @@
 import * as express from 'express';
 
-import { IRouteSettings, RequestMappingMetadata, RouteSettingsDefault } from "../../interfaces";
+import { IRouteSettings, RequestMappingMetadata } from "../../interfaces";
 import { PATH_METADATA, METHOD_METADATA, OPTIONS_METADATA } from "../../constants";
 import { RequestMethod } from "../../enums";
 import { extendArrayMetadata } from '../../utils';
 
-export const RequestMapping = (metadata: RequestMappingMetadata = { [PATH_METADATA]: '/', [METHOD_METADATA]: RequestMethod.GET, [OPTIONS_METADATA]: {} }): MethodDecorator => {
+export const RequestMapping = ( metadata: RequestMappingMetadata = { 
+	[PATH_METADATA]: '/', 
+	[METHOD_METADATA]: RequestMethod.GET, 
+	[OPTIONS_METADATA]: {} 
+}): MethodDecorator => {
 	const pathMetadata = metadata[PATH_METADATA];
 	const path = pathMetadata && pathMetadata.length ? pathMetadata : '/';
 	const requestMethod = metadata[METHOD_METADATA] || RequestMethod.GET;
@@ -72,7 +76,7 @@ export const Body = (name?: string): ParameterDecorator => {
 export function Header(name: string, value: string): MethodDecorator {
 	return (target: any, key: string | symbol) => {
 		const middleware = (req: express.Request, res: express.Response) => res.setHeader(name, value);
-		addRouteMiddleware(target, key, 0, middleware);
+		addRouteMiddleware(target, key, -1, middleware);
 	};
 }
 
@@ -90,6 +94,16 @@ export const Response = (): ParameterDecorator => {
 	};
 };
 
-function addRouteMiddleware(target: any, key: string | symbol, index: number, middleware: (req: express.Request, res: express.Response) => any) {
-	extendArrayMetadata<any>("middlewares", { key, index, middleware }, target.constructor);
+function addRouteMiddleware(
+	target: any, 
+	key: string | symbol, 
+	index: number, 
+	middleware: (req: express.Request, res: express.Response) => any
+) {
+	extendArrayMetadata<any>("middlewares", { 
+		key, 
+		index, 
+		controller: target.constructor.name, 
+		middleware 
+	}, target.constructor);
 }

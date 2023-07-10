@@ -1,0 +1,23 @@
+package editor;
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+message FileList {
+    repeated FileInfo items = 1;
+}
+
+message FileInfo {
+    string name = 1;
+    string path = 2;
+    string filename = 3;
+    bool isDirectory = 4;
+    bool isFile = 5;
+    string pathHash = 6;
+    string sha256 = 7;
+    google.protobuf.Timestamp lastModified = 8;
+    optional string ext = 9;
+    optional string mime = 10;
+    optional bool hasMetadata = 11;
+    optional string language = 12;
+}

@@ -1,0 +1,25 @@
+{
+	"name": "@ucsjs/protobuf",
+	"version": "1.0.0",
+	"description": "UCS.js (@protobuf)",
+	"funding": {
+		"type": "opencollective",
+		"url": "https://opencollective.com/ucsjs"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ucsjs/workspace.git"
+	},
+	"author": "Andre Ferreira",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/ucsjs/workspace/issues"
+	},
+	"homepage": "https://ucsjs.io/",
+	"dependencies": {
+		"protobufjs": "^7.2.4"
+	}
+}

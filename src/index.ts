@@ -1,8 +1,13 @@
-import { Application } from "@ucsjs/common";
+import { Application, WsAdapter } from "@ucsjs/common";
 import { CacheModule, GlobalModules, GlobalRegistry } from "@ucsjs/core";
+import { GlobalProto } from "@ucsjs/protobuf";
+import { EditorModule } from "@ucsjs/editor";
 
 (async () => {
-    await GlobalRegistry.load();
+    await Promise.all([
+        GlobalRegistry.load(),
+        GlobalProto.load()
+    ]);
 
     GlobalModules.register(CacheModule, {
         //store: ioRedisStore,
@@ -12,9 +17,10 @@ import { CacheModule, GlobalModules, GlobalRegistry } from "@ucsjs/core";
     });
 
     const app = await Application.create(await GlobalModules.dynamicModule({
-        constrollers: ["./**/*.controller.ts"]
+        controllers: ["./**/*.controller.ts"],
+        imports: [EditorModule]
     }));
 
-    const port: number = parseInt(process.env.PORT) || 3050;  
-    app.listen(port);
+    app.useWebSocketAdapter(new WsAdapter(app));
+    app.listen(process.env.PORT || 3050);
 })();

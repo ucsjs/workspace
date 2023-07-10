@@ -18,5 +18,10 @@
 	"bugs": {
 		"url": "https://github.com/ucsjs/workspace/issues"
 	},
-	"homepage": "https://ucsjs.io/"
+	"homepage": "https://ucsjs.io/",
+	"dependencies": {
+		"fast-glob": "^3.3.0",
+		"language-detect": "^1.1.0",
+		"mime-types": "^2.1.35"
+	}
 }

@@ -1,7 +1,6 @@
 import { extendArrayMetadata } from "@ucsjs/common";
 import { BlueprintController } from "../abstracts";
 import { BLUEPRINT_INPUTS, BLUEPRINT_TRIGGERS } from "../constants";
-import { Flow } from "../core";
 import { IBlueprintInjectData } from "../interfaces";
 
 export const Input = (name: string): MethodDecorator => {

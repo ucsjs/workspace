@@ -2,6 +2,8 @@ import { glob } from "glob";
 
 import { 
     IModule, 
+    IModuleSettings, 
+    isObject, 
     isString, 
     MODULE_METADATA, 
     PATH_METADATA, 
@@ -29,12 +31,12 @@ export class GlobalModules extends Singleton {
         return null;
     }
 
-    static async dynamicModule(dirSettings: { constrollers: Array<string> | string }): Promise<Object>{
+    static async dynamicModule(settings: IModuleSettings): Promise<Object>{
         let module = new Object();
         let controllers = [];
 
-        if(isString(dirSettings.constrollers) || Array.isArray(dirSettings.constrollers)){
-            const files = await glob(dirSettings.constrollers);
+        if(settings.controllers && Array.isArray(settings.controllers)){
+            const files = await glob(settings.controllers.filter((item) => isString(item)));
 
             for(let file of files){
                 const controller = require(file);
@@ -48,7 +50,8 @@ export class GlobalModules extends Singleton {
             }
         }
 
-        Reflect.defineMetadata(MODULE_METADATA, { controllers }, module);
+        controllers = [...controllers, ...settings.controllers.filter((item) => isObject(item))];
+        Reflect.defineMetadata(MODULE_METADATA, { controllers, imports: settings.imports }, module);
         return module;
     }
 }

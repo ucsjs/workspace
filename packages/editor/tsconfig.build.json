@@ -6,10 +6,16 @@
         "paths": {
             "@ucsjs/common": ["../common"],
             "@ucsjs/common/*": ["../common/*"],
+            "@ucsjs/core": ["../core"],
+            "@ucsjs/core/*": ["../core/*"],
+            "@ucsjs/protobuf": ["../protobuf"],
+            "@ucsjs/protobuf/*": ["../protobuf/*"]
         }
     },
     "exclude": ["node_modules", "dist", "test/**/*", "*.spec.ts"],
     "references": [
         { "path": "../common/tsconfig.build.json"},
+        { "path": "../core/tsconfig.build.json"},
+        { "path": "../protobuf/tsconfig.build.json"},
     ]
 }

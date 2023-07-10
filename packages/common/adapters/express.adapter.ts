@@ -1,4 +1,5 @@
 import type { Server } from 'http';
+import * as stream from "stream";
 import * as bodyparser from 'body-parser';
 import * as cors from 'cors';
 import * as express from 'express';
@@ -51,15 +52,41 @@ export class ExpressAdapter extends AbstractHttpAdapter<
             cookie: { secure: true, maxAge: 60000 }
         }));
 
-        let metadata = Reflect.getMetadata(MODULE_METADATA, moduleCls);
-        let controllers = metadata?.controllers;
+        
+        await this.importModule(moduleCls);
+    }
 
-        if(controllers){
-            for(let controller of controllers) {
-                const router = await this.createRouters(controller);
-                this.use(router);
+    public async importModule(moduleCls: any){
+        Logger.log(`Loading module ${(moduleCls.name) ? moduleCls.name : "DynamicModel" }`, "Server");
+
+        let metadata = Reflect.getMetadata(MODULE_METADATA, moduleCls);
+
+        if(metadata){
+            let controllers = metadata?.controllers;
+            let imports = metadata?.imports;
+
+            //Import controllers
+            if(controllers){
+                for(let controller of controllers) {
+                    const router = await this.createRouters(controller);
+                    this.use(router);
+                }
+            }
+
+            //Impots
+            if(imports){
+                for await(let importCls of imports) {
+                    if(this.isModule(importCls)){
+                        this.importModule(importCls);
+                    }
+                }
             }
         }
+    }
+
+    public isModule(moduleCls: any): boolean{
+        let metadata = Reflect.getMetadata(MODULE_METADATA, moduleCls);
+        return (metadata);
     }
 
     public initHttpServer(options: any) {
@@ -175,22 +202,25 @@ export class ExpressAdapter extends AbstractHttpAdapter<
                             const handler = scope[property]?.bind(scope);
                             const path = ((prefixController.startsWith("/")) ? prefixController: "/" + prefixController) + 
                             ((routeMetadata.startsWith("/")) ? routeMetadata : "/" + routeMetadata);
+                            const processHandler = this.processRequest(
+                                scope, 
+                                controller.name, 
+                                handler, 
+                                methodName, 
+                                middlewares, 
+                                routeMiddlewares, 
+                                optionsMetadata
+                            );
                         
                             Logger.log(`Listing route ${controller.name}::${RequestMethod[methodMetadata]} (${path})`, "Server");
             
                             switch (methodMetadata) {
-                                case RequestMethod.GET: router.get(path, 
-                                    this.processRequest(scope, handler, methodName, middlewares, routeMiddlewares, optionsMetadata)); break;
-                                case RequestMethod.POST: router.post(path, 
-                                    this.processRequest(scope, handler, methodName, middlewares, routeMiddlewares, optionsMetadata)); break;
-                                case RequestMethod.PUT: router.put(path, 
-                                    this.processRequest(scope, handler, methodName, middlewares, routeMiddlewares, optionsMetadata)); break;
-                                case RequestMethod.PATCH: router.patch(path, 
-                                    this.processRequest(scope, handler, methodName, middlewares, routeMiddlewares, optionsMetadata)); break;
-                                case RequestMethod.DELETE: router.delete(path, 
-                                    this.processRequest(scope, handler, methodName, middlewares, routeMiddlewares, optionsMetadata)); break;
-                                case RequestMethod.HEAD: router.head(path, 
-                                    this.processRequest(scope, handler, methodName, middlewares, routeMiddlewares, optionsMetadata)); break;
+                                case RequestMethod.GET: router.get(path, processHandler); break;
+                                case RequestMethod.POST: router.post(path, processHandler); break;
+                                case RequestMethod.PUT: router.put(path, processHandler); break;
+                                case RequestMethod.PATCH: router.patch(path, processHandler); break;
+                                case RequestMethod.DELETE: router.delete(path, processHandler); break;
+                                case RequestMethod.HEAD: router.head(path, processHandler); break;
                             }
                         }
                         else{
@@ -204,12 +234,29 @@ export class ExpressAdapter extends AbstractHttpAdapter<
         return router;
     }
 
-    private getHandlerArgs(scope, target:any, methodName: string, middlewares:[], req: express.Request, res: express.Response): any[] {
+    private getHandlerArgs(
+        scope, 
+        controller: string, 
+        target:any, 
+        methodName: string, 
+        middlewares:[], 
+        req: express.Request, 
+        res: express.Response
+    ): any[] {
         if(middlewares && middlewares.length > 0){
             let sortedMiddlewares = this.sortByKey(middlewares, "index");
 
-            const params = sortedMiddlewares.map((data: { key: string, index: number, middleware: Function }) => {
-                return (methodName == data.key) ? data.middleware(req, res, scope) : null;
+            const params = sortedMiddlewares.map((data: { 
+                key: string, 
+                index: number, 
+                controller: string, 
+                middleware: Function 
+            }) => {
+                return (
+                    methodName === data.key && 
+                    data.controller === controller && 
+                    data.index >= 0
+                ) ? data.middleware(req, res, scope) : null;
             }).filter(item => item);
     
             return params;
@@ -219,8 +266,32 @@ export class ExpressAdapter extends AbstractHttpAdapter<
         }
     }
 
+    async processMiddlewares(
+        scope, 
+        controller: string, 
+        methodName: string, 
+        middlewares:[], 
+        req: express.Request, 
+        res: express.Response
+    ): Promise<void>{
+        if(middlewares && middlewares.length > 0){
+            let sortedMiddlewares = this.sortByKey(middlewares, "index");
+
+            for await (let metadata of sortedMiddlewares){
+                if(
+                    methodName === metadata.key && 
+                    metadata.controller === controller && 
+                    metadata.index < 0
+                ){
+                    metadata.middleware(req, res, scope)
+                }
+            }
+        }
+    }
+
     private processRequest(
         scope,
+        controller: string, 
         handler: Function, 
         methodName: string, 
         middlewares: [], 
@@ -240,7 +311,25 @@ export class ExpressAdapter extends AbstractHttpAdapter<
                 }
                 
                 if(!buffer){
-                    const args = this.getHandlerArgs(scope, handler, methodName, middlewares, req, res);
+                    const args = this.getHandlerArgs(
+                        scope, 
+                        controller, 
+                        handler, 
+                        methodName, 
+                        middlewares, 
+                        req, 
+                        res
+                    );
+
+                    await this.processMiddlewares(
+                        scope, 
+                        controller,
+                        methodName, 
+                        middlewares, 
+                        req, 
+                        res
+                    );    
+
                     buffer = await handler(...args);
                 }
                     
@@ -260,6 +349,13 @@ export class ExpressAdapter extends AbstractHttpAdapter<
                             data: buffer 
                         });
                     }
+                }
+                else if(buffer instanceof Uint8Array){
+                    const readStream = new stream.PassThrough();
+                    readStream.end(buffer);
+                    res.set("Content-disposition", 'attachment; filename=' + "test.docx");
+                    res.set("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+                    readStream.pipe(res);
                 }
                 else
                     res.status(204).end();
