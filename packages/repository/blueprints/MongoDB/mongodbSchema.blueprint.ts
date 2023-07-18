@@ -18,8 +18,11 @@ export default class MongoDBSchema extends Blueprint {
         useInEditor: true,
         version: 1,
         namespace: "MongoDBSchema",
-        group: "MongoDB",
+        group: "Repository",
+        icon: "/assets/img/mongodb.png",
         helpLink: "https://mongoosejs.com/docs/guide.html",
+        displayName: "MongoDB Schema",
+        editorHeaderColor: "#419343",
         inputs: [{ 
             name: "connectionName", 
             type: Types.String 

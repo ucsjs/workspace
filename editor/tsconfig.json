@@ -1,0 +1,47 @@
+{
+	"compilerOptions": {
+		"target": "esnext",
+		"module": "esnext",
+		"strict": true,
+		"jsx": "preserve",
+		"jsxImportSource": "vue",
+		"moduleResolution": "node",
+		"allowJs": true,
+		"resolveJsonModule": true,
+		"noLib": false,
+		"forceConsistentCasingInFileNames": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"noEmitOnError": false,
+		"noUnusedLocals": true,
+		"importHelpers": true,
+		"experimentalDecorators": true,
+		"useDefineForClassFields": true,
+		"emitDecoratorMetadata": true,
+		"noImplicitThis": false,
+		"noImplicitReturns": true,
+		"noImplicitAny": false,
+		"noEmit": false,
+		"allowSyntheticDefaultImports": true,
+		"allowUnreachableCode": true,
+		"useUnknownInCatchVariables": false,
+		"baseUrl": ".",
+		"lib": ["esnext", "dom", "dom.iterable", "scripthost"],
+		"typeRoots": ["../node_modules/@types", "../node_modules/vuetify/types"],
+		"paths": {
+			"@interfaces": ["src/interfaces"],
+			"@components": ["src/components"],
+			"@component/*": ["src/components/*"],
+			"@mixins/*": ["src/mixins/*"],
+			"@stores/*": ["src/stores/*"],
+			"@": ["src"],
+			"@/*": ["src/*"],
+			"~": ["src"],
+			"~/*": ["src/*"]
+		}		
+	},
+	"files": ["./vue-shims.d.ts"],
+	"include": ["src/**/*.ts", "src/**/*.vue"],
+	"exclude": ["node_modules"]
+}
+  

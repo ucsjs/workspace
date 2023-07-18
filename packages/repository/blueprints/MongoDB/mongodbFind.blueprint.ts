@@ -9,8 +9,11 @@ export default class MongoDBFind extends MongoDBBlueprint {
         useInEditor: true,
         version: 1,
         namespace: "MongoDBFind",
-        group: "MongoDB",
+        group: "Repository",
+        icon: "/assets/img/mongodb.png",
         helpLink: "https://mongoosejs.com/docs/models.html#querying",
+        displayName: "MongoDB Find",
+        editorHeaderColor: "#419343",
         outputs: [{ 
             name: "result", 
             type: Types.Object 

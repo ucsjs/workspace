@@ -5,7 +5,7 @@ import UUID from "vue3-uuid";
 import Draggable from "vue3-draggable";
 import 'vue3-perfect-scrollbar/dist/vue3-perfect-scrollbar.css'
 
-import App from './App.vue';
+import App from '@/App.vue';
 
 const app = createApp(App);
 app.use(UUID);

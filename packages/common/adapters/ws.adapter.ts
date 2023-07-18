@@ -12,7 +12,7 @@ export class WsAdapter implements WebSocketAdapter {
     constructor(private app: UCSApplication) {}
 
     create(server: AbstractHttpAdapter, options?: any): any {
-        return new WebSocket.Server({ server, ...options });
+        return new WebSocket.Server({ server: server.getHttpServer(), ...options });
     }
 
     bindClientConnect(server, callback: Function) {

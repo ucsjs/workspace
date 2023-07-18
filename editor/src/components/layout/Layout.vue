@@ -116,11 +116,13 @@ export default defineComponent({
                     rows: [ { items: [ item ], currentItemSelected: 0 } ]
                 };
 
-                if(unshift)
+                if(this.contents){
+                    if(unshift)
                     this.contents.unshift(newPanel);
                 else 
                     this.contents.push(newPanel);
-
+                }
+                
                 this.removeEmptyPanels();
             }
         },
@@ -131,14 +133,14 @@ export default defineComponent({
 
         removeEmptyPanels(){
             if(this.storage.inDrag){
-                this.contents = this.contents.filter((item) => item.rows.length > 0); 
+                this.contents = (this.contents) ? this.contents?.filter((item) => item.rows.length > 0) : null; 
                 this.reIndex();
             }               
         },
 
         reIndex(){
             for(let itemKey in this.index){
-                if(this.contents.filter((item) => item.id === itemKey).length === 0){
+                if(this.contents?.filter((item) => item.id === itemKey).length === 0){
                     this.index.delete(itemKey);
                 }
             }                

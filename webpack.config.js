@@ -2,7 +2,8 @@ const path = require('path');
 const fs = require('fs');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const LiveReloadPlugin = require('webpack-livereload-plugin');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const TsconfigPathsPlugin  = require('tsconfig-paths-webpack-plugin');
 const tailwindcss = require('tailwindcss');
 const autoprefixer = require('autoprefixer');
 const { VueLoaderPlugin } = require('vue-loader');
@@ -12,9 +13,10 @@ const isAnalyze = !!process.env.ANALYSE;
 const analyzerMode = isAnalyze ? "server" : "disabled";
 
 module.exports = {
+    context : path.resolve(process.cwd(), 'editor/src'),
     watch: true,
     mode: 'development',
-    entry: './editor/src/main.ts',
+    entry: './main.ts',
     stats: 'errors-only',
     devtool: 'source-map',
     output: {
@@ -22,11 +24,18 @@ module.exports = {
         path: path.resolve('./editor')
     },
     resolve: {
-        extensions: ['.ts', '.js'],
+        extensions: ['.ts', '.js', '.vue', '.json'],
         alias: { 
             '@': path.resolve('./editor/src'),
+            '@interfaces': path.resolve('./editor/src/interfaces'),
+            '@components': path.resolve('./editor/src/components'),
+            '@mixins': path.resolve('./editor/src/mixins'),
+            '@stores': path.resolve('./editor/src/stores'),
             'vue$': 'vue/dist/vue.esm-bundler.js',
         },
+        plugins: [
+            new TsconfigPathsPlugin(),
+        ],
     },
     plugins: [
         new MiniCssExtractPlugin({ filename: 'assets/bundle.min.css' }),
@@ -40,7 +49,7 @@ module.exports = {
                 test: /\.ts$/, 
                 loader: 'ts-loader', 
                 options: {
-                    compilerOptions: JSON.parse(fs.readFileSync("./tsconfig.editor.json")),
+                    compilerOptions: JSON.parse(fs.readFileSync("./editor/tsconfig.json")),
                     appendTsSuffixTo: [/\.vue$/]
                 } 
             },

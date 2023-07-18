@@ -11,12 +11,14 @@ export class GlobalProto extends Singleton {
         let directoryPackages = path.resolve((process.env.NODE_ENV == "prod") ? "./node_modules/@ucsjs/**/*.proto" : "./packages/**/*.proto");
         let directory = path.resolve((process.env.NODE_ENV == "prod") ? "./dist/**/*.proto" : "./src/**/*.proto");
         
-        const files = await glob([directoryPackages, directory]);
-        
+        const files = await glob([directoryPackages, directory], { ignore: "node_modules/**" });
+                
         for await(let filename of files){
-            const protoName = path.basename(filename);
-            const root = await protobuf.load(path.resolve(filename));
-            this.register(protoName, root);
+            if(!filename.includes("node_modules")){
+                const protoName = path.basename(filename);
+                const root = await protobuf.load(path.resolve(filename));
+                this.register(protoName, root);
+            }            
         }
     }
 

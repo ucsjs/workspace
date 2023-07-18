@@ -7,6 +7,7 @@
                 class="grid-contents block shadow-black shadow-inner" 
                 style="width: 5000px; height: 5000px" 
                 ref="contents"  
+                @contextmenu="openNodeNavbar"
                 @click="deselectIfClickedOutside"
                 @drop="dropHandler" 
                 @dragover.prevent
@@ -22,7 +23,7 @@
                     ref="inputs"
                 ></blueprint-inputs>
 
-                <blueprint-inspector :rootItem="rootItem" @click.stop></blueprint-inspector>
+                <blueprint-inspector v-if="rootItem" :rootItem="rootItem" @click.stop></blueprint-inspector>
 
                 <drag-handle 
                     @dragged="({ deltaX, deltaY }) => updatePosition(item[0], deltaX, deltaY)" 
@@ -40,6 +41,8 @@
                         ref="components"                    
                     ></blueprint-component>
                 </drag-handle>
+
+                <blueprint-nodes-navbar ref="nodesNavbar"></blueprint-nodes-navbar>
             </div>
         </perfect-scrollbar>
     </div>
@@ -82,6 +85,7 @@ import BlueprintNavbar from "./BlueprintNavbar.vue";
 import BlueprintInputs from "./BlueprintInputs.vue";
 import BlueprintComponent from "./BlueprintComponent.vue";
 import BlueprintInspector from "./BlueprintInspector.vue";
+import BlueprintNodesNavbar from "./BlueprintNodesNavbar.vue";
 
 export default defineComponent({
     components: { 
@@ -89,7 +93,8 @@ export default defineComponent({
         BlueprintNavbar,
         BlueprintInputs, 
         BlueprintComponent,
-        BlueprintInspector 
+        BlueprintInspector,
+        BlueprintNodesNavbar 
     },
 
     props: {
@@ -101,10 +106,10 @@ export default defineComponent({
 
     data(): IBlueprintEditor {
         return {
-            dragItem: null,
-            inputSelected: null,
-            selectedItem: null,
-            rootItem: null, 
+            dragItem: undefined,
+            inputSelected: undefined,
+            selectedItem: undefined,
+            rootItem: undefined, 
             items: new Map<string, IBlueprintComponent>()
         }
     },
@@ -162,7 +167,7 @@ export default defineComponent({
             this.saveLocal();
         },
 
-        selectItem(componentId: string, rootId: IBlueprintComponent){
+        selectItem(componentId: string, rootId: IBlueprintComponent | IBlueprintInput | undefined){
             this.selectedItem = componentId;
             this.rootItem = rootId;
         },
@@ -190,6 +195,11 @@ export default defineComponent({
                 this.selectedItem = null;
                 this.rootItem = null;
             }                
+        },
+
+        openNodeNavbar(e){
+            this.$refs.nodesNavbar.open();
+            e.preventDefault();
         },
 
         saveLocal(){

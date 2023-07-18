@@ -8,8 +8,11 @@ export default class MongoDBUpdate extends MongoDBBlueprint {
         useInEditor: true,
         version: 1,
         namespace: "MongoDBUpdate",
-        group: "MongoDB",
+        group: "Repository",
+        icon: "/assets/img/mongodb.png",
         helpLink: "https://mongoosejs.com/docs/documents.html#updating-using-queries",
+        displayName: "MongoDB Update",
+        editorHeaderColor: "#419343",
         outputs: [{ 
             name: "result", 
             type: Types.Boolean 

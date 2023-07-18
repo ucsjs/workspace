@@ -2,9 +2,9 @@ import { IBlueprintInput } from "./IBlueprintInputs";
 import { IBlueprintComponent } from "./IBlueprintComponent";
 
 export interface IBlueprintEditor {
-    dragItem?: IBlueprintInput | null,
-    inputSelected?: string | null,
-    selectedItem: string | null,
-    rootItem?: IBlueprintComponent,
+    dragItem?: IBlueprintInput | undefined,
+    inputSelected?: string | undefined,
+    selectedItem: string | undefined,
+    rootItem?: IBlueprintComponent | undefined,
     items: Map<string, IBlueprintComponent>
 }

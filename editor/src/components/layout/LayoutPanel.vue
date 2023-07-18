@@ -34,7 +34,12 @@
 
                 <main v-if="row.items && row.items?.length > 0" :id="id">
                     <div v-for="(item, key) in row.items" :key="item.id" class="layout-panel-contents">                        
-                        <component v-if="item.content && row.currentItemSelected === key" :is="item.content" :id="item.id"></component>
+                        <component 
+                            v-if="item.content && row.currentItemSelected === key" 
+                            :is="item.content" 
+                            :id="item.id"
+                            :name="item.namespace"
+                        ></component>
                     </div>                    
                 </main>
 
@@ -236,7 +241,7 @@ export default defineComponent({
 
         const dropItem = (event: DragEvent) => {
             event.preventDefault();
-            let data = storage.endDrap();
+            //let data = storage.endDrap();
         };
 
         const handleMouseOver = (event: MouseEvent) => {

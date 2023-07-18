@@ -1,6 +1,12 @@
 <template>
-    <div class="blueprint-connection" :style="{border: `2px solid ${getInputColor()}`}">
-        <div class="blueprint-connection-inner" :style="{ backgroundColor: getInputColor() }"></div>
+    <div 
+        class="blueprint-connection" 
+        :style="{ border: `2px solid ${getInputColor()}` }"
+    >
+        <div 
+            class="blueprint-connection-inner" 
+            :style="{ backgroundColor: getInputColor() }"
+        ></div>
     </div>
 </template>
 

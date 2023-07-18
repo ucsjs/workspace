@@ -8,8 +8,10 @@ export default class MongoDBInsert extends MongoDBBlueprint {
         useInEditor: true,
         version: 1,
         namespace: "MongoDBInsert",
-        group: "MongoDB",
+        group: "Repository",
+        icon: "/assets/img/mongodb.png",
         helpLink: "https://mongoosejs.com/docs/models.html#constructing-documents",
+        editorHeaderColor: "#419343",
         outputs: [
             { 
                 name: "result", 

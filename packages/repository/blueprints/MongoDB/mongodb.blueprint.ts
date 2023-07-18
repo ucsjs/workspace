@@ -18,9 +18,12 @@ export default class MongoDB extends Blueprint {
     public header: IBlueprintHeader = {
         useInEditor: true,
         version: 1,
+        displayName: "MongoDB Drive",
         namespace: "MongoDB",
-        group: "MongoDB",
+        group: "Repository",
+        icon: "/assets/img/mongodb.png",
         helpLink: "https://mongoosejs.com/docs/connections.html",
+        editorHeaderColor: "#419343",
         outputs: [{ 
             name: "_default", 
             type: MongoDbTypes.MongoDBConnection 

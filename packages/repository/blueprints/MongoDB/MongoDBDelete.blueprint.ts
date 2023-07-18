@@ -7,9 +7,12 @@ export default class MongoDBDelete extends MongoDBBlueprint {
     public header: IBlueprintHeader = {
         useInEditor: true,
         version: 1,
+        displayName: "MongoDB Delete",
         namespace: "MongoDBDelete",
-        group: "MongoDB",
+        group: "Repository",
+        icon: "/assets/img/mongodb.png",
         helpLink: "https://mongoosejs.com/docs/models.html#deleting",
+        editorHeaderColor: "#419343",
         outputs: [{ 
             name: "result", 
             type: Types.Boolean 

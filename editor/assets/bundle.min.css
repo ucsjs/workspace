@@ -1,6 +1,6 @@
-/*!*****************************************************************************************************************************************************************************************!*\
-  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-2.use[2]!./node_modules/vue3-perfect-scrollbar/dist/vue3-perfect-scrollbar.css ***!
-  \*****************************************************************************************************************************************************************************************/
+/*!*****************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/css-loader/dist/cjs.js!../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-2.use[2]!../../node_modules/vue3-perfect-scrollbar/dist/vue3-perfect-scrollbar.css ***!
+  \*****************************************************************************************************************************************************************************************************/
 /*
  * Container style
  */
@@ -109,11 +109,11 @@
 .ps {
     position: relative;
 }
-/*!************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-2.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[6].use[0]!./editor/src/components/layout/LayoutPanel.vue?vue&type=style&index=0&id=69db99e2&scoped=true&lang=css ***!
-  \************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*!*****************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/css-loader/dist/cjs.js!../../node_modules/vue-loader/dist/stylePostLoader.js!../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-2.use[2]!../../node_modules/vue-loader/dist/index.js??ruleSet[1].rules[6].use[0]!./components/layout/LayoutPanel.vue?vue&type=style&index=0&id=69c0db70&scoped=true&lang=css ***!
+  \*****************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
 
-.layout-panel[data-v-69db99e2]{
+.layout-panel[data-v-69c0db70]{
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -121,13 +121,13 @@
     position: relative;
     gap: 1px;
 }
-.layout-panel-row[data-v-69db99e2]{
+.layout-panel-row[data-v-69c0db70]{
     flex: 1;
     border-right: 2px solid #000;
     margin-bottom: 1px;
     overflow: hidden;
 }
-.layout-panel-row-contents[data-v-69db99e2] {
+.layout-panel-row-contents[data-v-69c0db70] {
     position: relative;
     min-width: 300px;
     width: 100%;
@@ -135,7 +135,7 @@
     overflow: hidden;   
     height: 100%;
 }
-.layout-panel header[data-v-69db99e2] {
+.layout-panel header[data-v-69c0db70] {
     width: 100%;
     height: 30px;
     background-color: #282828;
@@ -145,7 +145,7 @@
        -moz-user-select: none;
             user-select: none;
 }
-.layout-panel main[data-v-69db99e2] {
+.layout-panel main[data-v-69c0db70] {
     width: auto;
     height: calc(100% - 30px);
     background-color: #282828;
@@ -155,7 +155,7 @@
        -moz-user-select: none;
             user-select: none;
 }
-.layout-item-header-dropzone[data-v-69db99e2]{
+.layout-item-header-dropzone[data-v-69c0db70]{
     position: absolute;
     left: 0px;
     right: 0px;
@@ -163,7 +163,7 @@
     height: 300px;
     z-index: 999;
 }
-.layout-panel header .layout-item[data-v-69db99e2], .layout-item-active[data-v-69db99e2] {
+.layout-panel header .layout-item[data-v-69c0db70], .layout-item-active[data-v-69c0db70] {
     border-top: 3px solid #282828;
     padding: 0 10px 0 10px;
     color: #c4c4c4;
@@ -175,23 +175,23 @@
     border-top-right-radius: 3px;
     cursor: default;
 }
-.layout-panel header .layout-item[data-v-69db99e2]:hover {
+.layout-panel header .layout-item[data-v-69c0db70]:hover {
     background-color: #303030;
     color: #c4c4c4;
 }
-.layout-panel header .layout-item-active[data-v-69db99e2] {
+.layout-panel header .layout-item-active[data-v-69c0db70] {
     background-color: #3c3c3c;
     border-top: 2px solid #2c5d87;
 }
-.layout-panel header .layout-item-active[data-v-69db99e2]:hover {
+.layout-panel header .layout-item-active[data-v-69c0db70]:hover {
     background-color: #3c3c3c;
     border-top: 2px solid #2c5d87;
 }
-.layout-item-icon[data-v-69db99e2]{
+.layout-item-icon[data-v-69c0db70]{
     font-size: 12px;
     padding-right: 10px;
 }
-.layout-item-minimenu[data-v-69db99e2]{
+.layout-item-minimenu[data-v-69c0db70]{
     display: flex; 
     justify-content: flex-end;
     margin-left: auto;
@@ -199,27 +199,27 @@
     width: 50px;
     height: 100%;
 }
-.layout-item-minimenu-button[data-v-69db99e2]{
+.layout-item-minimenu-button[data-v-69c0db70]{
     width: 20px;
     padding: 0 5px 0 5px;
     margin: 2px 2px 2px 0;
     cursor: default;
     color: #c4c4c4
 }
-.layout-item-minimenu-button[data-v-69db99e2]:hover{
+.layout-item-minimenu-button[data-v-69c0db70]:hover{
     background-color: #3c3c3c;
 }
-.layout-item-bottom-dropzone[data-v-69db99e2]{
+.layout-item-bottom-dropzone[data-v-69c0db70]{
     position: absolute;
     height: 300px;
     width: 100%;
     bottom: 0px;
 }
-.layout-panel-top-resize[data-v-69db99e2]{
+.layout-panel-top-resize[data-v-69c0db70]{
     background-color: #000;
     height: 2px;
 }
-.layout-panel-top-resize-handle[data-v-69db99e2]{
+.layout-panel-top-resize-handle[data-v-69c0db70]{
     position: absolute;
     cursor: ns-resize;
     background-color: #2c5d87;
@@ -227,22 +227,22 @@
     width: 100%;
     z-index: 999;
 }
-.layout-panel-resize-box[data-v-69db99e2]{
+.layout-panel-resize-box[data-v-69c0db70]{
     position: fixed;
     width: 100%;
     height: 100em;
     z-index: 9999999;
 }
-.layout-panel-contents[data-v-69db99e2]{
+.layout-panel-contents[data-v-69c0db70]{
     height: 100%;
     width: 100%;
 }
 
-/*!******************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-2.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[6].use[0]!./editor/src/components/layout/LayoutDragPreview.vue?vue&type=style&index=0&id=19751abf&scoped=true&lang=css ***!
-  \******************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*!***********************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/css-loader/dist/cjs.js!../../node_modules/vue-loader/dist/stylePostLoader.js!../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-2.use[2]!../../node_modules/vue-loader/dist/index.js??ruleSet[1].rules[6].use[0]!./components/layout/LayoutDragPreview.vue?vue&type=style&index=0&id=c07b9340&scoped=true&lang=css ***!
+  \***********************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
 
-.layout-item-drag-preview[data-v-19751abf]{
+.layout-item-drag-preview[data-v-c07b9340]{
     position: fixed;
     width: 270px;
     height: 180px;
@@ -252,7 +252,7 @@
     border-radius: 3px;
     z-index: 999999;
 }
-.layout-panel header[data-v-19751abf] {
+.layout-panel header[data-v-c07b9340] {
     width: 100%;
     height: 30px;
     background-color: #282828;
@@ -262,7 +262,7 @@
        -moz-user-select: none;
             user-select: none;
 }
-.layout-panel header .layout-item[data-v-19751abf], .layout-item-active[data-v-19751abf] {
+.layout-panel header .layout-item[data-v-c07b9340], .layout-item-active[data-v-c07b9340] {
     border-top: 3px solid #282828;
     padding: 0 10px 0 10px;
     color: #c4c4c4;
@@ -274,36 +274,36 @@
     border-top-right-radius: 3px;
     cursor: default;
 }
-.layout-panel header .layout-item-active[data-v-19751abf] {
+.layout-panel header .layout-item-active[data-v-c07b9340] {
     background-color: #3c3c3c;
     border-top: 3px solid #2c5d87;
 }
 
-/*!*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-2.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[6].use[0]!./editor/src/components/blueprint/BlueprintNavbar.vue?vue&type=style&index=0&id=28f18f86&scoped=true&lang=css ***!
-  \*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*!************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/css-loader/dist/cjs.js!../../node_modules/vue-loader/dist/stylePostLoader.js!../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-2.use[2]!../../node_modules/vue-loader/dist/index.js??ruleSet[1].rules[6].use[0]!./components/blueprint/BlueprintNavbar.vue?vue&type=style&index=0&id=2edd90bc&scoped=true&lang=css ***!
+  \************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
 
-.blueprint-navbar[data-v-28f18f86]{
+.blueprint-navbar[data-v-2edd90bc]{
     width: 100%;
     height: 35px;
     background-color: #3c3c3c;
     font-size: 12px;
 }
-.blueprint-navbar button[data-v-28f18f86]{
+.blueprint-navbar button[data-v-2edd90bc]{
     padding: 5px 10px;
     color: #bebebe;
     border-right: 1px solid #232323;
     height: 100%;
 }
-.blueprint-navbar button[data-v-28f18f86]:hover{
+.blueprint-navbar button[data-v-2edd90bc]:hover{
     background-color: #464646;
 }
 
-/*!************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-2.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[6].use[0]!./editor/src/components/blueprint/BlueprintContextMenu.vue?vue&type=style&index=0&id=78dd3ed1&scoped=true&lang=css ***!
-  \************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*!*****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/css-loader/dist/cjs.js!../../node_modules/vue-loader/dist/stylePostLoader.js!../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-2.use[2]!../../node_modules/vue-loader/dist/index.js??ruleSet[1].rules[6].use[0]!./components/blueprint/BlueprintContextMenu.vue?vue&type=style&index=0&id=4315449c&scoped=true&lang=css ***!
+  \*****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
 
-.blueprint-context-menu[data-v-78dd3ed1] {
+.blueprint-context-menu[data-v-4315449c] {
         position: absolute;
         min-width: 150px;
         background-color: #2b2b2b;
@@ -316,20 +316,20 @@
                 user-select: none;
         cursor: default;
 }
-.blueprint-context-menu-item[data-v-78dd3ed1] {
+.blueprint-context-menu-item[data-v-4315449c] {
         cursor: default;
         padding: 5px 0;
         padding-left: 20px;
 }
-.blueprint-context-menu-item[data-v-78dd3ed1]:hover {
+.blueprint-context-menu-item[data-v-4315449c]:hover {
         background: #393939;
 }
 
-/*!*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-2.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[6].use[0]!./editor/src/components/blueprint/BlueprintInputs.vue?vue&type=style&index=0&id=4bdb2996&scoped=true&lang=css ***!
-  \*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*!************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/css-loader/dist/cjs.js!../../node_modules/vue-loader/dist/stylePostLoader.js!../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-2.use[2]!../../node_modules/vue-loader/dist/index.js??ruleSet[1].rules[6].use[0]!./components/blueprint/BlueprintInputs.vue?vue&type=style&index=0&id=e19cfbd6&scoped=true&lang=css ***!
+  \************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
 
-.blueprint-inputs[data-v-4bdb2996]{
+.blueprint-inputs[data-v-e19cfbd6]{
     position: absolute;
     width: 300px;
     height: 380px;
@@ -339,7 +339,7 @@
     border: 1px solid #191919;
     border-radius: 5px;
 }
-.blueprint-inputs header[data-v-4bdb2996] {
+.blueprint-inputs header[data-v-e19cfbd6] {
     color: #FFF;
     padding: 10px;
     background-color: #393939;
@@ -352,11 +352,11 @@
     border-top-right-radius: 5px;
     display: flex;
 }
-.blueprint-inputs header span[data-v-4bdb2996] {
+.blueprint-inputs header span[data-v-e19cfbd6] {
     padding-top: 5px;
     padding-left: 5px;
 }
-.blueprint-inputs-minimenu[data-v-4bdb2996]{
+.blueprint-inputs-minimenu[data-v-e19cfbd6]{
     display: flex; 
     justify-content: flex-end;
     margin-left: auto;
@@ -364,17 +364,17 @@
     width: 50px;
     height: 100%;
 }
-.blueprint-inputs-add[data-v-4bdb2996]{
+.blueprint-inputs-add[data-v-e19cfbd6]{
     padding: 5px 10px;
     border-radius: 3px;
     border: 1px solid #393939;
     cursor: default;
 }
-.blueprint-inputs-add[data-v-4bdb2996]:hover{
+.blueprint-inputs-add[data-v-e19cfbd6]:hover{
     background-color: #676767;
     border: 1px solid #191919;
 }
-.blueprint-inputs-contents[data-v-4bdb2996]{
+.blueprint-inputs-contents[data-v-e19cfbd6]{
     position: relative;
     width: 100%;
     height: calc(100% - 54px);
@@ -383,13 +383,13 @@
     flex-direction: column;
     flex-wrap: nowrap;
 }
-.blueprint-inputs-item[data-v-4bdb2996]{
+.blueprint-inputs-item[data-v-e19cfbd6]{
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
     padding: 5px 10px;
 }
-.blueprint-inputs-item-name[data-v-4bdb2996]{
+.blueprint-inputs-item-name[data-v-e19cfbd6]{
     background-color: #575758;
     padding: 5px 10px;
     border: 1px solid #191919;
@@ -397,13 +397,13 @@
     color: #b1b1b1;
     font-size: 12px;
 }
-.blueprint-inputs-item-selected[data-v-4bdb2996] {
+.blueprint-inputs-item-selected[data-v-e19cfbd6] {
     outline: 2px solid #327090;
 }
-.blueprint-inputs-item-name[data-v-4bdb2996]:hover {
+.blueprint-inputs-item-name[data-v-e19cfbd6]:hover {
     outline: 3px solid #327090;
 }
-.blueprint-inputs-item-type[data-v-4bdb2996]{
+.blueprint-inputs-item-type[data-v-e19cfbd6]{
     display: flex; 
     justify-content: flex-end;
     margin-left: auto;
@@ -412,7 +412,7 @@
     font-size: 12px;
     margin-right: 15px;
 }
-.blueprint-input-contents-rename[data-v-4bdb2996]{
+.blueprint-input-contents-rename[data-v-e19cfbd6]{
     flex: 1;
     padding: 5px;
     background-color: #2b2b2b;
@@ -421,11 +421,11 @@
     border-radius: 3px;
 }
 
-/*!***********************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-2.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[6].use[0]!./editor/src/components/blueprint/BlueprintConnection.vue?vue&type=style&index=0&id=689c9cea&scoped=true&lang=css ***!
-  \***********************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*!****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/css-loader/dist/cjs.js!../../node_modules/vue-loader/dist/stylePostLoader.js!../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-2.use[2]!../../node_modules/vue-loader/dist/index.js??ruleSet[1].rules[6].use[0]!./components/blueprint/BlueprintConnection.vue?vue&type=style&index=0&id=5319b28a&scoped=true&lang=css ***!
+  \****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
 
-.blueprint-connection[data-v-689c9cea]{
+.blueprint-connection[data-v-5319b28a]{
     height: 12px;
     width: 12px;
     background-color: #212121;
@@ -436,10 +436,10 @@
     display: flex;
     align-items: center;
 }
-.blueprint-connection:hover .blueprint-connection-inner[data-v-689c9cea]{
+.blueprint-connection:hover .blueprint-connection-inner[data-v-5319b28a]{
     display: block;
 }
-.blueprint-connection-inner[data-v-689c9cea]{
+.blueprint-connection-inner[data-v-5319b28a]{
     display: none;
     height: 4px;
     width: 4px;
@@ -447,19 +447,19 @@
     margin: auto;
 }
 
-/*!**********************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-2.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[6].use[0]!./editor/src/components/blueprint/BlueprintComponent.vue?vue&type=style&index=0&id=76c59940&scoped=true&lang=css ***!
-  \**********************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*!***************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/css-loader/dist/cjs.js!../../node_modules/vue-loader/dist/stylePostLoader.js!../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-2.use[2]!../../node_modules/vue-loader/dist/index.js??ruleSet[1].rules[6].use[0]!./components/blueprint/BlueprintComponent.vue?vue&type=style&index=0&id=3c7cd2fe&scoped=true&lang=css ***!
+  \***************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
 
-.component[data-v-76c59940]{
+.component[data-v-3c7cd2fe]{
     position: absolute;
     display: flex;
     align-items: center;
 }
-.component span[data-v-76c59940] {
+.component span[data-v-3c7cd2fe] {
     padding: 5px;
 }
-.component-input[data-v-76c59940]{
+.component-input[data-v-3c7cd2fe]{
     background-color: #575758;
     padding: 5px 10px;
     border: 1px solid #191919;
@@ -467,18 +467,18 @@
     color: #b1b1b1;
     font-size: 12px;
 }
-.component-input-selected[data-v-76c59940] {
+.component-input-selected[data-v-3c7cd2fe] {
     outline: 2px solid #327090;
 }
-.component-input[data-v-76c59940]:hover{
+.component-input[data-v-3c7cd2fe]:hover{
     outline: 3px solid #327090;
 }
 
-/*!**********************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-2.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[6].use[0]!./editor/src/components/blueprint/BlueprintInspector.vue?vue&type=style&index=0&id=a9d2774c&scoped=true&lang=css ***!
-  \**********************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*!***************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/css-loader/dist/cjs.js!../../node_modules/vue-loader/dist/stylePostLoader.js!../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-2.use[2]!../../node_modules/vue-loader/dist/index.js??ruleSet[1].rules[6].use[0]!./components/blueprint/BlueprintInspector.vue?vue&type=style&index=0&id=6f89b10a&scoped=true&lang=css ***!
+  \***************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
 
-.blueprint-inspector[data-v-a9d2774c]{
+.blueprint-inspector[data-v-6f89b10a]{
     position: absolute;
     width: 300px;
     height: 380px;
@@ -488,7 +488,7 @@
     border: 1px solid #191919;
     border-radius: 5px;
 }
-.blueprint-inspector header[data-v-a9d2774c] {
+.blueprint-inspector header[data-v-6f89b10a] {
     color: #FFF;
     padding: 10px;
     background-color: #393939;
@@ -501,11 +501,11 @@
     border-top-right-radius: 5px;
     display: flex;
 }
-.blueprint-inspector header span[data-v-a9d2774c] {
+.blueprint-inspector header span[data-v-6f89b10a] {
     padding-top: 5px;
     padding-left: 5px;
 }
-.blueprint-inspector-input[data-v-a9d2774c]{
+.blueprint-inspector-input[data-v-6f89b10a]{
     flex: 1;
     padding: 5px;
     background-color: #2e2e2e;
@@ -513,32 +513,187 @@
     color: #757575;
     border-radius: 3px;
 }
-.blueprint-inspector-inputs[data-v-a9d2774c] {
+.blueprint-inspector-inputs[data-v-6f89b10a] {
     padding: 5px 10px;
 }
-.blueprint-inspector-input-label[data-v-a9d2774c]{
+.blueprint-inspector-input-label[data-v-6f89b10a]{
     width: 50%;
     align-items: center;
     font-size: 12px;
 }
-.blueprint-inspector-inputs div[data-v-a9d2774c] {
+.blueprint-inspector-inputs div[data-v-6f89b10a] {
     padding: 2px 0px;
     color: #757575;
     display: flex;
 }
 
-/*!*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-2.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[6].use[0]!./editor/src/components/blueprint/BlueprintEditor.vue?vue&type=style&index=0&id=c93771cc&scoped=true&lang=css ***!
-  \*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*!************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/css-loader/dist/cjs.js!../../node_modules/vue-loader/dist/stylePostLoader.js!../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-2.use[2]!../../node_modules/vue-loader/dist/index.js??ruleSet[1].rules[6].use[0]!./components/windows/Modal.vue?vue&type=style&index=0&id=976b4b54&scoped=true&lang=css ***!
+  \************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
 
-.blueprint-editor[data-v-c93771cc]{
+.modal[data-v-976b4b54] {
+    position: fixed;
+    background-color: rgba(0,0,0,0.5);
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    right: 0px;
+    overflow: hidden;
+    animation:fadein-976b4b54 .5s;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+@keyframes fadein-976b4b54 {
+from {
+		opacity:0;
+}
+to {
+		opacity:1;
+}
+}
+
+/*!**************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/css-loader/dist/cjs.js!../../node_modules/vue-loader/dist/stylePostLoader.js!../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-2.use[2]!../../node_modules/vue-loader/dist/index.js??ruleSet[1].rules[6].use[0]!./components/navigation/Tabs.vue?vue&type=style&index=0&id=8ccc0c64&scoped=true&lang=css ***!
+  \**************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+
+.header[data-v-8ccc0c64]{
+    display: flex;
+    justify-content: space-around;
+}
+.tabs-item[data-v-8ccc0c64] {
+    margin-right: 20px;
+    padding-top: 10px;
+    border-top: 1px solid transparent;
+}
+.tabs-item-active[data-v-8ccc0c64] {
+    font-weight: bold;
+    color: #FFF;
+    border-top: 1px solid #FFF;
+}
+
+/*!*********************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/css-loader/dist/cjs.js!../../node_modules/vue-loader/dist/stylePostLoader.js!../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-2.use[2]!../../node_modules/vue-loader/dist/index.js??ruleSet[1].rules[6].use[0]!./components/form/Input.vue?vue&type=style&index=0&id=12dd469a&scoped=true&lang=css ***!
+  \*********************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+
+.input-icon[data-v-12dd469a]{
+    margin-right: 15px;
+}
+.input-input[data-v-12dd469a] {
+    background: transparent;
+    width: calc(100% - 30px);
+    margin: auto;
+    outline: none;
+    padding: 2px;
+}
+
+/*!*****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/css-loader/dist/cjs.js!../../node_modules/vue-loader/dist/stylePostLoader.js!../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-2.use[2]!../../node_modules/vue-loader/dist/index.js??ruleSet[1].rules[6].use[0]!./components/blueprint/BlueprintNodesNavbar.vue?vue&type=style&index=0&id=187da2b6&scoped=true&lang=css ***!
+  \*****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+
+.blueprint-nodes-navbar[data-v-187da2b6] {
+    position: fixed;
+    width: 800px;
+    height: 600px;
+    background-color: #292828;
+    border: 1px solid #191919;
+    top: 50%;
+    left: 50%;
+    margin-left: -400px;
+    margin-top: -300px;
+}
+.blueprint-nodes-navbar header[data-v-187da2b6] {
+    border-bottom: 1px solid #191919;
+}
+.blueprint-nodes-navbar main[data-v-187da2b6] {
+    width: 100%;
+    height: 100%;
+}
+.blueprint-nodes-navbar-tabs[data-v-187da2b6]{
+    margin-left: 15px;
+    margin-right: 15px;
+    color: #eaeaea;
+}
+.blueprint-nodes-navbar-search[data-v-187da2b6] {
+    background-color: #191919;
+    width: calc(100% - 30px);
+    margin: 15px;
+    padding: 15px;
+    color: #eaeaea;
+}
+.blueprint-nodes-navbar-blueprints[data-v-187da2b6] {
+    width: 300px;
+    height: calc(100% - 118px);
+    border-right: 1px solid #191919;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+}
+.blueprint-nodes-navbar-blueprints-group[data-v-187da2b6] {
+    width: 100%;
+    border-bottom: 1px solid #191919;
+    border-left: 5px solid #EFEFEF;
+    color: #eaeaea;
+    cursor: pointer;
+}
+.blueprint-nodes-navbar-blueprints-group button[data-v-187da2b6] {
+    display: flex; 
+    justify-content: flex-end;
+    margin-left: auto;
+}
+.blueprint-nodes-navbar-blueprints-group-item[data-v-187da2b6]:hover {
+    background-color: #393939;
+}
+.blueprint-nodes-navbar-blueprints-group-item[data-v-187da2b6] {
+    padding: 5px 10px;
+    display: flex;
+    flex: 1;
+}
+.blueprint-nodes-navbar-blueprints-items[data-v-187da2b6] {
+    flex: 1;
+    padding: 0px 10px;
+}
+.blueprint-nodes-navbar-blueprints-items-icon[data-v-187da2b6] {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+}
+.blueprint-nodes-navbar-blueprints-items-item[data-v-187da2b6] {
+    background-color: #393939;
+    padding: 5px 10px;
+    margin: 10px 5px;
+    display: flex;
+    transition: background-color 0.3s ease;
+    color: #eaeaea;
+}
+.blueprint-nodes-navbar-blueprints-items-item[data-v-187da2b6]:hover{
+    background-color: rgba(0, 0, 0, 0.1);
+}
+.blueprint-nodes-navbar-close[data-v-187da2b6]{
+    position: absolute;
+    padding: 5px 10px;
+    border-radius: 3px;
+    border: 1px solid #292828;
+    cursor: default;
+    color: #eaeaea;
+    top: 5px;
+    right: 5px;
+}
+.blueprint-nodes-navbar-close[data-v-187da2b6]:hover{
+    background-color: #676767;
+    border: 1px solid #191919;
+}
+
+/*!************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/css-loader/dist/cjs.js!../../node_modules/vue-loader/dist/stylePostLoader.js!../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-2.use[2]!../../node_modules/vue-loader/dist/index.js??ruleSet[1].rules[6].use[0]!./components/blueprint/BlueprintEditor.vue?vue&type=style&index=0&id=428ac0ce&scoped=true&lang=css ***!
+  \************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+
+.blueprint-editor[data-v-428ac0ce]{
     width: 100%;
     height: 100%;
     background-color: #232323;
     background-image:linear-gradient(#232323, #282828);
     position: relative;
 }
-.grid-contents[data-v-c93771cc]{
+.grid-contents[data-v-428ac0ce]{
     display: block;
     overflow: hidden;
     touch-action: none;
@@ -549,21 +704,21 @@
     background-size:50px 50px;
 }
 
-/*!*******************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-2.use[2]!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[6].use[0]!./editor/src/components/layout/Layout.vue?vue&type=style&index=0&id=4fde6a25&scoped=true&lang=css ***!
-  \*******************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*!************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ../../node_modules/css-loader/dist/cjs.js!../../node_modules/vue-loader/dist/stylePostLoader.js!../../node_modules/postcss-loader/dist/cjs.js??clonedRuleSet-2.use[2]!../../node_modules/vue-loader/dist/index.js??ruleSet[1].rules[6].use[0]!./components/layout/Layout.vue?vue&type=style&index=0&id=6d8e4924&scoped=true&lang=css ***!
+  \************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
 
-.layout-box[data-v-4fde6a25] {
+.layout-box[data-v-6d8e4924] {
     overflow: hidden;
     background-color: rgb(67, 67, 67);
     display: flex; 
     flex-direction: row; 
     height: 100vh;
 }
-.layout-panel[data-v-4fde6a25] {
+.layout-panel[data-v-6d8e4924] {
     flex: 1;
 }
-.layout-drop-area-left[data-v-4fde6a25] {
+.layout-drop-area-left[data-v-6d8e4924] {
     position: fixed;
     min-width: 100px;
     height: 100%;
@@ -571,7 +726,7 @@
     top: 0px;
     left: 0px;
 }
-.layout-drop-area-right[data-v-4fde6a25] {
+.layout-drop-area-right[data-v-6d8e4924] {
     position: fixed;
     min-width: 100px;
     height: 100%;

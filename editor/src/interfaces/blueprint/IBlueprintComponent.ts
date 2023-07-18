@@ -10,5 +10,7 @@ export interface IBlueprintComponent {
     type: BlueprintComponentType,
     x: number,
     y: number,
-    component: IBlueprintInput
+    component: IBlueprintInput,
+    name?:string;
+    default?: any;
 }

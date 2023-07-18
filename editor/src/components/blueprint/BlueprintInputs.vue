@@ -14,7 +14,7 @@
 
         <main class="blueprint-inputs-contents">
             <perfect-scrollbar>
-                <div v-for="item in inputs" :key="item" class="blueprint-inputs-item">
+                <div v-for="(item, index) in inputs" :key="index" class="blueprint-inputs-item">
                     <div 
                         :class="[(selectedItem === item.id || itemOver === item.id) ? 'blueprint-inputs-item-selected' : '', 'blueprint-inputs-item-name']" 
                         v-if="renameInput !== item.id"
@@ -157,7 +157,13 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { uuid } from "vue3-uuid";
-import { IBlueprintInputs, IBlueprintInput, IBlueprintType } from "../../interfaces/blueprint/IBlueprintInputs";
+
+import { 
+    IBlueprintInputs, 
+    IBlueprintInput, 
+    IBlueprintType 
+} from "../../interfaces/blueprint/IBlueprintInputs";
+
 import BlueprintContextMenu from "./BlueprintContextMenu.vue";
 
 export default defineComponent({
@@ -235,7 +241,7 @@ export default defineComponent({
 
             this.inputs.map((input) => {
                 if(input.id === id)
-                    this.$emit("selectInput", input);
+                    this.$emit("select-input", input);
             });            
         },
 

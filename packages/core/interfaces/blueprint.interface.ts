@@ -93,17 +93,19 @@ export interface IBlueprintEvent {
 }
 
 export interface IBlueprintHeader {
-    namespace: string,
-    version?: number | number[],
-    group: string | string[],
-    icon?: string | IBlueprintIcon,
-    helpLink?: string,
-    inputs?: IBlueprintInput[],
-    outputs?: IBlueprintOutput[],
-    properties?: IBlueprintProperties[],
-    triggers?: IBlueprintTrigger[]
-    events?: IBlueprintEvent[]
-    useInEditor: boolean
+    namespace: string;
+    version?: number | number[];
+    group: string | string[];
+    icon?: string | IBlueprintIcon;
+    helpLink?: string;
+    inputs?: IBlueprintInput[];
+    outputs?: IBlueprintOutput[];
+    properties?: IBlueprintProperties[];
+    triggers?: IBlueprintTrigger[];
+    events?: IBlueprintEvent[];
+    useInEditor: boolean;
+    editorHeaderColor?: string;
+    displayName?: string;
 }
 
 export interface IBlueprintIncorporate {
