@@ -31,13 +31,13 @@ export class UsersController extends BlueprintController implements IBlueprintCo
             this.catch(`Error when trying to retrieve the necessary token for the controller to work`, "UsersController");        
     }
 
-    @Get("/")
+    @Get("/") 
     @Cache("Users::all")
     async getAll(
         @Intercept("MongoDBFind", "result", [ { input: "query", value: {} } ]) data
     ) {
         await GlobalModules.retrieve(CacheModule)?.set("Users::all", data);
-        return data;
+        return data;         
     }
 
     @Get("/:id")
@@ -45,8 +45,7 @@ export class UsersController extends BlueprintController implements IBlueprintCo
         @Param("id") id: string, 
         @Intercept("MongoDBFind", "result", [ { input: "id", value: "$param.id" } ]) data
     ) {
-        console.log(id, data);
-        //await GlobalModules.retrieve(CacheModule)?.set(`Users::${id}`, data);
+        await GlobalModules.retrieve(CacheModule)?.set(`Users::${id}`, data);
         return data;
     }
 

@@ -1,10 +1,12 @@
 import { glob } from "glob";
+import * as requireWithoutCache from "require-without-cache";
 
 import { 
     IModule, 
     IModuleSettings, 
+    IntegrityControl, 
     isObject, 
-    isString, 
+    isString,  
     MODULE_METADATA, 
     PATH_METADATA, 
     Singleton 
@@ -31,6 +33,10 @@ export class GlobalModules extends Singleton {
         return null;
     }
 
+    clear(){
+        this.modules = new Array<IModule>();
+    }
+
     static async dynamicModule(settings: IModuleSettings): Promise<Object>{
         let module = new Object();
         let controllers = [];
@@ -39,13 +45,13 @@ export class GlobalModules extends Singleton {
             const files = await glob(settings.controllers.filter((item) => isString(item)));
 
             for(let file of files){
-                const controller = require(file);
-                
+                const controller = requireWithoutCache(file, require);
+                                
                 for(let controllerImports in controller){
                     const controllerPath = Reflect.getMetadata(PATH_METADATA, controller[controllerImports]);
 
                     if(controllerPath)
-                        controllers.push(controller[controllerImports]);
+                        controllers.push(controller[controllerImports]);                                      
                 }
             }
         }

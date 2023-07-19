@@ -10,7 +10,7 @@ export const Cache = (name: string): MethodDecorator => {
         extendArrayMetadata<any>("middlewares", async (req, res) => {
             const cacheModule = GlobalModules.retrieve(CacheModule);
 
-            if(cacheModule && isString(name)){
+            if(cacheModule && isString(name) && process.env.NODE_ENV !== "dev"){
                 try{
                     const cacheValue = await cacheModule.get(name);
                     return cacheValue;

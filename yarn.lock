@@ -8208,6 +8208,11 @@ node-gyp@^9.0.0:
     tar "^6.1.2"
     which "^2.0.2"
 
+node-object-hash@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/node-object-hash/-/node-object-hash-3.0.0.tgz#52526f6f42cef098e5cac1d74b96a7137d5c5226"
+  integrity sha512-jLF6tlyletktvSAawuPmH1SReP0YfZQ+tBrDiTCK+Ai7eXPMS9odi5xW/iKC7ZhrWJJ0Z5xYcW/x+1fVMn1Qvw==
+
 node-releases@^2.0.12:
   version "2.0.12"
   resolved "https://registry.yarnpkg.com/node-releases/-/node-releases-2.0.12.tgz#35627cc224a23bfb06fb3380f2b3afaaa7eb1039"
@@ -10120,6 +10125,11 @@ require-main-filename@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/require-main-filename/-/require-main-filename-1.0.1.tgz#97f717b69d48784f5f526a6c5aa8ffdda055a4d1"
   integrity sha512-IqSUtOVP4ksd1C/ej5zeEh/BIP2ajqpn8c5x+q99gvcIG/Qf0cud5raVnE/Dwd0ua9TXYDoDc0RE5hBSdz22Ug==
+
+require-without-cache@^0.0.6:
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/require-without-cache/-/require-without-cache-0.0.6.tgz#b76566d78f8c5efa58b978266b9cfbeb96e037e2"
+  integrity sha512-L5vEtdrAP1rbP0b+wTz/bO5KcDVsJuYtUO29njyOWnGVZBjJAcVf0p2i43KyRZHcK06rmnipifsGSP4YjhIDYg==
 
 requires-port@^1.0.0:
   version "1.0.0"

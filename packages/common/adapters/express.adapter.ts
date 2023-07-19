@@ -9,6 +9,8 @@ import * as session from "express-session";
 import * as compression from "compression";
 import helmet from "helmet";
 import { Duplex } from 'stream';
+import { hasher } from "node-object-hash";
+const hashCoerce = hasher({ coerce: true });
 
 import { AbstractHttpAdapter } from "../abstracts";
 import { IRouteSettings, RouteSettingsDefault, ServeStaticOptions } from "../interfaces";
@@ -16,7 +18,7 @@ import { METHOD_METADATA, MODULE_METADATA, OPTIONS_METADATA, PATH_METADATA } fro
 import { Logger } from '../services';
 import { Injector } from '../decorators';
 import { RequestMethod } from '../enums';
-import { isFunction } from '../utils';
+import { IntegrityControl, isFunction } from '../utils';
 
 export class ExpressAdapter extends AbstractHttpAdapter<
     http.Server | https.Server
@@ -27,7 +29,7 @@ export class ExpressAdapter extends AbstractHttpAdapter<
         super(instance || express());
     }
 
-    public async initialize(moduleCls: any, options: any = {}){
+    public async initialize(moduleCls: any, options: any = {}, reload: boolean = false){
         this.initHttpServer(options);
 
         this.set('view engine', 'ejs');
@@ -51,13 +53,17 @@ export class ExpressAdapter extends AbstractHttpAdapter<
             saveUninitialized: true,
             cookie: { secure: true, maxAge: 60000 }
         }));
-
         
-        await this.importModule(moduleCls);
+        await this.importModule(moduleCls, reload);
     }
 
-    public async importModule(moduleCls: any){
-        Logger.log(`Loading module ${(moduleCls.name) ? moduleCls.name : "DynamicModel" }`, "Server");
+    public async reload(moduleCls: any, options: any = {}){
+        await this.close();
+        await this.initialize(moduleCls, options, true);
+    }
+
+    public async importModule(moduleCls: any, reload: boolean = false){
+        //Logger.log(`Loading module ${(moduleCls.name) ? moduleCls.name : "DynamicModel" }`, "Server");
 
         let metadata = Reflect.getMetadata(MODULE_METADATA, moduleCls);
 
@@ -68,7 +74,7 @@ export class ExpressAdapter extends AbstractHttpAdapter<
             //Import controllers
             if(controllers){
                 for(let controller of controllers) {
-                    const router = await this.createRouters(controller);
+                    const router = await this.createRouters(controller, reload);
                     this.use(router);
                 }
             }
@@ -76,9 +82,8 @@ export class ExpressAdapter extends AbstractHttpAdapter<
             //Impots
             if(imports){
                 for await(let importCls of imports) {
-                    if(this.isModule(importCls)){
-                        this.importModule(importCls);
-                    }
+                    if(this.isModule(importCls))
+                        this.importModule(importCls, reload);                    
                 }
             }
         }
@@ -101,6 +106,8 @@ export class ExpressAdapter extends AbstractHttpAdapter<
         else {
             this.httpServer = http.createServer(this.getInstance());
         }
+
+        this.trackOpenConnections();
     }
 
     public status(response: any, statusCode: number) {
@@ -133,13 +140,32 @@ export class ExpressAdapter extends AbstractHttpAdapter<
         return this.httpServer.listen(port, ...args);
     }
 
+    public connected(){
+        return this.getInstance<express.Express>().enabled;
+    }
+
     public close() {
         this.closeOpenConnections();
     
         if (!this.httpServer) 
           return undefined;
         
-        return new Promise(resolve => this.httpServer.close(resolve));
+        return new Promise((resolve, reject) => {
+            if(this.connected()){
+                try{
+                    this.httpServer.close((err) => {
+                        if(err) reject(err)
+                        else resolve("");
+                    });
+                }
+                catch(err){
+                    reject(err)
+                }
+            }
+            else {
+                resolve("");
+            }            
+        });
     }
     
     public set(...args: any[]) {
@@ -173,6 +199,14 @@ export class ExpressAdapter extends AbstractHttpAdapter<
         return this.set('view engine', engine);
     }
 
+    private trackOpenConnections() {
+        this.httpServer.on('connection', (socket: Duplex) => {
+          this.openConnections.add(socket);
+    
+          socket.on('close', () => this.openConnections.delete(socket));
+        });
+    }
+
     private closeOpenConnections() {
         for (const socket of this.openConnections) {
             socket.destroy();
@@ -180,7 +214,7 @@ export class ExpressAdapter extends AbstractHttpAdapter<
         }
     }
 
-    private async createRouters(controller): Promise<express.Router>{
+    private async createRouters(controller, reload: boolean = false): Promise<express.Router>{
         const router = express.Router();
         const properties = Object.getOwnPropertyNames(controller.prototype);
         const prefixController = Reflect.getMetadata(PATH_METADATA, controller);
@@ -202,6 +236,8 @@ export class ExpressAdapter extends AbstractHttpAdapter<
                             const handler = scope[property]?.bind(scope);
                             const path = ((prefixController.startsWith("/")) ? prefixController: "/" + prefixController) + 
                             ((routeMetadata.startsWith("/")) ? routeMetadata : "/" + routeMetadata);
+                            IntegrityControl.registry(scope[property], `${controller.name}::${scope[property].name}`);
+
                             const processHandler = this.processRequest(
                                 scope, 
                                 controller.name, 
@@ -212,7 +248,8 @@ export class ExpressAdapter extends AbstractHttpAdapter<
                                 optionsMetadata
                             );
                         
-                            Logger.log(`Listing route ${controller.name}::${RequestMethod[methodMetadata]} (${path})`, "Server");
+                            if(!reload && process.env.NODE_ENV === "dev")
+                                Logger.log(`Listing route ${controller.name}::${RequestMethod[methodMetadata]} (${path})`, `Server::${hashCoerce.hash(controller).substring(0,5)}`);
             
                             switch (methodMetadata) {
                                 case RequestMethod.GET: router.get(path, processHandler); break;
@@ -302,11 +339,18 @@ export class ExpressAdapter extends AbstractHttpAdapter<
             try{
                 const startTimeout = new Date().getTime();                
                 let buffer = null;
+                let lastModifed = null;
 
                 if(routeMiddlewares.length > 0){
                     for await(let middleware of routeMiddlewares){
-                        if(isFunction(middleware))
-                            buffer = await (middleware as Function).call(handler, req, res);
+                        if(isFunction(middleware)){
+                            const cache = await (middleware as Function).call(handler, req, res);
+
+                            if(cache && cache.data && cache.timeout){
+                                buffer = cache.data;
+                                lastModifed = cache.timeout;
+                            }
+                        }                            
                     }
                 }
                 
@@ -328,14 +372,19 @@ export class ExpressAdapter extends AbstractHttpAdapter<
                         middlewares, 
                         req, 
                         res
-                    );    
-
+                    );  
+                    
                     buffer = await handler(...args);
                 }
                     
                 const endTimeout = new Date().getTime();
 
                 if((typeof buffer === "string" && buffer.length > 0) || typeof buffer === "object") {
+                    if(lastModifed)
+                        res.setHeader("Last-Modified", new Date(lastModifed).toUTCString());
+                    else 
+                        res.setHeader("Last-Modified", new Date().toUTCString());
+                    
                     if(options.raw){
                         Logger.debug(`Request HTTP 200: ${req.path}`, "Server");
                         res.status(200).send(buffer);

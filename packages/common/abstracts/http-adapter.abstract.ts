@@ -92,7 +92,9 @@ export abstract class AbstractHttpAdapter<
         return this.instance as T;
     }
 
-    abstract initialize(moduleCls: any, options?: any);
+    abstract close();
+    abstract initialize(moduleCls: any, options?: any, reload?: boolean);
+    abstract reload(moduleCls: any);
     abstract status(response: any, statusCode: number);
     abstract end(response: any, message?: string);
     abstract render(response: any, view: string, options: any);

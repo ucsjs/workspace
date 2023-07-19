@@ -29,7 +29,11 @@ export const Trigger = (name: string): MethodDecorator => {
 
 export const Intercept = (blueprintName: string, outputName: string, args?: IBlueprintInjectData[]): ParameterDecorator => {
     return (target: any, key: string | symbol, index: number) => {
-		extendArrayMetadata<any>("middlewares", { key, index, middleware: async (req, res, scope) => {
+		extendArrayMetadata<any>("middlewares", { 
+            key, 
+            index,
+            controller: target.constructor.name,
+            middleware: async (req, res, scope) => {
             if(target instanceof BlueprintController){
                 if(scope.flow){
                     let parseString = (input: string): { type: string, name: string } | null  => {
@@ -37,8 +41,8 @@ export const Intercept = (blueprintName: string, outputName: string, args?: IBlu
                         const match = input.match(regex);
                       
                         if (match && match.groups) {
-                          const { type, name } = match.groups;
-                          return { type, name };
+                            const { type, name } = match.groups;
+                            return { type, name };
                         }
                       
                         return null;
@@ -57,8 +61,6 @@ export const Intercept = (blueprintName: string, outputName: string, args?: IBlu
                         }
                         catch { }                        
                     }
-
-                    console.log("aki", args);
                     
                     const data = await scope.flow.interceptOnPromise(blueprintName, outputName, args);
                     return (data.value) ? data.value : data.data;

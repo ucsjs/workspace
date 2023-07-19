@@ -16,10 +16,12 @@ import { EditorModule } from "@ucsjs/editor";
         }
     });
 
-    const app = await Application.create(await GlobalModules.dynamicModule({
-        controllers: ["./**/*.controller.ts"],
-        imports: [EditorModule]
-    }));
+    const app = await Application.create(async () => {
+        return await GlobalModules.dynamicModule({
+            controllers: ["./**/*.controller.ts"],
+            imports: [EditorModule]
+        });
+    });
 
     app.useWebSocketAdapter(new WsAdapter(app));
     app.listen(process.env.PORT || 3050);

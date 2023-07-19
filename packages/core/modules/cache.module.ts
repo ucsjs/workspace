@@ -29,7 +29,7 @@ export class CacheModule implements IModule {
         if(data instanceof Promise)
             data = await data;
 
-        await this.memoryCache.set(key, data, ttl);
+        await this.memoryCache.set(key, { data, timeout: new Date().getTime() }, ttl);
     }
 
     async del(key: string): Promise<void> {            

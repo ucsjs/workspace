@@ -162,7 +162,6 @@ export class Flow {
             try{
                 await this.reset();
                 let blueprint = this.getBlueprint(blueprintName);
-                console.log(args);
                 await blueprint.injectArgs(args);
                 blueprint.subscribePromise(outputName).then(resolve).catch(reject);
                 this.buildListenAndExecute();

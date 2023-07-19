@@ -49,7 +49,7 @@ export class FilesController extends AbstractEditor {
         @Query("onlyDir") onlyDir: boolean, 
         @Query("onlyFiles") onlyFiles: boolean
 	){     
-		console.log(path, onlyDir, onlyFiles);
+		//console.log(path, onlyDir, onlyFiles);
         return YAML.stringify(await this.getAll(path, onlyDir, onlyFiles));
     }
 

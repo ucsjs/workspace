@@ -42,7 +42,10 @@
                     ></blueprint-component>
                 </drag-handle>
 
-                <blueprint-nodes-navbar ref="nodesNavbar"></blueprint-nodes-navbar>
+                <blueprint-nodes-navbar 
+                    ref="nodesNavbar"
+                    @create-blueprint="createBlueprint"
+                ></blueprint-nodes-navbar>
             </div>
         </perfect-scrollbar>
     </div>
@@ -110,6 +113,7 @@ export default defineComponent({
             inputSelected: undefined,
             selectedItem: undefined,
             rootItem: undefined, 
+            lastMousePosition: { x: 0, y: 0},
             items: new Map<string, IBlueprintComponent>()
         }
     },
@@ -197,9 +201,18 @@ export default defineComponent({
             }                
         },
 
-        openNodeNavbar(e){
+        openNodeNavbar(event){
+            const rootRect = this.$refs.contents.getBoundingClientRect();
+            const x = event.clientX - rootRect.left;
+            const y = event.clientY - rootRect.top;
+
+            this.lastMousePosition = { x, y };
             this.$refs.nodesNavbar.open();
-            e.preventDefault();
+            event.preventDefault();
+        },
+
+        createBlueprint(blueprint){
+            console.log(blueprint);
         },
 
         saveLocal(){

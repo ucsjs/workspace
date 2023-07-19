@@ -39,7 +39,7 @@ export class GlobalRegistry extends Singleton {
                     if (module){
                         let tmpInstance = new module();
 
-                        Logger.log(`Loading Blueprint ${tmpInstance.header.namespace}`, "Global Registry");
+                        //Logger.log(`Loading Blueprint ${tmpInstance.header.namespace}`, "Global Registry");
 
                         if(tmpInstance.header.namespace != undefined && !globalRegistry.registry.has(tmpInstance.header.namespace))
                             globalRegistry.registry.set(tmpInstance.header.namespace, module);      

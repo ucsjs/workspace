@@ -16,7 +16,7 @@
 
                 <button 
                     class="blueprint-nodes-navbar-close" 
-                    @click.self="close"
+                    @click="close"
                 >
                     <i class="fa-solid fa-xmark"></i>
                 </button>
@@ -36,7 +36,7 @@
                             >
                                 <span class="font-bold">{{ index }}</span>
 
-                                <button class="mt-4">
+                                <button class="mt-1">
                                     <i 
                                         class="fa-solid fa-chevron-up" 
                                         v-if="blueprintGroupsOpened.hasOwnProperty(index) && blueprintGroupsOpened[index] === true"
@@ -59,6 +59,7 @@
                                     :key="index"
                                     @mouseover="item[1].currentColor = darkenColor(item[1].editorHeaderColor, 20)"
                                     @mouseout="item[1].currentColor = item[1].editorHeaderColor"
+                                    @click="createBlueprint(item[1])"
                                 >
                                     <img 
                                         v-if="item[1].icon && item[1].icon.includes('/')"
@@ -210,6 +211,10 @@ export default defineComponent({
     components: { Modal, Tabs, CustomInput },
 
     mixins: [Api],
+
+    emits: {
+        "create-blueprint": () => true
+    },
     
     data() {
         return {
@@ -288,6 +293,10 @@ export default defineComponent({
                 this.blueprintGroupsOpened[index] = !this.blueprintGroupsOpened[index];
             else
                 this.blueprintGroupsOpened[index] = true;
+        },
+
+        createBlueprint(blueprint){
+            this.$emit("create-blueprint", blueprint);
         }
     }
 })
