@@ -1,0 +1,32 @@
+{
+    "head": {
+        "links": [
+            {
+                "href": "https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css"
+            },
+            {
+                "href": "https://fonts.googleapis.com/icon?family=Material+Icons"
+            },
+            {
+                "rel": "dns-prefetch",
+                "href": "https://unpkg.com"
+            },
+            {
+                "rel": "dns-prefetch",
+                "href": "https://fonts.googleapis.com"
+            }
+        ]
+    },
+    "body": {
+        "scripts": [
+            {
+                "src": "https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"
+            }
+        ]
+    },
+    "components": {
+        "Container": { "class": "container" },
+        "Button": { "class": "mdc-button" },
+        "AppBar": { "class": "mdc-top-app-bar ", "tag": "header" }
+    }
+}

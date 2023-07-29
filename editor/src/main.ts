@@ -3,7 +3,8 @@ import { createPinia } from 'pinia';
 import PerfectScrollbar from 'vue3-perfect-scrollbar';
 import UUID from "vue3-uuid";
 import Draggable from "vue3-draggable";
-import 'vue3-perfect-scrollbar/dist/vue3-perfect-scrollbar.css'
+
+import 'vue3-perfect-scrollbar/dist/vue3-perfect-scrollbar.css';
 
 import App from '@/App.vue';
 

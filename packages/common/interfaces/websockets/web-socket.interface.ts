@@ -14,7 +14,8 @@ export interface WebSocketAdapter<
   TOptions = any,
 > {
     create(httpServer: AbstractHttpAdapter, options?: TOptions): TServer;
-    bindClientConnect(server: TServer, callback: Function): any;
+    bindClientConnect(server, callback: Function): any;
+    bindCustomMessageHandler(server, callback: Function): any;
     bindClientDisconnect?(client: TClient, callback: Function): any;
     bindMessageHandlers(
         client: TClient,

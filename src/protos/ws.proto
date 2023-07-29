@@ -1,0 +1,8 @@
+package ws;
+syntax = "proto3";
+
+message Call {
+    required int32 contract = 1;
+    required int32 message = 2;
+    required bytes data = 3;
+}

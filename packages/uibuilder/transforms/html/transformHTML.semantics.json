@@ -1,0 +1,94 @@
+{
+    "components": {
+        "Icon": {
+            "tag": "i", 
+            "attrs": [
+                { "name": "class", "prop": "icon", "prefix": "fa-solid fa-" },
+                { "name": "style", "prop": "color", "method": "toHex" },
+                { "name": "style", "prop": "size", "posfix": "px", "attrName": "font-size" }
+            ]
+        },
+        "Text": {
+            "tag": "span",
+            "value": "value",
+            "attrs": [
+                { 
+                    "name": "style", 
+                    "prop": "style.fontSize", 
+                    "posfix": "px", 
+                    "attrName": "font-size" 
+                },
+                { 
+                    "name": "style", 
+                    "prop": "style.textColor", 
+                    "attrName": "color", 
+                    "method": "toHex" 
+                }
+            ]
+        },
+        "Container": {
+            "tag": "div"
+        },
+        "Button": {
+            "tag": "button",
+            "value": "icon || text",
+            "attrs": [
+                { 
+                    "name": "style", 
+                    "prop": "style.width", 
+                    "posfix": "px", 
+                    "attrName": "width" 
+                },
+                { 
+                    "name": "style", 
+                    "prop": "style.height", 
+                    "posfix": "px", 
+                    "attrName": "height" 
+                },
+                { 
+                    "name": "style", 
+                    "prop": "style.fillColor",  
+                    "method": "toHex", 
+                    "attrName": "background-color" 
+                },
+                { 
+                    "name": "style", 
+                    "prop": "style.elevation", 
+                    "attrName": "box-shadow",
+                    "template": "0px {$value}px 15px -3px rgba(0,0,0,0.1);", 
+                    "method": "toHex" 
+                },
+                { 
+                    "name": "style", 
+                    "prop": "style.borderColor", 
+                    "attrName": "border-color",
+                    "method": "toHex" 
+                },
+                { 
+                    "name": "style", 
+                    "prop": "style.borderWidth", 
+                    "attrName": "border-width",
+                    "posfix": "px"
+                }
+            ]
+        },
+        "AppBar": {
+            "tag": "div",
+            "attrs": [
+                { 
+                    "name": "style", 
+                    "prop": "style.backgroundColor", 
+                    "method": "toHex", 
+                    "attrName": "background-color" 
+                },
+                { 
+                    "name": "style", 
+                    "prop": "style.elevation", 
+                    "attrName": "box-shadow",
+                    "template": "0px {$value}px 15px -3px rgba(0,0,0,0.1);", 
+                    "method": "toHex" 
+                }
+            ]
+        }
+    }
+}

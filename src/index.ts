@@ -1,12 +1,15 @@
 import { Application, WsAdapter } from "@ucsjs/common";
 import { CacheModule, GlobalModules, GlobalRegistry } from "@ucsjs/core";
 import { GlobalProto } from "@ucsjs/protobuf";
+import { GlobalUIComponents } from "@ucsjs/uibuilder";
 import { EditorModule } from "@ucsjs/editor";
+import { WSInterceptor } from "./interceptors/ws.interceptor";
 
 (async () => {
     await Promise.all([
         GlobalRegistry.load(),
-        GlobalProto.load()
+        GlobalProto.load(),
+        GlobalUIComponents.load()
     ]);
 
     GlobalModules.register(CacheModule, {
@@ -23,6 +26,6 @@ import { EditorModule } from "@ucsjs/editor";
         });
     });
 
-    app.useWebSocketAdapter(new WsAdapter(app));
+    app.useWebSocketAdapter(new WsAdapter(app), WSInterceptor.intercept);
     app.listen(process.env.PORT || 3050);
 })();

@@ -27,6 +27,10 @@ export abstract class AbstractWsAdapter<
             this.httpServer = appOrHttpServer;
     }
 
+    public bindCustomMessageHandler(server: any, callback: Function) {
+        throw new Error("Method not implemented.");
+    }
+
     public bindClientConnect(server: TServer, callback: Function) {
         server.on(CONNECTION_EVENT, callback);
     }

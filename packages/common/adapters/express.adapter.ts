@@ -1,4 +1,5 @@
 import type { Server } from 'http';
+import { Subject } from 'rxjs';
 import * as stream from "stream";
 import * as bodyparser from 'body-parser';
 import * as cors from 'cors';
@@ -14,7 +15,7 @@ const hashCoerce = hasher({ coerce: true });
 
 import { AbstractHttpAdapter } from "../abstracts";
 import { IRouteSettings, RouteSettingsDefault, ServeStaticOptions } from "../interfaces";
-import { METHOD_METADATA, MODULE_METADATA, OPTIONS_METADATA, PATH_METADATA } from '../constants';
+import { MESSAGE_MAPPING_METADATA, MESSAGE_METADATA, METHOD_METADATA, MODULE_METADATA, OPTIONS_METADATA, PATH_METADATA } from '../constants';
 import { Logger } from '../services';
 import { Injector } from '../decorators';
 import { RequestMethod } from '../enums';
@@ -24,6 +25,8 @@ export class ExpressAdapter extends AbstractHttpAdapter<
     http.Server | https.Server
 >{
     private readonly openConnections = new Set<Duplex>();
+
+    private ioMessages = new Map<string, Subject<any>>();
 
     constructor(instance?: any) {
         super(instance || express());
@@ -201,8 +204,7 @@ export class ExpressAdapter extends AbstractHttpAdapter<
 
     private trackOpenConnections() {
         this.httpServer.on('connection', (socket: Duplex) => {
-          this.openConnections.add(socket);
-    
+          this.openConnections.add(socket);    
           socket.on('close', () => this.openConnections.delete(socket));
         });
     }
@@ -227,6 +229,8 @@ export class ExpressAdapter extends AbstractHttpAdapter<
                     const optionsMetadata = Reflect.getMetadata(OPTIONS_METADATA, controller.prototype[property]);
                     const routeMiddlewares = Reflect.getMetadata('middlewares', controller.prototype[property]);
                     const middlewares = Reflect.getMetadata('middlewares', controller);
+
+                    const isIOMessage = Reflect.getMetadata(MESSAGE_MAPPING_METADATA, controller.prototype[property]) as boolean;
 
                     if (routeMetadata) {
                         const methodName = property || "";
@@ -263,6 +267,17 @@ export class ExpressAdapter extends AbstractHttpAdapter<
                         else{
                             Logger.error(`Method ${property} does not exist in the context of controller ${controller.name}`, "HTTP Decorator");
                         }					
+                    }
+                    else if(isIOMessage === true){
+                        const scope = await Injector.inject(controller);
+                        const messageName = Reflect.getMetadata(MESSAGE_METADATA, controller.prototype[property]) as string;
+
+                        if(!this.ioMessages.has(messageName))
+                            this.ioMessages.set(messageName, new Subject<any>());
+
+                        this.ioMessages.get(messageName).subscribe({ 
+                            next: (v) => scope[property]?.call(scope, v.data, v.socket)
+                        })
                     }
                 }
             }
@@ -395,6 +410,7 @@ export class ExpressAdapter extends AbstractHttpAdapter<
                         res.status(200).send({ 
                             status: 200, 
                             processTimeout: (endTimeout - startTimeout) / 1000,
+                            cacheTimeout: (lastModifed) ? new Date(lastModifed).toUTCString() : null,
                             data: buffer 
                         });
                     }
@@ -429,8 +445,14 @@ export class ExpressAdapter extends AbstractHttpAdapter<
             return 0;
         });
     }
-}
 
-function CACHE_PATH(CACHE_PATH: any, arg1: any) {
-    throw new Error('Function not implemented.');
+    public emit(key: string, data: any, socket: unknown) :boolean {
+        if(this.ioMessages.has(key)) {
+            this.ioMessages.get(key).next({ data, socket });
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
 }

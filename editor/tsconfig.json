@@ -34,6 +34,8 @@
 			"@component/*": ["src/components/*"],
 			"@mixins/*": ["src/mixins/*"],
 			"@stores/*": ["src/stores/*"],
+			"@decorators": ["src/decorators"],
+			"@decorators/*": ["src/decorators/*"],
 			"@": ["src"],
 			"@/*": ["src/*"],
 			"~": ["src"],

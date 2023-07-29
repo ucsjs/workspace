@@ -200,104 +200,106 @@
 </style>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import Api from "@mixins/api";
+import { Component, Emit, Ref } from 'vue-facing-decorator';
+import { WS } from "@mixins/ws";
 
+import { Subscriber } from "@decorators";
 import Modal from "@/components/windows/Modal.vue";
 import Tabs from "@/components/navigation/Tabs.vue";
 import CustomInput from "@/components/form/Input.vue";
 
-export default defineComponent({
-    components: { Modal, Tabs, CustomInput },
+@Component({
+    components: { Modal, Tabs, CustomInput }
+})
+export default class BlueprintNodesNavbar extends WS {
 
-    mixins: [Api],
+    tabsItems = ["Blueprints", "Prefabs", "Plugins", "Import"];
 
-    emits: {
-        "create-blueprint": () => true
-    },
-    
-    data() {
-        return {
-            tabsItems: ["Blueprints", "Prefabs", "Plugins", "Import"],
-            blueprints: [],
-            blueprintGroups: {},
-            blueprintGroupsOpened: {},
-            tabIndex: 0,
-            searchText: null,
-            modalSettings: {
-                width: 700,
-                height: 500,
-                backgroundColor: "2B2B2B"
-            }
-        }
-    },
+    blueprints = [];
 
-    async mounted(){
-        this.blueprints = await this.get("blueprint");
+    blueprintGroups= {};
+
+    blueprintGroupsOpened= {};
+
+    tabIndex= 0;
+
+    searchText: string = "";
+
+    @Ref
+    readonly window!: typeof Modal;
+
+    modalSettings = {
+        width: 700,
+        height: 500,
+        backgroundColor: "2B2B2B"
+    }
+
+    @Subscriber("blueprint")
+    async reciveBlueprints(data: any){
+        this.blueprints = data;
         this.createGroupIndex();
-    },
+    }
 
-    methods: {
-        open(){
-            this.$refs.window .open();
-        },
+    public open(){
+        this.window.open();
+    }
 
-        close(){
-            this.$refs.window.close();
-        },
+    public close(){
+        this.window.close();
+    }
 
-        selectTab(index: number){
-            this.tabIndex = index;
-        },
+    selectTab(index: number){
+        this.tabIndex = index;
+    }
 
-        search(value: string){
-            this.searchText = value;
-        },
+    search(value: string){
+        this.searchText = value;
+    }
 
-        createGroupIndex(){
-            for(let blueprint of this.blueprints){
-                if(!this.blueprintGroups[blueprint.group])
-                    this.blueprintGroups[blueprint.group] = new Map();
+    createGroupIndex(){
+        /*for(let blueprint of this.blueprints){
+            if(!this.blueprintGroups[blueprint.group])
+                this.blueprintGroups[blueprint.group] = new Map();
 
-                if(!this.blueprintGroups[blueprint.group].has(blueprint.namespace))
-                    this.blueprintGroups[blueprint.group].set(blueprint.namespace, blueprint);
-            }
+            if(!this.blueprintGroups[blueprint.group].has(blueprint.namespace))
+                this.blueprintGroups[blueprint.group].set(blueprint.namespace, blueprint);
+        }
 
-            const sortedGroups = Object.keys(this.blueprintGroups).sort().reduce(
-                (obj, key) => { 
-                    obj[key] = this.blueprintGroups[key]; 
-                    return obj;
-                }, 
-                {}
-            );
+        const sortedGroups = Object.keys(this.blueprintGroups).sort().reduce(
+            (obj, key) => { 
+                obj[key] = this.blueprintGroups[key]; 
+                return obj;
+            }, 
+            {}
+        );
 
-            this.blueprintGroups = sortedGroups;
-        },
+        this.blueprintGroups = sortedGroups;*/
+    }
 
-        darkenColor(color: string, percent: number): string{
-            if(color){
-                let num = parseInt(color.replace("#",""), 16),
-                amt = Math.round(2.55 * percent),
-                R = (num >> 16) - amt,
-                B = (num >> 8 & 0x00FF) - amt,
-                G = (num & 0x0000FF) - amt;
-                return "#" + (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (B<255?B<1?0:B:255)*0x100 + (G<255?G<1?0:G:255)).toString(16).slice(1);
-            }
-            else{
-                return "";
-            }
-        },
-
-        toggleItem(index: string): void {
-            if(this.blueprintGroupsOpened[index])
-                this.blueprintGroupsOpened[index] = !this.blueprintGroupsOpened[index];
-            else
-                this.blueprintGroupsOpened[index] = true;
-        },
-
-        createBlueprint(blueprint){
-            this.$emit("create-blueprint", blueprint);
+    darkenColor(color: string, percent: number): string{
+        if(color){
+            let num = parseInt(color.replace("#",""), 16),
+            amt = Math.round(2.55 * percent),
+            R = (num >> 16) - amt,
+            B = (num >> 8 & 0x00FF) - amt,
+            G = (num & 0x0000FF) - amt;
+            return "#" + (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (B<255?B<1?0:B:255)*0x100 + (G<255?G<1?0:G:255)).toString(16).slice(1);
+        }
+        else{
+            return "";
         }
     }
-})
+
+    toggleItem(index: string): void {
+        if(this.blueprintGroupsOpened[index])
+            this.blueprintGroupsOpened[index] = !this.blueprintGroupsOpened[index];
+        else
+            this.blueprintGroupsOpened[index] = true;
+    }
+
+    @Emit
+    createBlueprint(blueprint){
+        this.$emit("create-blueprint", blueprint);
+    }
+}
 </script>

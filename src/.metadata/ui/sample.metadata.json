@@ -1,0 +1,64 @@
+{
+    "theme": "bootstrap",
+    "head": {
+        "title": "Sample UCS.js UI Builder",
+        "metas": [
+            { "charset": "UTF-8" },
+            { "name": "viewport", "content": "width=device-width, initial-scale=1.0" }
+        ]
+    },
+    "appBar": {
+        "style": {
+            "component": "AppBarStyle",
+            "backgroundColor": "#4B39EF",
+            "elevation": 2
+        },
+        "children": [
+            {
+                "component": "Button",
+                "style": {
+                    "component": "ButtonStyle",
+                    "with": 40,
+                    "height": 40,
+                    "fillColor": "#4B39EF",
+                    "elevation": 0
+                },
+                "icon": {
+                    "component": "Icon",
+                    "type": "fontawesome",
+                    "icon": "bars"
+                },
+                "actions": [
+                    { 
+                        "event": "click",
+                        "proxy": "drawer",
+                        "method": "open" 
+                    }
+                ]
+            },
+            {
+                "component": "Text",
+                "value": "Page Title",
+                "style": {
+                    "component": "TextStyle",
+                    "fontSize": 22,
+                    "textColor": "#FFFFFF"
+                }
+            }
+        ]
+    },
+    "body": { 
+        "component": "Container",
+        "children": [
+            {
+                "component": "Text",
+                "value": "Main",
+                "style": {
+                    "component": "TextStyle",
+                    "fontSize": 18,
+                    "textColor": "#000000"
+                }
+            }
+        ]
+    }
+}

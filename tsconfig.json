@@ -43,6 +43,8 @@
 			"@ucsjs/protobuf/*": ["packages/protobuf/*"],
 			"@ucsjs/editor": ["packages/editor"],
 			"@ucsjs/editor/*": ["packages/editor/*"],
+			"@ucsjs/uibuilder": ["packages/uibuilder"],
+			"@ucsjs/uibuilder/*": ["packages/uibuilder/*"],
 			"@abstracts": ["src/abstracts"],
 			"@abstract/*": ["src/abstracts/*"],
 			"@blueprints": ["src/blueprints"],

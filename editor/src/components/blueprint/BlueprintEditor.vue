@@ -73,12 +73,13 @@
 </style>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { Component, Ref } from 'vue-facing-decorator';
+import { Subscriber } from '@decorators';
+import { WS } from "@mixins/ws";
 import { uuid } from "vue3-uuid";
 
 import { 
-    IBlueprintInput, 
-    IBlueprintEditor, 
+    IBlueprintInput,  
     IBlueprintComponent,
     BlueprintComponentType
 } from "../../interfaces";
@@ -90,7 +91,7 @@ import BlueprintComponent from "./BlueprintComponent.vue";
 import BlueprintInspector from "./BlueprintInspector.vue";
 import BlueprintNodesNavbar from "./BlueprintNodesNavbar.vue";
 
-export default defineComponent({
+@Component({
     components: { 
         DragHandle,
         BlueprintNavbar,
@@ -98,146 +99,166 @@ export default defineComponent({
         BlueprintComponent,
         BlueprintInspector,
         BlueprintNodesNavbar 
-    },
+    }
+})
+export default class BlueprintEditor extends WS {
+    id = uuid.v4();
 
-    props: {
+    props = {
         id: {
             type: String,
             require: true
         }
-    },
+    };
 
-    data(): IBlueprintEditor {
-        return {
-            dragItem: undefined,
-            inputSelected: undefined,
-            selectedItem: undefined,
-            rootItem: undefined, 
-            lastMousePosition: { x: 0, y: 0},
-            items: new Map<string, IBlueprintComponent>()
-        }
-    },
+    dragItem: IBlueprintInput | undefined | null = undefined;
+
+    inputSelected: string | undefined | null = undefined;
+
+    selectedItem: string | undefined = undefined;
+    
+    rootItem: IBlueprintComponent | IBlueprintInput | undefined = undefined;
+
+    lastMousePosition = { x: 0, y: 0 };
+
+    items= new Map<string, IBlueprintComponent>();
+
+    @Ref
+    readonly contents!: HTMLDivElement;
+
+    @Ref
+    readonly inputs!: typeof BlueprintInputs;
+
+    @Ref
+    readonly nodesNavbar!: typeof BlueprintNodesNavbar;
 
     async mounted(){
         await this.deserialize();
-    },
+    }
 
-    methods: {
-        createGhostDrag(item: IBlueprintInput){
-            this.dragItem = item;
-        },
+    @Subscriber("auth.Success")
+    loadDependeces(){
+        WS.send(WS.pack("blueprint", "Request"));
+    }
 
-        dropHandler(event){
-            if(this.dragItem){
-                const rootRect = this.$refs.contents.getBoundingClientRect();
-                const x = event.clientX - rootRect.left;
-                const y = event.clientY - rootRect.top;
-                this.createComponentInput(x, y, this.dragItem);
-            }            
-        },
+    createGhostDrag(item: IBlueprintInput){
+        this.dragItem = item;
+    }
 
-        createComponentInput(x: number, y: number, item: IBlueprintInput){
-            this.items.set(uuid.v4(), { x, y, component: item, type: BlueprintComponentType.Input });
-            this.dragItem = null;
-            this.saveLocal();
-        },
+    dropHandler(event){
+        if(this.dragItem){
+            const rootRect = this.contents.getBoundingClientRect();
+            const x = event.clientX - rootRect.left;
+            const y = event.clientY - rootRect.top;
+            this.createComponentInput(x, y, this.dragItem);
+        }            
+    }
 
-        hiddenPreview(event){
-            event.dataTransfer.setDragImage(new Image(), 0, 0);
-        },
+    createComponentInput(x: number, y: number, item: IBlueprintInput){
+        const id = uuid.v4();
+        this.items.set(id, { id, x, y, component: item, type: BlueprintComponentType.Input });
+        this.dragItem = null;
+        this.saveLocal();
+    }
 
-        mouseOverComponent(itemId: string){
-            this.$refs.inputs.itemMouseOver(itemId);
-        },
+    hiddenPreview(event){
+        event.dataTransfer.setDragImage(new Image(), 0, 0);
+    }
 
-        mouseLeaveComponent(){
-            this.$refs.inputs.itemMouseOut();
-        },
+    mouseOverComponent(itemId: string){
+        this.inputs.itemMouseOver(itemId);
+    }
 
-        inputMouseOver(id: string){
-            this.inputSelected = id;
-        },
+    mouseLeaveComponent(){
+        this.inputs.itemMouseOut();
+    }
 
-        inputMouseOut(){
-            this.inputSelected = null;
-        },
+    inputMouseOver(id: string){
+        this.inputSelected = id;
+    }
 
-        updatePosition(componentId, x, y){
-            let item = this.items.get(componentId);
+    inputMouseOut(){
+        this.inputSelected = null;
+    }
+
+    updatePosition(componentId, x, y){
+        let item = this.items.get(componentId);
+
+        if(item){
             item.x = item.x - x;
             item.y = item.y - y;
 
             this.items.set(componentId, item);
             this.saveLocal();
-        },
-
-        selectItem(componentId: string, rootId: IBlueprintComponent | IBlueprintInput | undefined){
-            this.selectedItem = componentId;
-            this.rootItem = rootId;
-        },
-
-        selectInput(input: IBlueprintInput){
-            this.rootItem = input;
-        },
-
-        renameComponent(componentId: string, name: string){
-            let items = new Map<string, IBlueprintComponent>();
-
-            this.items.forEach((value: IBlueprintComponent, key: string) => {
-                if(value.component.id === componentId)
-                    value.component.name = name;
-
-                items.set(key, value);
-            });
-
-            this.items = items;
-            this.saveLocal();
-        },
-
-        deselectIfClickedOutside(event) {
-            if (this.selectedItem){
-                this.selectedItem = null;
-                this.rootItem = null;
-            }                
-        },
-
-        openNodeNavbar(event){
-            const rootRect = this.$refs.contents.getBoundingClientRect();
-            const x = event.clientX - rootRect.left;
-            const y = event.clientY - rootRect.top;
-
-            this.lastMousePosition = { x, y };
-            this.$refs.nodesNavbar.open();
-            event.preventDefault();
-        },
-
-        createBlueprint(blueprint){
-            console.log(blueprint);
-        },
-
-        saveLocal(){
-            localStorage.setItem(`editor-${this.id}`, JSON.stringify(this.serialize()));
-        },
-
-        deserialize(){
-            let storageData = localStorage.getItem(`editor-${this.id}`);
-
-            if(storageData){
-                let settings = JSON.parse(storageData);
-                this.$refs.inputs.inputs = settings.inputs;
-
-                settings.items.forEach(obj => {
-                    this.items.set(obj[0], obj[1]);
-                });
-            }            
-        },
-
-        serialize(){
-            return {
-                inputs: this.$refs.inputs.serialize(),
-                items: Array.from(this.items)
-            }
         }
     }
-})
+
+    selectItem(componentId: string, rootId: IBlueprintComponent | IBlueprintInput | undefined){
+        this.selectedItem = componentId;
+        this.rootItem = rootId;
+    }
+
+    selectInput(input: IBlueprintInput){
+        this.rootItem = input;
+    }
+
+    renameComponent(componentId: string, name: string){
+        let items = new Map<string, IBlueprintComponent>();
+
+        this.items.forEach((value: IBlueprintComponent, key: string) => {
+            if(value.component.id === componentId)
+                value.component.name = name;
+
+            items.set(key, value);
+        });
+
+        this.items = items;
+        this.saveLocal();
+    }
+
+    deselectIfClickedOutside(event) {
+        if (this.selectedItem){
+            this.selectedItem = undefined;
+            this.rootItem = undefined;
+        }                
+    }
+
+    openNodeNavbar(event){
+        const rootRect = this.contents.getBoundingClientRect();
+        const x = event.clientX - rootRect.left;
+        const y = event.clientY - rootRect.top;
+
+        this.lastMousePosition = { x, y };
+        this.nodesNavbar.open();
+        event.preventDefault();
+    }
+
+    createBlueprint(blueprint){
+        console.log(blueprint);
+    }
+
+    saveLocal(){
+        localStorage.setItem(`editor-${this.id}`, JSON.stringify(this.serialize()));
+    }
+
+    deserialize(){
+        let storageData = localStorage.getItem(`editor-${this.id}`);
+
+        if(storageData){
+            let settings = JSON.parse(storageData);
+            this.inputs.inputs = settings.inputs;
+
+            settings.items.forEach(obj => {
+                this.items.set(obj[0], obj[1]);
+            });
+        }            
+    }
+
+    serialize(){
+        return {
+            inputs: this.inputs.serialize(),
+            items: Array.from(this.items)
+        }
+    }
+}
 </script>

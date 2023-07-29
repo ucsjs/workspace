@@ -1,14 +1,19 @@
+import * as chokidar from "chokidar";
+import { v4 as uuidv4 } from 'uuid';
+
 import { AbstractHttpAdapter } from "./abstracts";
 import { ExpressAdapter } from "./adapters";
 import { WebSocketAdapter } from "./interfaces";
-import * as chokidar from "chokidar";
 import { Logger } from "./services";
 import { MODULE_METADATA } from "./constants";
+import { stringToArrayBuffer } from "./utils";
 
 export class UCSApplication {
     private httpAdapter: AbstractHttpAdapter;
 
     private webSocketServer: any;
+
+    private webSocketConnections: Map<string, WebSocket> = new Map<string, WebSocket>();
 
     private port: number;
 
@@ -77,11 +82,20 @@ export class UCSApplication {
         return new ExpressAdapter(httpServer);
     }
 
-    public useWebSocketAdapter(adapter: WebSocketAdapter){
+    public useWebSocketAdapter(adapter: WebSocketAdapter, interceptor?: Function){
         this.webSocketServer = adapter.create(this.httpAdapter);
         
-        adapter.bindClientConnect(this.webSocketServer, (ws: WebSocket) => {
+        adapter.bindClientConnect(this.webSocketServer, (socket) => {
+            const id = uuidv4();
+            socket.id = id;
+            this.webSocketConnections.set(id, socket);
 
+            if(interceptor && typeof interceptor === "function")
+                socket.on("message", (data) => interceptor(this.getHttpAdapter(), socket, data));
+                
+            socket.on("error", () => this.webSocketConnections.delete(id));
+            socket.on("close", () => this.webSocketConnections.delete(id));
+            socket.send(stringToArrayBuffer(id), { binary: true });
         });
     }
 

@@ -12,11 +12,18 @@ export class WsAdapter implements WebSocketAdapter {
     constructor(private app: UCSApplication) {}
 
     create(server: AbstractHttpAdapter, options?: any): any {
-        return new WebSocket.Server({ server: server.getHttpServer(), ...options });
+        return new WebSocket.Server({ 
+            server: server.getHttpServer(), 
+            ...options 
+        });
     }
 
     bindClientConnect(server, callback: Function) {
         server.on('connection', callback);
+    }
+
+    bindCustomMessageHandler(server, callback: Function){
+        server.on('message', callback);
     }
 
     bindMessageHandlers(

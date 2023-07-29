@@ -1,0 +1,49 @@
+package ucs;
+syntax = "proto3";
+
+import "google/protobuf/any.proto";
+
+message Request { }
+
+message BlueprintInput {
+    required string name = 1;
+    required int32 type = 2;
+}
+
+message BlueprintOutput {
+    required string name = 1;
+    required int32 type = 2;
+}
+
+message BlueprintPropertyOption {
+    optional string key = 1;
+    optional google.protobuf.Any value = 2;
+}
+
+message BlueprintProperty {
+    required string name = 1;
+    optional string displayName = 2;
+    required int32 type = 3;
+    optional google.protobuf.Any default = 4;
+    optional bool required = 5;
+    repeated BlueprintPropertyOption options = 6;
+}
+
+message Blueprint {
+    required string id = 1;
+    optional bool useInEditor = 2;
+    optional int32 version = 3;
+    required string namespace = 4;
+    required string group = 5;
+    optional string icon = 6;
+    optional string helpLink = 7;
+    optional string displayName = 8;
+    optional string editorHeaderColor = 9;
+    repeated BlueprintInput inputs = 10;
+    repeated BlueprintOutput outputs = 11;
+    repeated BlueprintProperty properties = 12;
+}
+
+message BlueprintList {
+    repeated Blueprint blueprints = 1;
+}

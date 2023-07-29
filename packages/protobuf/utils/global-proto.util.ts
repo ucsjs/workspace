@@ -1,11 +1,19 @@
 import * as protobuf from "protobufjs";
 import * as path from 'path';
+import * as fs from "fs";
 import { glob } from "glob";
 
-import { Singleton } from "@ucsjs/common";
+import { isNumber, isString, Singleton } from "@ucsjs/common";
+
+interface Types {
+    [key: string]: any
+}
 
 export class GlobalProto extends Singleton {
     public protos: Map<string, protobuf.Root> = new Map<string, protobuf.Root>();
+    public index: Map<number, string> = new Map<number, string>(); 
+    public contracts: Map<string, string> = new Map<string, string>();
+    public types: Map<string, Types> = new Map<string, Types>();
 
     static async load(){
         let directoryPackages = path.resolve((process.env.NODE_ENV == "prod") ? "./node_modules/@ucsjs/**/*.proto" : "./packages/**/*.proto");
@@ -17,18 +25,95 @@ export class GlobalProto extends Singleton {
             if(!filename.includes("node_modules")){
                 const protoName = path.basename(filename);
                 const root = await protobuf.load(path.resolve(filename));
-                this.register(protoName, root);
+                const contract = fs.readFileSync(filename, "utf-8");
+                this.register(protoName.replace(".proto", ""), root, contract);
             }            
         }
     }
 
-    static register(key: string, root: protobuf.Root): void{
+    static register(key: string, root: protobuf.Root, contract: string): void {
         const globalProto = GlobalProto.getInstance();
+        globalProto.index.set(globalProto.contracts.size, key);
         globalProto.protos.set(key, root);
+        globalProto.contracts.set(key, contract);      
+        
+        let types = {};
+        let pointerTypes = 0;
+
+        for(let namespace of root.nestedArray){
+            for(let type in namespace.toJSON().nested){
+                types[type] = pointerTypes;   
+                pointerTypes++;
+            }                                 
+        }
+
+        globalProto.types.set(key, types);
     }
 
-    static retrieve(key: string): protobuf.Root | null{
+    static retrieve(key: string): protobuf.Root | null {
         const globalProto = GlobalProto.getInstance();
-        return (globalProto.protos.has(key))? globalProto.protos.get(key) : null;
+        return (globalProto.protos.has(key)) ? globalProto.protos.get(key) : null;
+    }
+
+    static retrieveIndex(key: string) : number | null {
+        const globalProto = GlobalProto.getInstance();
+        
+        const keys = Array.from(globalProto.index).
+            map((item) => (item[1] === key) ? item[0] : null).
+            filter(item => item);
+
+        return (keys.length > 0) ? keys[0] : null;
+    }
+
+    static retrieveTypes(key: string | number, message: string | number): string | null {
+        const globalProto = GlobalProto.getInstance();
+
+        if(isNumber(key)){
+            const keys = Array.from(globalProto.index).
+                map((item) => (item[0] === key) ? item[1] : null).
+                filter(item => item);
+
+            key = keys[0];
+        }
+        
+        const Types = (globalProto.types.has(key)) ? globalProto.types.get(key) : null;
+
+        for(let key in Types){
+            if(Types[key] === message && isNumber(message)) 
+                return key;            
+            else if(key == message && isString(message))
+                return Types[key];
+        }
+        
+        return null;
+    }
+
+    static retrieveByIndex(index: number) : protobuf.Root | null {
+        const globalProto = GlobalProto.getInstance();
+        const contractKey = (globalProto.index.has(index)) ? globalProto.index.get(index) : null;
+        const proto = (contractKey && globalProto.protos.has(contractKey)) ? globalProto.protos.get(contractKey) : null;
+        return proto;
+    }
+
+    static retrieveContractName(index: number): string {
+        const globalProto = GlobalProto.getInstance();
+        const contractKey = (globalProto.index.has(index)) ? globalProto.index.get(index) : null;
+        return contractKey;
+    }
+
+    static retrieveContract(key: string): string | null {
+        const globalProto = GlobalProto.getInstance();
+        return (globalProto.contracts.has(key)) ? globalProto.contracts.get(key) : null
+    }
+
+    static retrieveAll(): object {
+        const globalProto = GlobalProto.getInstance();
+        const contractsArr = Array.from(globalProto.contracts);
+        let returnObj = {};
+
+        for(let contract of contractsArr)
+            returnObj[contract[0].replace(".proto", "")] = contract[1];
+
+        return returnObj;
     }
 }

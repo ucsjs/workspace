@@ -58,7 +58,7 @@ export interface IBlueprintProperties {
     fixed?:boolean;
     default?: any;
     value?: any;
-    options?: IBlueprintOptions[],
+    options?: IBlueprintOptions[] | { key: any; value: any; }[],
     objectArray?: IBlueprintObjectArrayItem[]
 }
 
@@ -137,4 +137,8 @@ export interface IBlueprintTransform {
 export interface IBlueprintMetadata {
     blueprints: { [key: string]: any },
     connections?: { [key: string]: string | Array<string> }
+}
+
+export class BlueprintList {
+    id: string;
 }

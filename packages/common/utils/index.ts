@@ -7,3 +7,4 @@ export * from "./extend-metadata.util";
 export * from "./streamable-file.util";
 export * from "./web-socket.util";
 export * from "./integrity-control.util";
+export * from "./bytes-util";

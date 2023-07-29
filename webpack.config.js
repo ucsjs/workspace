@@ -31,7 +31,9 @@ module.exports = {
             '@components': path.resolve('./editor/src/components'),
             '@mixins': path.resolve('./editor/src/mixins'),
             '@stores': path.resolve('./editor/src/stores'),
+            '@decorators': path.resolve('./editor/src/decorators'),
             'vue$': 'vue/dist/vue.esm-bundler.js',
+            'vue-facing-decorator': 'vue-facing-decorator/dist/index-return-cons'
         },
         plugins: [
             new TsconfigPathsPlugin(),
