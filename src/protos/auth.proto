@@ -1,9 +1,8 @@
-package auth;
-syntax = "proto3";
+syntax = "proto3"; package auth;
 
 message Login {
-    required string uuid = 1;
-    required string token = 2;
+    string uuid = 1;
+    string token = 2;
 }
 
 message Success {}

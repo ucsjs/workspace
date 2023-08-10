@@ -1,5 +1,5 @@
 import { Controller, Get, Query } from "@ucsjs/common";
-import { LLMServices } from "@service/llm.services";
+import { LLMServices } from "@ucsjs/core";
 
 @Controller("llm")
 export class LLMController {

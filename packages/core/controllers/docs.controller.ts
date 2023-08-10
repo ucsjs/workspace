@@ -1,4 +1,5 @@
-import { DocsService } from "@services";
+import * as path from "path";
+import { DocsService } from "../services";
 import { Controller, Get, Param, Response } from "@ucsjs/common";
 
 @Controller("docs")
@@ -8,7 +9,7 @@ export class DocsController {
     constructor(
         private docsService: DocsService
     ){
-        this.routes = require("../../docs/index.json");
+        this.routes = require(path.join(process.cwd(), "docs/index.json"));
     }
     
     @Get("/")

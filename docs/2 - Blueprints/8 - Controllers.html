@@ -1,0 +1,271 @@
+<h1>Controller</h1><a id="controller" title="Controller"></a>
+<h2>Sample</h2><a id="sample" title="Sample"></a>
+<p>The <code>UsersController</code> class is a blueprint controller that manages user-related operations. It provides endpoints for CRUD operations on users, including getting all users, getting a user by ID, creating a user, updating a user, and deleting a user.</p>
+<pre><code class="hljs language-typescript" lang="typescript">import { UsersDTO, UsersUpdateDTO } from &quot;@dtos&quot;;
+import { TokenizerService } from &quot;@ucsjs/core&quot;;
+
+import { 
+    Body, 
+    Controller, 
+    Delete, 
+    Get, 
+    Param, 
+    Post, 
+    Put, 
+    Response 
+} from &quot;@ucsjs/common&quot;;
+
+import { 
+    Flow, 
+    IBlueprintController, 
+    Cache, 
+    GlobalModules, 
+    CacheModule, 
+    Intercept, 
+    BlueprintController 
+} from &quot;@ucsjs/core&quot;;
+
+@Controller(&quot;users&quot;)
+export class UsersController extends BlueprintController implements IBlueprintController {
+
+    constructor(
+        private readonly tokenizer: TokenizerService
+    ) { 
+        super();
+    }
+
+    async created(){
+        let connectionString = await this.tokenizer.getToken(&quot;MONGODB_CONN&quot;);
+        
+        if(connectionString) 
+            this.flow = await Flow.fromMetadata(&quot;users&quot;, { 
+                connectionString 
+            });        
+        else 
+            this.catch(`Error when trying to retrieve the token for the controller`, &quot;UsersController&quot;);        
+    }
+
+    @Get(&quot;/&quot;) 
+    @Cache(&quot;Users::all&quot;)
+    async getAll(
+        @Intercept(&quot;MongoDBFind&quot;, &quot;result&quot;, [ { 
+            input: &quot;query&quot;, value: {} 
+        } ]) data
+    ) {
+        await GlobalModules.
+            retrieve(CacheModule)?.
+            set(&quot;Users::all&quot;, data);
+
+        return data;         
+    }
+
+    @Get(&quot;/:id&quot;)
+    async getById(
+        @Param(&quot;id&quot;) id: string, 
+        @Intercept(&quot;MongoDBFind&quot;, &quot;result&quot;, [ { 
+            input: &quot;id&quot;, value: &quot;$param.id&quot; 
+        } ]) data
+    ) {
+        await GlobalModules.
+            retrieve(CacheModule)?.
+            set(`Users::${id}`, data);
+
+        return data;
+    }
+
+    @Post(&quot;/&quot;)
+    async createUser(
+        @Body() body: UsersDTO,
+        @Intercept(&quot;MongoDBInsert&quot;, &quot;result&quot;, [ { 
+            input: &quot;query&quot;, value: &quot;$body&quot; 
+        } ]) data
+    ) {
+        await GlobalModules.
+            retrieve(CacheModule)?.
+            del(&quot;Users::all&quot;);
+
+        return data;
+    }
+
+    @Put(&quot;/:id&quot;)
+    async updateUser(
+        @Param(&quot;id&quot;) id: string,
+        @Body() body: UsersUpdateDTO,
+        @Intercept(&quot;MongoDBUpdate&quot;, &quot;result&quot;, [
+            { input: &quot;id&quot;, value: &quot;$param.id&quot; },
+            { input: &quot;set&quot;, value: &quot;$body&quot; }
+        ]) result
+    ) {
+        if (await result === true) {
+            await GlobalModules.
+                retrieve(CacheModule)?.
+                del(&quot;Users::all&quot;);
+                
+            await GlobalModules.
+                retrieve(CacheModule)?.
+                del(`Users::${id}`);
+
+            return `Record ${id} has been updated successfully`;
+        } else {
+            throw new Error(&quot;No records were updated&quot;);
+        }
+    }
+
+    @Delete(&quot;/:id&quot;)
+    async deleteUser(
+        @Param(&quot;id&quot;) id: string,
+        @Intercept(&quot;MongoDBDelete&quot;, &quot;result&quot;, [ { 
+            input: &quot;id&quot;, value: &quot;$param.id&quot; 
+        } ]) result
+    ) {
+        if (await result === true) {
+            await GlobalModules.
+                retrieve(CacheModule)?.
+                del(&quot;Users::all&quot;);
+
+            await GlobalModules.
+                retrieve(CacheModule)?.
+                del(`Users::${id}`);
+
+            return `Record ${id} has been removed successfully`;
+        } else {
+            throw new Error(&quot;No records were removed&quot;);
+        }
+    }
+}
+</code></pre>
+<p>I would like to highlight some points from the example code presented above, first the use of the tokenizer to store encrypted sensitive data, therefore the database configuration is configured by the user and stored in the project encrypted with a 1024-bit RSA key, then the loading of the flow through a preloaded metadata that defines MongoDB database management blueprints, therefore in the <code>created</code> function creates a data access flow through injectors containing all the blueprints necessary for a CRUD, this instance will be created automatically when loading the controller so the performance of the call is extremely fast since all the requirements for it to work were configured only once.</p>
+<p>Also, the example controller already incorporates cache calls by the <code>@Cache</code> decorator that will manage in memory (it can be configured using systems such as Redis and Memcached) so if the same request is made in a short period of time, the return will be the data in memory instead of requesting the data from the database, and notice that any change through the API completely clears the cache, always keeping the return data the most current</p>
+<h2>Metadata</h2><a id="metadata" title="Metadata"></a>
+<p>Just to complement the example below, here is the metadata file that configures the blueprints for CRUD operation</p>
+<pre><code class="hljs language-json" lang="json">{
+    &quot;blueprints&quot;: {
+        &quot;MongoDB&quot;: { 
+            &quot;blueprint&quot;: &quot;MongoDB&quot;, 
+            &quot;args&quot;: { 
+                &quot;connectionString&quot;: &quot;$args:connectionString&quot; 
+            } 
+        },
+        &quot;MongoDBSchema&quot;: { 
+            &quot;blueprint&quot;: &quot;MongoDBSchema&quot;, 
+            &quot;args&quot;: { 
+                &quot;name&quot;: &quot;users&quot;,
+                &quot;collection&quot;: &quot;users&quot;,
+                &quot;timestamps&quot;: true,
+                &quot;fields&quot;: [
+                    { 
+                        &quot;name&quot;: &quot;user&quot;, 
+                        &quot;type&quot;: &quot;String&quot;, 
+                        &quot;index&quot;: true, 
+                        &quot;required&quot;: true 
+                    },
+                    { 
+                        &quot;name&quot;: &quot;pass&quot;, 
+                        &quot;type&quot;: &quot;String&quot;, 
+                        &quot;index&quot;: true, 
+                        &quot;required&quot;: true 
+                    }
+                ]
+            } 
+        },
+        &quot;MongoDBFind&quot;: { 
+            &quot;blueprint&quot;: &quot;MongoDBFind&quot;, 
+            &quot;args&quot;: { &quot;limit&quot;: 10 } 
+        },
+        &quot;MongoDBInsert&quot;: { 
+            &quot;blueprint&quot;: &quot;MongoDBInsert&quot;, 
+            &quot;transforms&quot;: {
+                &quot;query&quot;: [
+                    { 
+                        &quot;blueprint&quot;: &quot;Crypto&quot;, 
+                        &quot;input&quot;: &quot;_default&quot;, 
+                        &quot;output&quot;: &quot;_default&quot;, 
+                        &quot;key&quot;: &quot;pass&quot; 
+                    }
+                ]
+            } 
+        },
+        &quot;MongoDBUpdate&quot;: { 
+            &quot;blueprint&quot;: &quot;MongoDBUpdate&quot;, 
+            &quot;transforms&quot;: {
+                &quot;set&quot;: [
+                    { 
+                        &quot;blueprint&quot;: &quot;Crypto&quot;, 
+                        &quot;input&quot;: &quot;_default&quot;, 
+                        &quot;output&quot;: &quot;_default&quot;, 
+                        &quot;key&quot;: &quot;pass&quot; 
+                    }
+                ]
+            } 
+        },
+        &quot;MongoDBDelete&quot;: { 
+            &quot;blueprint&quot;: &quot;MongoDBDelete&quot; 
+        }
+    },
+    &quot;connections&quot;: {
+        &quot;MongoDB-&gt;_default&quot;: &quot;MongoDBSchema-&gt;connectionName&quot;,
+        &quot;MongoDBSchema-&gt;model&quot;: [
+            &quot;MongoDBFind-&gt;model&quot;, 
+            &quot;MongoDBInsert-&gt;model&quot;, 
+            &quot;MongoDBUpdate-&gt;model&quot;, 
+            &quot;MongoDBDelete-&gt;model&quot;
+        ]
+    }
+}
+</code></pre>
+<h2>Constructor</h2><a id="constructor" title="Constructor"></a>
+<p>The constructor takes a <code>TokenizerService</code> instance, which is used to retrieve the connection string for the MongoDB database.</p>
+<h2>Methods</h2><a id="methods" title="Methods"></a>
+<h3><code>created()</code></h3>
+<p>This asynchronous method is called when the controller is created. It retrieves the MongoDB connection string and initializes the flow from the “users” metadata.</p>
+<h3><code>getAll()</code></h3>
+<ul>
+<li><strong>Endpoint:</strong> <code>GET /users/</code></li>
+<li><strong>Cache Key:</strong> <code>Users::all</code></li>
+<li><strong>Description:</strong> Retrieves all users from the database.</li>
+<li><strong>Intercepts:</strong> <code>MongoDBFind</code> blueprint with an empty query.</li>
+<li><strong>Returns:</strong> An array of user data.</li>
+</ul>
+<h3><code>getById(id: string, data)</code></h3>
+<ul>
+<li><strong>Endpoint:</strong> <code>GET /users/:id</code></li>
+<li><strong>Parameters:</strong> <code>id</code> - The ID of the user to retrieve.</li>
+<li><strong>Description:</strong> Retrieves a user by ID from the database.</li>
+<li><strong>Intercepts:</strong> <code>MongoDBFind</code> blueprint with the provided ID.</li>
+<li><strong>Returns:</strong> The user data for the specified ID.</li>
+</ul>
+<h3><code>createUser(body: UsersDTO, data)</code></h3>
+<ul>
+<li><strong>Endpoint:</strong> <code>POST /users/</code></li>
+<li><strong>Parameters:</strong> <code>body</code> - The user data to create.</li>
+<li><strong>Description:</strong> Creates a new user in the database.</li>
+<li><strong>Intercepts:</strong> <code>MongoDBInsert</code> blueprint with the provided user data.</li>
+<li><strong>Returns:</strong> The created user data.</li>
+</ul>
+<h3><code>updateUser(id: string, body: UsersUpdateDTO, result)</code></h3>
+<ul>
+<li><strong>Endpoint:</strong> <code>PUT /users/:id</code></li>
+<li><strong>Parameters:</strong>
+<ul>
+<li><code>id</code> - The ID of the user to update.</li>
+<li><code>body</code> - The updated user data.</li>
+</ul>
+</li>
+<li><strong>Description:</strong> Updates an existing user in the database.</li>
+<li><strong>Intercepts:</strong> <code>MongoDBUpdate</code> blueprint with the provided ID and user data.</li>
+<li><strong>Returns:</strong> A success message if the update was successful, otherwise throws an error.</li>
+</ul>
+<h3><code>deleteUser(id: string, result)</code></h3>
+<ul>
+<li><strong>Endpoint:</strong> <code>DELETE /users/:id</code></li>
+<li><strong>Parameters:</strong> <code>id</code> - The ID of the user to delete.</li>
+<li><strong>Description:</strong> Deletes a user by ID from the database.</li>
+<li><strong>Intercepts:</strong> <code>MongoDBDelete</code> blueprint with the provided ID.</li>
+<li><strong>Returns:</strong> A success message if the deletion was successful, otherwise throws an error.</li>
+</ul>
+<h2>Decorators</h2><a id="decorators" title="Decorators"></a>
+<p>The class uses various decorators such as <code>@Controller</code>, <code>@Get</code>, <code>@Post</code>, <code>@Put</code>, <code>@Delete</code>, <code>@Cache</code>, and <code>@Intercept</code> to define the routing, caching, and interception behavior.</p>
+<h2>Error Handling</h2><a id="error-handling" title="Error Handling"></a>
+<p>The class includes error handling for scenarios such as failure to retrieve the necessary token for the controller to work, no records updated, and no records removed.</p>
+<h2>Integration</h2><a id="integration" title="Integration"></a>
+<p>The <code>UsersController</code> class is part of the UCSJS framework and integrates with other core modules and services such as <code>TokenizerService</code>, <code>Flow</code>, <code>CacheModule</code>, and blueprint-related functionalities.</p>

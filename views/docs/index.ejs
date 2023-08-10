@@ -73,8 +73,14 @@
                         <%- include('../../views/docs/breadcrumb'); -%>
                         <%- include('../../views/docs/anchors'); -%>
 
-                        <div class="content max-w-screen-lg">
+                        <div class="content max-w-screen-lg relative">
                             <%- index -%>
+
+                            <div class="absolute top-0 right-0">
+                                <a href="https://github.com/ucsjs/workspace/tree/main/<%- link -%>" target="_blank" title="Suggest change">
+                                    <i class="fa-solid fa-pen-to-square fa-lg"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
 

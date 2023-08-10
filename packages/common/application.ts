@@ -60,7 +60,7 @@ export class UCSApplication {
                 
                 if(closeHandle instanceof Promise)
                     await closeHandle;
-            } catch(e) { console.log(e); }
+            } catch { }
 
             if(typeof moduleCls === "function")
                 await httpServer.initialize(await moduleCls(), null, true);

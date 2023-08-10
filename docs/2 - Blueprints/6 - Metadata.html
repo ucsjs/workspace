@@ -1,0 +1,99 @@
+<h1>Metadata</h1><a id="metadata" title="Metadata"></a>
+<p>UCS.js provides a powerful way to manage data flows within your application. By defining blueprints and connections, you can create complex data processing pipelines that are both flexible and maintainable.</p>
+<h2>Interface</h2><a id="interface" title="Interface"></a>
+<p>The <code>IBlueprintMetadata</code> interface is a key part of defining a flow. It allows you to specify the blueprints and connections that make up the flow.</p>
+<pre><code class="hljs language-typescript" lang="typescript">export interface IBlueprintMetadata {
+    blueprints: { [key: string]: any },
+    connections?: { [key: string]: string | Array&lt;string&gt; }
+}
+</code></pre>
+<h3>Properties</h3>
+<ul>
+<li>
+<p><strong>blueprints</strong>: An object that defines the blueprints for the flow. Each key is the name of a blueprint, and the value is an object that specifies the blueprint’s configuration.</p>
+</li>
+<li>
+<p><strong>connections</strong>: An optional object that defines the connections between blueprints. Each key is a connection string, and the value is either a single string or an array of strings that specify the connected blueprints.</p>
+</li>
+</ul>
+<h2>Manually</h2><a id="manually" title="Manually"></a>
+<p>You can define blueprints and connections manually when creating a flow. Here’s an example that demonstrates how to do this:</p>
+<pre><code class="hljs language-typescript" lang="typescript">const metadata: IBlueprintMetadata = {
+    blueprints: {
+        &quot;MongoDBFind&quot;: { 
+            blueprint: &quot;MongoDBFind&quot;, 
+            args: { limit: 10 } 
+        },
+        // Other blueprints...
+    },
+    connections: {
+        &quot;MongoDBFind-&gt;model&quot;: &quot;MongoDBSchema-&gt;model&quot;,
+        // Other connections...
+    }
+};
+
+const flow = new Flow(metadata);
+</code></pre>
+<h4>Explanation</h4>
+<ul>
+<li>The <code>metadata</code> object is defined with the blueprints and connections for the flow.</li>
+<li>The <code>blueprints</code> property specifies the blueprints, such as “MongoDBFind”, along with their configuration.</li>
+<li>The <code>connections</code> property specifies the connections between blueprints, such as connecting “MongoDBFind” to “MongoDBSchema”.</li>
+<li>The <code>Flow</code> constructor is called with the name of the flow (“users”) and the <code>metadata</code> object, creating a new flow with the specified blueprints and connections.</li>
+</ul>
+<h2>GlobalRegistry</h2><a id="globalregistry" title="GlobalRegistry"></a>
+<p>You can create a JSON file with metadata in the <code>.metadata</code> directory (located at <code>/src/.metadata</code>). This file will be loaded automatically by the <code>GlobalRegistry</code>, and the <code>fromMetadata</code> function of the <code>Flow</code> class can retrieve these data for flow creation.</p>
+<h2>Metadata File</h2><a id="metadata-file" title="Metadata File"></a>
+<p>You can create a JSON file in the <code>.metadata</code> directory with the following structure:</p>
+<pre><code class="hljs language-json" lang="json">{
+    &quot;blueprints&quot;: {
+        &quot;MongoDBFind&quot;: { 
+            &quot;blueprint&quot;: &quot;MongoDBFind&quot;, 
+            &quot;args&quot;: { &quot;limit&quot;: 10 } 
+        },
+        // Other blueprints...
+    },
+    &quot;connections&quot;: {
+        &quot;MongoDBFind-&gt;model&quot;: &quot;MongoDBSchema-&gt;model&quot;,
+        // Other connections...
+    }
+}
+</code></pre>
+<p>Save this file with a name that corresponds to the metadata name you want to use, such as <code>users.json</code>.</p>
+<h3>Loading Metadata with GlobalRegistry</h3>
+<p>The <code>GlobalRegistry</code> will automatically load the metadata from the JSON file in the <code>.metadata</code> directory. You don’t need to manually load the file; UCSJS takes care of this for you.</p>
+<h3>Creating a Flow from Metadata</h3>
+<p>You can create a flow from the metadata using the <code>fromMetadata</code> function of the <code>Flow</code> class. Here’s an example:</p>
+<pre><code class="hljs language-ts" lang="ts">const flow = await Flow.fromMetadata(&quot;users&quot;);
+</code></pre>
+<h3>Function: fromMetadata</h3>
+<p>The <code>fromMetadata</code> function retrieves the metadata from the <code>GlobalRegistry</code> and creates a flow using the specified blueprints and connections.</p>
+<pre><code class="hljs language-ts" lang="ts">public static async fromMetadata(
+    metadataName: string, 
+    args?: { [key: string]: any }
+): Promise&lt;Flow&gt;{
+
+    const metadata = GlobalRegistry.
+        retrieveMetadata(metadataName, args) as IBlueprintMetadata;
+    
+    if(metadata) 
+        return await Flow.create(
+            metadata.blueprints, 
+            metadata.connections
+        );
+    else
+        return null;
+}
+</code></pre>
+<h4>Parameters</h4>
+<ul>
+<li><strong>metadataName</strong>: The name of the metadata to retrieve. This should correspond to the name of the JSON file in the <code>.metadata</code> directory (without the <code>.json</code> extension).</li>
+<li><strong>args</strong>: Optional arguments that can be passed to the metadata.</li>
+</ul>
+<h4>Returns</h4>
+<ul>
+<li>A <code>Promise</code> that resolves to a <code>Flow</code> instance if the metadata is found, or <code>null</code> if the metadata is not found.</li>
+</ul>
+<h2>Conclusion</h2><a id="conclusion" title="Conclusion"></a>
+<p>The UCS.js framework provides a robust and flexible way to define data flows. By using the <code>IBlueprintMetadata</code> interface and the <code>Flow</code> constructor, you can create complex flows that are tailored to your application’s needs. Whether you’re working with databases, APIs, or other data sources, UCSJS makes it easy to manage and process your data.</p>
+<p>Provides a convenient way to define and manage metadata for flows. By creating a JSON file in the <code>.metadata</code> directory, you can easily define blueprints and connections for your flows. The <code>GlobalRegistry</code> and <code>fromMetadata</code> function make it simple to load and use this metadata, allowing you to create complex data flows with ease.</p>

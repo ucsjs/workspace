@@ -1,5 +1,5 @@
 import { UsersDTO, UsersUpdateDTO } from "@dtos";
-import { TokenizerService, BlueprintService } from "@services";
+import { TokenizerService } from "@ucsjs/core";
 import { Body, Controller, Delete, Get, Param, Post, Put, Response } from "@ucsjs/common";
 
 import { 
@@ -16,8 +16,7 @@ import {
 export class UsersController extends BlueprintController implements IBlueprintController {
 
     constructor(
-        private readonly tokenizer: TokenizerService,
-        private readonly blueprint: BlueprintService,
+        private readonly tokenizer: TokenizerService
     ) { 
         super();
     }
@@ -49,62 +48,44 @@ export class UsersController extends BlueprintController implements IBlueprintCo
         return data;
     }
 
-    /*@Get("/:id")
-    async getById(@Param("id") id: string, @Response() res) {
-        return await this.blueprint.intercept(
-            this.flow, res, 
-            "MongoDBFind", "result",
-            [ { input: "id", value: id } ],
-            this.caching, `Users::${id}`
-        ); 
-    }
-
     @Post("/")
-    async createUser(@Body() body: UsersDTO, @Response() res){
-        return await this.blueprint.insertDataAndIntercept(
-            this.flow, res, 
-            "MongoDBInsert", "result",
-            [ { input: "query", value: body } ],
-            this.caching, 'Users::all'
-        );
+    async createUser(
+        @Body() body: UsersDTO,
+        @Intercept("MongoDBInsert", "result", [ { input: "query", value: "$body" } ]) data
+    ) {
+        await GlobalModules.retrieve(CacheModule)?.del("Users::all");
+        return data;
     }
 
     @Put("/:id")
-    async updateUser(@Param("id") id: string, @Body() body: UsersUpdateDTO, @Response() res){
-        return new Promise((resolve, reject) => {
-            this.blueprint.intercept(this.flow, res, "MongoDBUpdate", "result",
-                [ 
-                    { input: "id", value: id },
-                    { input: "set", value: body }
-                ]
-            ).then(async (result) => {
-                if(result === true){
-                    await this.caching.del("Users::all");
-                    await this.caching.del(`Users::${id}`);
-                    resolve(`Record ${id} has been updated successfully`);
-                }
-                else{
-                    reject("No records were updated with the given parameters");
-                }                
-            }).catch(reject);
-        }); 
+    async updateUser(
+        @Param("id") id: string,
+        @Body() body: UsersUpdateDTO,
+        @Intercept("MongoDBUpdate", "result", [
+            { input: "id", value: "$param.id" },
+            { input: "set", value: "$body" }
+        ]) result
+    ) {
+        if (await result === true) {
+            await GlobalModules.retrieve(CacheModule)?.del("Users::all");
+            await GlobalModules.retrieve(CacheModule)?.del(`Users::${id}`);
+            return `Record ${id} has been updated successfully`;
+        } else {
+            throw new Error("No records were updated with the given parameters");
+        }
     }
 
     @Delete("/:id")
-    async deleteUser(@Param("id") id: string, @Response() res){
-        return new Promise((resolve, reject) => {
-            this.blueprint.intercept(this.flow, res, "MongoDBDelete", "result",
-                [ { input: "id", value: id } ]
-            ).then(async (result) => {
-                if(result === true){
-                    await this.caching.del("Users::all");
-                    await this.caching.del(`Users::${id}`);
-                    resolve(`Record ${id} has been removed successfully`);
-                }
-                else{
-                    reject("No records were removed with the given parameters");
-                }                
-            }).catch(reject);
-        }); 
-    }*/
+    async deleteUser(
+        @Param("id") id: string,
+        @Intercept("MongoDBDelete", "result", [ { input: "id", value: "$param.id" } ]) result
+    ) {
+        if (await result === true) {
+            await GlobalModules.retrieve(CacheModule)?.del("Users::all");
+            await GlobalModules.retrieve(CacheModule)?.del(`Users::${id}`);
+            return `Record ${id} has been removed successfully`;
+        } else {
+            throw new Error("No records were removed with the given parameters");
+        }
+    }
 }

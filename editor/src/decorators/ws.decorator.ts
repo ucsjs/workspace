@@ -1,10 +1,10 @@
-import { WS } from '@mixins/ws';
 import { createDecorator } from 'vue-facing-decorator';
+import { WS } from '@mixins/ws';
 
-export function Subscriber(event: string) {
-    return createDecorator(function (options, key) {
+export function Subscribe(event: string) {
+    return createDecorator((options, key) => {
         const handler = options.methods?.[key];
-        WS.subscriber(event, handler);
+        WS.subscribe(event, handler, options);
     });
 }
 

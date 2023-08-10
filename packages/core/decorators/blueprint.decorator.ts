@@ -38,11 +38,17 @@ export const Intercept = (blueprintName: string, outputName: string, args?: IBlu
                 if(scope.flow){
                     let parseString = (input: string): { type: string, name: string } | null  => {
                         const regex = /\$(?<type>.*?)\.(?<name>.*?)$/;
+                        const regexWithoutProperty = /\$(?<type>.*?)$/;
                         const match = input.match(regex);
+                        const matchWithoutProperty = input.match(regexWithoutProperty);
                       
                         if (match && match.groups) {
                             const { type, name } = match.groups;
                             return { type, name };
+                        }
+                        else if(matchWithoutProperty && matchWithoutProperty.groups) {
+                            const { type } = matchWithoutProperty.groups;
+                            return { type, name: null };
                         }
                       
                         return null;
@@ -51,15 +57,24 @@ export const Intercept = (blueprintName: string, outputName: string, args?: IBlu
                     for(let key in args){
                         try{
                             const { type, name } = parseString(args[key].value);
+                            console.log(type, name);
 
                             switch(type){
-                                case "param": args[key].value = req.params[name]; break;
-                                case "query": args[key].value = req.query[name]; break;
-                                case "header": args[key].value = req.header[name]; break;
-                                case "body": args[key].value = req.body[name]; break;
+                                case "param": 
+                                    args[key].value = (name) ? req.params[name] : req.params; 
+                                break;
+                                case "query": 
+                                    args[key].value = (name) ? req.query[name] : req.query; 
+                                break;
+                                case "header": 
+                                    args[key].value = (name) ? req.header[name] : req.header; 
+                                break;
+                                case "body": 
+                                    args[key].value = (name) ? req.body[name] : req.body; 
+                                break;
                             }
                         }
-                        catch { }                        
+                        catch (e){ console.log(e) }                        
                     }
                     
                     const data = await scope.flow.interceptOnPromise(blueprintName, outputName, args);

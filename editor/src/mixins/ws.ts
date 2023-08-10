@@ -7,13 +7,20 @@ import { API } from "./api";
 
 export class WS extends API {
     static socket: any = null;
+
     static connectionId: string = "";
-    static events = new Map<string, Subject<any>>;
-    static contracts = new Map<string, protobuf.Root>;
-    static index = new Map<string, IWsCall>;
-    static indexReverse = new Array<IWsCall>;
+
+    static events: Map<string, Subject<any>> = new Map<string, Subject<any>>;
+
+    static contracts: Map<string, protobuf.Root> = new Map<string, protobuf.Root>;
+
+    static index: Map<string, IWsCall> = new Map<string, IWsCall>;
+
+    static indexReverse: Array<IWsCall> = new Array<IWsCall>;
+
+    static initialized: boolean = false;
     
-    async created(){
+    async initilize(){
         if(!this.authStorage.getToken())
             this.auth();
 
@@ -22,7 +29,7 @@ export class WS extends API {
         for(let contractName in contracts){
             WS.contracts.set(
                 contractName, 
-                protobuf.parse(contracts[contractName], { keepCase: true }).root
+                protobuf.Root.fromJSON(contracts[contractName])
             );
         }
 
@@ -44,16 +51,18 @@ export class WS extends API {
         WS.socket.binaryType = 'arraybuffer';
     }
 
-    static subscriber(key: string, callback: Function){
+    static subscribe(key: string, callback: Function, scope: any){
         if(!WS.events.has(key))
             WS.events.set(key, new Subject<any>());
         
         let event = WS.events.get(key);
-        event?.subscribe({ next: (v) => callback(v) });
+
+        if(callback && typeof callback === "function")
+            event?.subscribe({ next: (v) => callback.call(scope, v) });
     }
 
-    parseMessage(event){
-        //try{
+    async parseMessage(event){
+        try{
             if(this.isUUID(event.data)){
                 WS.connectionId = new TextDecoder("utf-8").decode(event.data);
 
@@ -66,8 +75,8 @@ export class WS extends API {
                     WS.send(new Uint8Array(buffer));
             }
             else {
-                
-                const messageRaw = plainToClass(WsCall, this.parseBuffer(event.data));
+                const message: any = this.parseBuffer(event.data);
+                const messageRaw = plainToClass(WsCall, message);
                 const contractIndex = WS.indexReverse[messageRaw.contract];
                 const contract = WS.contracts.get(contractIndex.contract);
                 let messageName = "";
@@ -79,33 +88,30 @@ export class WS extends API {
                         break;
                     }
                 }
-                console.log(messageRaw);
-
-                if(messageRaw.data && messageRaw.data && messageRaw.data.length > 0){
-                    const message = contract?.lookupType(`${contractIndex.contract}.${messageName}`);
-                    data = (message) ? message.decode(messageRaw.data) : null;
+ 
+                if(message.data){                   
+                    const messageDecoder = contract?.lookupType(`${contractIndex.contract}.${messageName}`);                    
+                    data = (message && messageDecoder) ? messageDecoder.decode(message.data) : null;
                 }
-
-                console.log(WS.events);
                 
                 if(WS.events.has(`${contractIndex.contract}.${messageName}`))
                     WS.events.get(`${contractIndex.contract}.${messageName}`)?.next(data);
             }
-        /*}
+        }
         catch(err){
             console.error(err);
-        } */           
+        }            
     }
 
-    parseBuffer(buffer): protobuf.Message<{}> | undefined {
+    parseBuffer(buffer: ArrayBuffer): protobuf.Message<{}> | undefined {
         try{
             return WS.contracts.get("ws")?.
             lookupType("ws.Call").
             decode(new Uint8Array(buffer));
         }
         catch(err){
-            return undefined;
             console.error(err);
+            return undefined;
         }
     }
 

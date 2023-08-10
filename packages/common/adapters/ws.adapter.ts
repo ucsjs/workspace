@@ -14,6 +14,15 @@ export class WsAdapter implements WebSocketAdapter {
     create(server: AbstractHttpAdapter, options?: any): any {
         return new WebSocket.Server({ 
             server: server.getHttpServer(), 
+            perMessageDeflate: {
+                zlibDeflateOptions: {
+                    chunkSize: 1024,
+                    memLevel: 7,
+                    level: 3
+                },
+                serverMaxWindowBits: 10, 
+                concurrencyLimit: 10
+            },
             ...options 
         });
     }

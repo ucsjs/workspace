@@ -1,6 +1,5 @@
 import { Injectable } from "@ucsjs/common";
-import { GlobalProto } from "@ucsjs/protobuf";
-import * as zlib from "zlib";
+import { GlobalProto } from "../utils/global-proto.util";
 
 @Injectable()
 export class WsService {
@@ -16,15 +15,12 @@ export class WsService {
                     message: typeName,
                     data: (dataBuffer) ? dataBuffer: new Uint8Array()
                 }).finish();
-    
-                zlib.gzip(buffer, (err, buffer) => {
-                    if(err) reject(err);
-                    else resolve(buffer);
-                })
+
+                resolve(buffer);
             }
             catch(err){
                 console.error(err);
-                return null;
+                reject(err);
             }
         });
     }

@@ -1,6 +1,14 @@
 import * as express from 'express';
 import { Injectable } from "@ucsjs/common";
-import { Flow, HTTPUtils, IBlueprintControllerCatch, IBlueprintData, IBlueprintInjectData } from "@ucsjs/core";
+
+import { 
+    Flow, 
+    HTTPUtils, 
+    IBlueprintControllerCatch, 
+    IBlueprintData, 
+    IBlueprintInjectData 
+} from "../index";
+
 import { CachingService } from "./caching.service";
 
 @Injectable()

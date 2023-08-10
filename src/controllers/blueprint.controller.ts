@@ -13,7 +13,7 @@ import {
     Blueprint 
 } from "@ucsjs/core";
 
-import { WsService } from '@service/ws.service';
+import { WsService } from '@ucsjs/protobuf';
 
 @Controller("blueprint")
 export class BlueprintController { 

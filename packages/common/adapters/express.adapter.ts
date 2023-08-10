@@ -425,8 +425,9 @@ export class ExpressAdapter extends AbstractHttpAdapter<
                 else
                     res.status(204).end();
             }
-            catch(e){
-                Logger.error(`Request HTTP 500: ${req.path}`, "Server");
+            catch(e) {                
+                Logger.error(`Request HTTP 500: ${req.path} - ${e.message}`, "Server");
+                console.log(e);
                 res.status(500).send({ status: 500, message: e && e.message ? e.message : e }).end();
             }
         };

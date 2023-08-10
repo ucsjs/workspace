@@ -1,0 +1,54 @@
+<h1>Global Registry</h1><a id="global-registry" title="Global Registry"></a>
+<p>The Global Registry is the global controller for loading and managing blueprints in the system, to avoid the need to manually import each class and even instantiate or create flows, as well as perform blueprint configuration.</p>
+<p>Inside the index.ts file, the previous loading of the blueprints will be carried out by calling the load function, the load function by default will look for existing blueprints in the project within the <code>packages</code> and <code>src</code> directory, in case of application in production, the paths will be <code>node_modules/@ucsjs</code> and <code>dist</code>, all blueprints must have the extension <code>.blueprint.ts</code> and in case of production files, <code>.blueprint.js</code>, all classes will be imported through the function <code>require</code> of the Node, and stored without being instantiated, when using the <code>retrieve</code> function, the class will be instantiated and the blueprint will be configured.</p>
+<h2>Class Definition</h2><a id="class-definition" title="Class Definition"></a>
+<p>The <code>GlobalRegistry</code> class extends the <code>Singleton</code> class and provides methods for managing blueprints and metadata.</p>
+<h3>Properties</h3>
+<ul>
+<li><code>directory</code>: The directory or array of directories where blueprints are located.</li>
+<li><code>registry</code>: A map containing registered blueprints.</li>
+<li><code>metadatas</code>: A map containing metadata information.</li>
+</ul>
+<h3>Methods</h3>
+<h4><code>registerDirectory(directories: string | Array&lt;string&gt;, clearRegistry: boolean = true)</code></h4>
+<p>Registers blueprints from the specified directories.</p>
+<p><strong>Example Usage:</strong></p>
+<pre><code class="hljs language-typescript" lang="typescript">await GlobalRegistry.registerDirectory('./blueprints');
+</code></pre>
+<h4><code>loadMetadata(directories: string | Array&lt;string&gt;, clearRegistry: boolean = true)</code></h4>
+<p>Loads metadata from the specified directories.</p>
+<h4><code>load()</code></h4>
+<p>Loads blueprints and metadata from predefined directories.</p>
+<p><strong>Example Usage:</strong></p>
+<pre><code class="hljs language-typescript" lang="typescript">await GlobalRegistry.load();
+</code></pre>
+<h4><code>refresh()</code></h4>
+<p>Refreshes the registry by re-registering blueprints from the stored directory.</p>
+<h4><code>implementsIBlueprint(module: any): module is IBlueprint</code></h4>
+<p>Checks if a module implements the <code>IBlueprint</code> interface.</p>
+<h4><code>register(key: string, instance: any, alias?: string): boolean</code></h4>
+<p>Registers an instance with a key and optional alias.</p>
+<p><strong>Example Usage:</strong></p>
+<pre><code class="hljs language-typescript" lang="typescript">GlobalRegistry.register('myBlueprint', MyBlueprintClass);
+</code></pre>
+<h4><code>registerBlueprint&lt;T extends Blueprint &amp; IBlueprint&gt;(blueprintClass: { new (): T }): void</code></h4>
+<p>Registers a blueprint class.</p>
+<h4><code>retrieve(key: string, args?: IBlueprintSettings, transforms?: { [key: string]: IBlueprintTransform[] }): Promise&lt;Blueprint&gt;</code></h4>
+<p>Retrieves a blueprint by key, with optional settings and transforms.</p>
+<p><strong>Example Usage:</strong></p>
+<pre><code class="hljs language-typescript" lang="typescript">const blueprint = await GlobalRegistry.retrieve('myBlueprint');
+</code></pre>
+<h4><code>retrieveMetadata(key: string, args?: { [key: string]: any }): any</code></h4>
+<p>Retrieves metadata by key, with optional arguments.</p>
+<h4><code>retrieveAll(): any[]</code></h4>
+<p>Retrieves all registered blueprints.</p>
+<p><strong>Example Usage:</strong></p>
+<pre><code class="hljs language-typescript" lang="typescript">const allBlueprints = GlobalRegistry.retrieveAll();
+</code></pre>
+<h4><code>createFlow(blueprints: { [key: string]: any }): Promise&lt;Flow&gt;</code></h4>
+<p>Creates a flow from the specified blueprints.</p>
+<p><strong>Example Usage:</strong></p>
+<pre><code class="hljs language-typescript" lang="typescript">const flow = await GlobalRegistry.createFlow({ blueprint1: Blueprint1, blueprint2: Blueprint2 });
+</code></pre>
+<h2>Conclusion</h2><a id="conclusion" title="Conclusion"></a>
+<p>The <code>GlobalRegistry</code> class provides a centralized way to manage blueprints and metadata within the system. It offers methods to register, retrieve, and manipulate these elements, supporting the dynamic creation and management of flows.</p>

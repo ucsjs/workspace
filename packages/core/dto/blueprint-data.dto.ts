@@ -25,7 +25,7 @@ export class BlueprintData implements IBlueprintData {
     }
 }
 
-export class BlueprintDataError implements IBlueprintData{
+export class BlueprintDataError implements IBlueprintData {
     public parent: Blueprint | undefined;
     public message: string;
     public scope: string;

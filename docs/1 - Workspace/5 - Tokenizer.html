@@ -1,0 +1,53 @@
+<h1>Tokenizer</h1><a id="tokenizer" title="Tokenizer"></a>
+<p>This document describes the Tokenizer Service and Controller classes, which are used to manage tokens in a secure manner.</p>
+<h2>Tokenizer Service</h2><a id="tokenizer-service" title="Tokenizer Service"></a>
+<h3>Class Definition</h3>
+<p>The <code>TokenizerService</code> class implements the <code>ITokenizer</code> interface and provides methods for managing tokens.</p>
+<h3>Methods</h3>
+<h4><code>getAllTokens()</code></h4>
+<p>Returns all tokens from the <code>.secure/tokens.json</code> file.</p>
+<pre><code class="hljs language-typescript" lang="typescript">const tokens = await tokenizerService.getAllTokens();
+</code></pre>
+<h4><code>createToken(body: TokenizerDTO)</code></h4>
+<p>Creates a new token using the provided <code>TokenizerDTO</code> and returns a success message, UUID, and signature.</p>
+<pre><code class="hljs language-typescript" lang="typescript">const result = await tokenizerService.createToken({ key: 'exampleKey', value: 'exampleValue' });
+</code></pre>
+<h4><code>getToken(key: string, certName?: string): Promise&lt;string&gt;</code></h4>
+<p>Retrieves a token by key and optionally by certificate name.</p>
+<pre><code class="hljs language-typescript" lang="typescript">const token = await tokenizerService.getToken('exampleKey');
+</code></pre>
+<h4><code>removeToken(position: number)</code></h4>
+<p>Removes a token by its position.</p>
+<pre><code class="hljs language-typescript" lang="typescript">const result = await tokenizerService.removeToken(5);
+</code></pre>
+<h4><code>getLine(filename: string, lineNumber: number)</code></h4>
+<p>Gets a specific line from a file.</p>
+<h4><code>getCert(certHash: string, uuid?: string): Promise&lt;NodeRSA&gt;</code></h4>
+<p>Gets a certificate by its hash and optionally by UUID.</p>
+<h4><code>textToBinary(data: string): Buffer</code></h4>
+<p>Converts text to binary.</p>
+<h4><code>binaryToText(bufferData: Buffer): string</code></h4>
+<p>Converts binary to text.</p>
+<h2>Tokenizer Controller</h2><a id="tokenizer-controller" title="Tokenizer Controller"></a>
+<h3>Class Definition</h3>
+<p>The <code>TokenizerController</code> class provides HTTP endpoints for managing tokens.</p>
+<h3>Endpoints</h3>
+<h4><code>GET /tokenizer/</code></h4>
+<p>Returns all tokens.</p>
+<p><strong>Example Usage:</strong></p>
+<pre><code class="hljs language-typescript" lang="typescript">GET /tokenizer/
+</code></pre>
+<h4><code>POST /tokenizer/</code></h4>
+<p>Creates a new token.</p>
+<p><strong>Example Usage:</strong></p>
+<pre><code class="hljs language-typescript" lang="typescript">POST /tokenizer/
+{
+    &quot;key&quot;: &quot;exampleKey&quot;,
+    &quot;value&quot;: &quot;exampleValue&quot;
+}
+</code></pre>
+<h4><code>DELETE /tokenizer/:index</code></h4>
+<p>Removes a token by its index.</p>
+<p><strong>Example Usage:</strong></p>
+<pre><code class="hljs language-typescript" lang="typescript">DELETE /tokenizer/5
+</code></pre>

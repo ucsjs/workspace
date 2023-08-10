@@ -16,16 +16,36 @@ $ yarn dev || npm run dev
 <h2>Structure</h2><a id="structure" title="Structure"></a>
 <p>By default, the project uses the Express (<a href="https://expressjs.com" target="_blank" rel="nofollow">https://expressjs.com</a>) web server to control HTTP routes coupled to a Websocket (<a href="https://www.npmjs.com/package/ws" target="_blank" rel="nofollow">https://www.npmjs.com/package/ws</a>), which can be coupled to terminal adapters using Node-Pty (<a href="https://www.npmjs.com/package/node-pty" target="_blank" rel="nofollow">https://www.npmjs.com/package/node-pty</a>) and Visual Code Language Server (<a href="https://learn.microsoft.com/en-us/visualstudio/extensibility/language-server-protocol?view=vs-2022" target="_blank" rel="nofollow">https://learn.microsoft.com/en-us/visualstudio/extensibility/language-server-protocol?view=vs-2022</a>) for integration with Monaco (<a href="https://microsoft.github.io/monaco-editor/" target="_blank" rel="nofollow">https://microsoft.github.io/monaco-editor/</a>), all adapters are optional and configurable , the project brings controllers for managing blueprints through the editor, documentation, LLM integrations, file management, and data tokenization.</p>
 <p>Every application flow starts in the <code>src/index.ts</code> file which is responsible for starting the HTTP server and its adapters.</p>
-<pre><code class="hljs language-typescript" lang="typescript">import { Logger } from &quot;@ucsjs/common&quot;;
-import { GlobalRegistry } from &quot;@ucsjs/core&quot;;
-import { MainModule } from &quot;@modules&quot;;
-import { Express } from &quot;./servers&quot;;
+<pre><code class="hljs language-typescript" lang="typescript">import { Application, WsAdapter } from &quot;@ucsjs/common&quot;;
+import { CacheModule, GlobalModules, GlobalRegistry } from &quot;@ucsjs/core&quot;;
+import { GlobalProto } from &quot;@ucsjs/protobuf&quot;;
+import { GlobalUIComponents } from &quot;@ucsjs/uibuilder&quot;;
+import { EditorModule } from &quot;@ucsjs/editor&quot;;
+import { WSInterceptor } from &quot;./interceptors/ws.interceptor&quot;;
 
 (async () =&gt; {
-    await GlobalRegistry.load();
-    const port: number = parseInt(process.env.PORT) || 3000;
-    let server = new Express(MainModule).create();    
-    server.listen(port).then(() =&gt; Logger.log(`Start on port ${port}`, &quot;Server&quot;));
+    await Promise.all([
+        GlobalRegistry.load(),
+        GlobalProto.load(),
+        GlobalUIComponents.load()
+    ]);
+
+    GlobalModules.register(CacheModule, {
+        //store: ioRedisStore,
+        settings: {
+            ttl: 60
+        }
+    });
+
+    const app = await Application.create(async () =&gt; {
+        return await GlobalModules.dynamicModule({
+            controllers: [&quot;./**/*.controller.ts&quot;],
+            imports: [EditorModule]
+        });
+    });
+
+    app.useWebSocketAdapter(new WsAdapter(app), WSInterceptor.intercept);
+    app.listen(process.env.PORT || 3050);
 })();
 </code></pre>
 <p>It is possible to perform configurations through the .env file without having to change the application source code, even in the future we will provide other HTTP server modules.</p>
@@ -35,7 +55,6 @@ import { Express } from &quot;./servers&quot;;
 └── src/
     ├── blueprints/
     ├── controllers/
-    ├── dto/
     ├── interfaces/
     ├── modules/
     ├── services/

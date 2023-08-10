@@ -21,8 +21,10 @@
 	"homepage": "https://ucsjs.io/",
 	"dependencies": {
 		"cache-manager": "^5.2.3",
+		"fast-glob": "^3.3.1",
 		"fs-extra": "^11.1.1",
 		"glob": "^10.3.3",
+		"node-rsa": "^1.1.1",
 		"rxjs": "^7.8.1",
 		"uuid": "^9.0.0"
 	}

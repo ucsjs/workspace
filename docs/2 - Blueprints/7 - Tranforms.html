@@ -1,0 +1,42 @@
+<h1>Transforms</h1><a id="transforms" title="Transforms"></a>
+<p>Transformers are resources for automatically calling blueprints to change the data of an object using data injection and response interception, with this it is possible, for example, to encrypt a password using the Crypto blueprint, without it being pre-configured in the flow.</p>
+<h2>Sample</h2><a id="sample" title="Sample"></a>
+<p>In the metadata, the transforms property is used in the <code>MongoDBInsert</code> and <code>MongoDBUpdate</code> blueprints. Here’s an example of how it’s defined:</p>
+<pre><code class="hljs language-json" lang="json">&quot;MongoDBInsert&quot;: { 
+    &quot;blueprint&quot;: &quot;MongoDBInsert&quot;, 
+    &quot;transforms&quot;: {
+        &quot;query&quot;: [
+            { 
+                &quot;blueprint&quot;: &quot;Crypto&quot;, 
+                &quot;input&quot;: &quot;_default&quot;, 
+                &quot;output&quot;: &quot;_default&quot;, 
+                &quot;key&quot;: &quot;pass&quot; 
+            }
+        ]
+    } 
+},
+&quot;MongoDBUpdate&quot;: { 
+    &quot;blueprint&quot;: &quot;MongoDBUpdate&quot;, 
+    &quot;transforms&quot;: {
+        &quot;set&quot;: [
+            { 
+                &quot;blueprint&quot;: &quot;Crypto&quot;, 
+                &quot;input&quot;: &quot;_default&quot;, 
+                &quot;output&quot;: &quot;_default&quot;, 
+                &quot;key&quot;: &quot;pass&quot; 
+            }
+        ]
+    } 
+}
+
+</code></pre>
+<h2>Explanation</h2><a id="explanation" title="Explanation"></a>
+<p><strong>Transforms Object:</strong> The transforms object defines transformations that should be applied to specific parts of the data being processed. In this case, it’s applied to the query property in MongoDBInsert and the set property in MongoDBUpdate.</p>
+<p><strong>Blueprint:</strong> Inside the transforms object, you can define one or more transformations. Each transformation specifies a blueprint to be used. In this example, the Crypto blueprint is used, which likely performs some cryptographic operation.</p>
+<p><strong>Input and Output:</strong> The input and output properties define how the transformation should be applied. The value _default likely means that the transformation is applied to the entire object or field specified.</p>
+<p><strong>Key:</strong> The key property specifies a specific key within the object to be transformed. In this case, it’s the “pass” key, which likely represents a password.</p>
+<h2>Usage in the Context</h2><a id="usage-in-the-context" title="Usage in the Context"></a>
+<p>In the context of user management, the transforms property is used to encrypt the password before inserting or updating it in the database. This ensures that sensitive information like passwords is stored securely.</p>
+<p>When a new user is created (createUser method) or an existing user’s information is updated (updateUser method), the password is automatically encrypted using the specified <code>Crypto</code> blueprint. This transformation is applied to the query field in the case of insertion and the set field in the case of an update.</p>
+<h2>Conclusion</h2><a id="conclusion" title="Conclusion"></a>
+<p>The transforms property in the metadata provides a flexible and powerful way to apply transformations to data as part of the blueprint execution. In the provided code, it’s used to encrypt passwords before storing them in the database, enhancing the security of the application. By defining transformations in the metadata, the code remains clean and maintainable, and transformations can be easily reused across different parts of the application.</p>

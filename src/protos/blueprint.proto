@@ -1,18 +1,17 @@
-package ucs;
-syntax = "proto3";
+syntax = "proto3"; package blueprint;
 
 import "google/protobuf/any.proto";
 
 message Request { }
 
 message BlueprintInput {
-    required string name = 1;
-    required int32 type = 2;
+    string name = 1;
+    int32 type = 2;
 }
 
 message BlueprintOutput {
-    required string name = 1;
-    required int32 type = 2;
+    string name = 1;
+    int32 type = 2;
 }
 
 message BlueprintPropertyOption {
@@ -21,20 +20,20 @@ message BlueprintPropertyOption {
 }
 
 message BlueprintProperty {
-    required string name = 1;
+    string name = 1;
     optional string displayName = 2;
-    required int32 type = 3;
+    int32 type = 3;
     optional google.protobuf.Any default = 4;
     optional bool required = 5;
     repeated BlueprintPropertyOption options = 6;
 }
 
 message Blueprint {
-    required string id = 1;
+    string id = 1;
     optional bool useInEditor = 2;
     optional int32 version = 3;
-    required string namespace = 4;
-    required string group = 5;
+    string namespace = 4;
+    string group = 5;
     optional string icon = 6;
     optional string helpLink = 7;
     optional string displayName = 8;

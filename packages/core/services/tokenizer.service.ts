@@ -2,13 +2,13 @@ import * as fs from "fs";
 import * as path from "path";
 import * as crypto from "crypto";
 import * as readline from 'readline';
-import { glob } from "glob";
-import { Injectable } from "@ucsjs/common";
-import { v4 as uuidv4 } from "uuid";
 import * as NodeRSA from "node-rsa";
+import { glob } from "glob";
+import { v4 as uuidv4 } from "uuid";
+import { Injectable } from "@ucsjs/common";
 
-import { ITokenizer } from "@interfaces";
-import { TokenizerDTO } from "@dtos";
+import { ITokenizer } from "../interfaces/tokenizer.interface";
+import { TokenizerDTO } from "../dto/tokenizer.dto";
 
 @Injectable()
 export class TokenizerService implements ITokenizer {

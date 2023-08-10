@@ -32,16 +32,36 @@ By default, the project uses the Express (https://expressjs.com) web server to c
 Every application flow starts in the `src/index.ts` file which is responsible for starting the HTTP server and its adapters.
 
 ```typescript
-import { Logger } from "@ucsjs/common";
-import { GlobalRegistry } from "@ucsjs/core";
-import { MainModule } from "@modules";
-import { Express } from "./servers";
+import { Application, WsAdapter } from "@ucsjs/common";
+import { CacheModule, GlobalModules, GlobalRegistry } from "@ucsjs/core";
+import { GlobalProto } from "@ucsjs/protobuf";
+import { GlobalUIComponents } from "@ucsjs/uibuilder";
+import { EditorModule } from "@ucsjs/editor";
+import { WSInterceptor } from "./interceptors/ws.interceptor";
 
 (async () => {
-    await GlobalRegistry.load();
-    const port: number = parseInt(process.env.PORT) || 3000;
-    let server = new Express(MainModule).create();    
-    server.listen(port).then(() => Logger.log(`Start on port ${port}`, "Server"));
+    await Promise.all([
+        GlobalRegistry.load(),
+        GlobalProto.load(),
+        GlobalUIComponents.load()
+    ]);
+
+    GlobalModules.register(CacheModule, {
+        //store: ioRedisStore,
+        settings: {
+            ttl: 60
+        }
+    });
+
+    const app = await Application.create(async () => {
+        return await GlobalModules.dynamicModule({
+            controllers: ["./**/*.controller.ts"],
+            imports: [EditorModule]
+        });
+    });
+
+    app.useWebSocketAdapter(new WsAdapter(app), WSInterceptor.intercept);
+    app.listen(process.env.PORT || 3050);
 })();
 ```
 
@@ -55,7 +75,6 @@ The default directories that come with the project are the following:
 └── src/
     ├── blueprints/
     ├── controllers/
-    ├── dto/
     ├── interfaces/
     ├── modules/
     ├── services/

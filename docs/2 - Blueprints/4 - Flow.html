@@ -1,0 +1,54 @@
+<h1>Flow</h1><a id="flow" title="Flow"></a>
+<p>The <code>Flow</code> class is responsible for managing and executing a flow of blueprints within the system.</p>
+<h2>Dependencies</h2><a id="dependencies" title="Dependencies"></a>
+<p>The following modules are imported:</p>
+<pre><code class="hljs language-typescript" lang="typescript">import { Logger } from &quot;@ucsjs/common&quot;;
+import { GlobalRegistry } from &quot;../utils&quot;;
+import { Blueprint } from &quot;./blueprint&quot;;
+import { 
+    IBlueprint, 
+    IBlueprintData, 
+    IBlueprintInjectData, 
+    IBlueprintMetadata, 
+    IFlowBlueprintListItem 
+} from &quot;../interfaces&quot;;
+</code></pre>
+<h2>Class Definition</h2><a id="class-definition" title="Class Definition"></a>
+<h3>Properties</h3>
+<ul>
+<li><code>cachedBlueprintSettings</code>: Cached blueprint settings.</li>
+<li><code>cachedConnections</code>: Cached connections.</li>
+<li><code>blueprints</code>: A map containing blueprints.</li>
+<li><code>outputIndex</code>: A map containing output indexes.</li>
+</ul>
+<h3>Methods</h3>
+<h4><code>create(blueprints: { [key: string]: any }, connections?: { [key: string]: string | Array&lt;string&gt; }): Promise&lt;Flow&gt;</code></h4>
+<p>Creates a new flow with the specified blueprints and connections.</p>
+<pre><code class="hljs language-typescript" lang="typescript">const flow = await Flow.create(blueprints, connections);
+</code></pre>
+<h4><code>fromMetadata(metadataName: string, args?: { [key: string]: any }): Promise&lt;Flow&gt;</code></h4>
+<p>Creates a flow from metadata.</p>
+<h4><code>setup(blueprints: { [key: string]: IFlowBlueprintListItem }): Promise&lt;void&gt;</code></h4>
+<p>Sets up the flow with the specified blueprints.</p>
+<h4><code>reset(): Promise&lt;this&gt;</code></h4>
+<p>Resets the flow.</p>
+<h4><code>build(): Promise&lt;this&gt;</code></h4>
+<p>Builds the flow.</p>
+<h4><code>getBlueprint(namespace: string)</code></h4>
+<p>Gets a blueprint by namespace.</p>
+<h4><code>subscribeMulti(relations: { [key: string]: any }): Promise&lt;this&gt;</code></h4>
+<p>Subscribes multiple relations.</p>
+<h4><code>subscribe(from: string, to: string | Array&lt;string&gt;): Promise&lt;this&gt;</code></h4>
+<p>Subscribes a connection from one blueprint to another.</p>
+<h4><code>listen(from: string, to: string)</code></h4>
+<p>Listens to a connection from one blueprint to another.</p>
+<h4><code>execute()</code></h4>
+<p>Executes the flow.</p>
+<h4><code>buildListenAndExecute(listenFlow?: Function)</code></h4>
+<p>Builds, listens, and executes the flow.</p>
+<h4><code>interceptOnPromise(blueprintName: string, outputName: string, args?: IBlueprintInjectData[]): Promise&lt;IBlueprintData&gt;</code></h4>
+<p>Intercepts a promise on a blueprint.</p>
+<h4><code>await()</code></h4>
+<p>Awaits the flow.</p>
+<h2>Conclusion</h2><a id="conclusion" title="Conclusion"></a>
+<p>The <code>Flow</code> class provides a comprehensive way to manage and execute a flow of blueprints. It offers methods to create, build, listen, execute, and manage connections between blueprints, supporting the dynamic creation and execution of complex flows.</p>

@@ -6,11 +6,6 @@ export class API extends Vue {
 
     authStorage = authStorage();
 
-    created(){
-        if(!this.authStorage.getToken())
-            this.auth();
-    }
-
     headers() {
         return {
             "Content-type": "application/json; charset=UTF-8",

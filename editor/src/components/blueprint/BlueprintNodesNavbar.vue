@@ -26,35 +26,40 @@
                 <div v-if="tabIndex==0" class="blueprint-nodes-navbar-blueprints">
                     <perfect-scrollbar>
                         <div 
-                            v-for="(group, index) in blueprintGroups" 
+                            v-for="(group, index) in dataStore.blueprintGroups" 
                             :key="index"
                             class="blueprint-nodes-navbar-blueprints-group"
                         >
                             <div 
                                 class="blueprint-nodes-navbar-blueprints-group-item"
-                                @click="toggleItem(index)"
+                                @click="toggleItem(index.toString())"
                             >
                                 <span class="font-bold">{{ index }}</span>
 
                                 <button class="mt-1">
                                     <i 
                                         class="fa-solid fa-chevron-up" 
-                                        v-if="blueprintGroupsOpened.hasOwnProperty(index) && blueprintGroupsOpened[index] === true"
+                                        v-if="blueprintGroupsOpened.hasOwnProperty(index) && 
+                                        blueprintGroupsOpened[index] === true"
                                     ></i>
                                     <i 
                                         class="fa-solid fa-chevron-down" 
-                                        v-if="!blueprintGroupsOpened.hasOwnProperty(index) || blueprintGroupsOpened[index] === false"
+                                        v-if="!blueprintGroupsOpened.hasOwnProperty(index) || 
+                                        blueprintGroupsOpened[index] === false"
                                     ></i>
                                 </button>
                             </div>
 
                             <div 
                                 class="blueprint-nodes-navbar-blueprints-items" 
-                                v-if="blueprintGroupsOpened.hasOwnProperty(index) && blueprintGroupsOpened[index] === true"
+                                v-if="blueprintGroupsOpened.hasOwnProperty(index) && 
+                                blueprintGroupsOpened[index] === true"
                             >
                                 <div 
                                     class="blueprint-nodes-navbar-blueprints-items-item"
-                                    :style="{backgroundColor: (item[1].currentColor) ? item[1].currentColor : item[1].editorHeaderColor}"
+                                    :style="{backgroundColor: (item[1].currentColor) ? 
+                                        item[1].currentColor : 
+                                        item[1].editorHeaderColor}"
                                     v-for="(item, index) in group" 
                                     :key="index"
                                     @mouseover="item[1].currentColor = darkenColor(item[1].editorHeaderColor, 20)"
@@ -200,10 +205,11 @@
 </style>
 
 <script lang="ts">
-import { Component, Emit, Ref } from 'vue-facing-decorator';
+import { Component, Emit, Ref, Setup } from 'vue-facing-decorator';
+import { dataStorage } from '@stores/dataStore';
 import { WS } from "@mixins/ws";
+import { uuid } from "vue3-uuid";
 
-import { Subscriber } from "@decorators";
 import Modal from "@/components/windows/Modal.vue";
 import Tabs from "@/components/navigation/Tabs.vue";
 import CustomInput from "@/components/form/Input.vue";
@@ -213,11 +219,12 @@ import CustomInput from "@/components/form/Input.vue";
 })
 export default class BlueprintNodesNavbar extends WS {
 
+    @Setup(() => dataStorage())
+    dataStore;
+
+    id = uuid.v4();
+
     tabsItems = ["Blueprints", "Prefabs", "Plugins", "Import"];
-
-    blueprints = [];
-
-    blueprintGroups= {};
 
     blueprintGroupsOpened= {};
 
@@ -234,12 +241,6 @@ export default class BlueprintNodesNavbar extends WS {
         backgroundColor: "2B2B2B"
     }
 
-    @Subscriber("blueprint")
-    async reciveBlueprints(data: any){
-        this.blueprints = data;
-        this.createGroupIndex();
-    }
-
     public open(){
         this.window.open();
     }
@@ -248,32 +249,12 @@ export default class BlueprintNodesNavbar extends WS {
         this.window.close();
     }
 
-    selectTab(index: number){
+    public selectTab(index: number){
         this.tabIndex = index;
     }
 
-    search(value: string){
+    public search(value: string){
         this.searchText = value;
-    }
-
-    createGroupIndex(){
-        /*for(let blueprint of this.blueprints){
-            if(!this.blueprintGroups[blueprint.group])
-                this.blueprintGroups[blueprint.group] = new Map();
-
-            if(!this.blueprintGroups[blueprint.group].has(blueprint.namespace))
-                this.blueprintGroups[blueprint.group].set(blueprint.namespace, blueprint);
-        }
-
-        const sortedGroups = Object.keys(this.blueprintGroups).sort().reduce(
-            (obj, key) => { 
-                obj[key] = this.blueprintGroups[key]; 
-                return obj;
-            }, 
-            {}
-        );
-
-        this.blueprintGroups = sortedGroups;*/
     }
 
     darkenColor(color: string, percent: number): string{

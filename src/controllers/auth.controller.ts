@@ -9,7 +9,7 @@ import {
     SubscribeMessage 
 } from "@ucsjs/common";
 
-import { WsService } from '@service/ws.service';
+import { WsService } from '@ucsjs/protobuf';
 
 export class AuthMessage {
     uuid: string;
@@ -24,7 +24,7 @@ export class AuthController {
 
     @Post()
     async login(@Headers("uuid") uuid: string, @Body() body) {
-        const token = JWT.sign({ uuid }, "SECRET")
+        const token = JWT.sign({ uuid }, "SECRET");
         return token;
     }
 

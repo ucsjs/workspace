@@ -1,5 +1,5 @@
 import { Controller, Get, Param } from "@ucsjs/common";
-import { Cache } from "@ucsjs/core";
+import { Cache, CacheModule, GlobalModules } from "@ucsjs/core";
 
 import { GlobalProto } from "../utils";
 
@@ -7,13 +7,15 @@ import { GlobalProto } from "../utils";
 export class ProtobufController {
     @Get()
     @Cache("Proto::all")
-    getAllProto(){
+    async getAllProto(){
         const contracts = GlobalProto.retrieveAll();
+        let contractsJSON = {};
         let index = {};
         let pointer = 0;
 
         for(let key in contracts){
             const contract = GlobalProto.retrieve(key);
+            contractsJSON[key] = contract.toJSON();
             let types = {};
             let pointerTypes = 0;
 
@@ -27,15 +29,19 @@ export class ProtobufController {
             index[key] = { index: pointer, types };
             pointer++;
         }
-        
-        return {
+
+        const data = {
             index,
-            contracts
-        }
+            contracts: contractsJSON
+        };
+
+        await GlobalModules.retrieve(CacheModule)?.set("Proto::all", data);
+        
+        return data;
     }
 
     @Get("/:key")
     getProto(@Param("key") key: string){
-        return GlobalProto.retrieveContract(key);
+        return GlobalProto.retrieve(key).toJSON();
     }
 }

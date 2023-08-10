@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as fg from "fast-glob";
 import * as path from "path";
+
 import { Injectable } from "@ucsjs/common";
 
 @Injectable()
@@ -10,6 +11,7 @@ export class DocsService {
     async getDocsStrutucture(file = null){
         let strutucture = {
             index: "",
+            link: file.replace(process.cwd(), ""),
             navbar: [],
             breadcrumb: [],
             anchors: []
@@ -36,9 +38,9 @@ export class DocsService {
 
             if(strutucture.breadcrumb[1] && strutucture.breadcrumb[1].includes("."))
                 strutucture.breadcrumb[1] = strutucture.breadcrumb[1].split(".")[0];
-        }
 
-        strutucture.index = fs.readFileSync(path.resolve(file), "utf8") ;
+            strutucture.index = fs.readFileSync(path.resolve(file), "utf8");
+        }
      
         for(let fileOrDir of filesAndDirsIndex){
             try{

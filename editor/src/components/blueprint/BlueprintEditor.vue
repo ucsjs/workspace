@@ -74,7 +74,8 @@
 
 <script lang="ts">
 import { Component, Ref } from 'vue-facing-decorator';
-import { Subscriber } from '@decorators';
+import { dataStorage } from '@stores/dataStore';
+import { Subscribe } from '@decorators';
 import { WS } from "@mixins/ws";
 import { uuid } from "vue3-uuid";
 
@@ -136,9 +137,34 @@ export default class BlueprintEditor extends WS {
         await this.deserialize();
     }
 
-    @Subscriber("auth.Success")
+    @Subscribe("auth.Success")
     loadDependeces(){
         WS.send(WS.pack("blueprint", "Request"));
+    }
+
+    @Subscribe("blueprint.BlueprintList")
+    async receiveBlueprints(data: any){
+        let blueprintGroups = {};
+
+        dataStorage().save("blueprints", data?.blueprints);
+
+        for(let blueprint of data?.blueprints){
+            if(!blueprintGroups[blueprint.group])
+                blueprintGroups[blueprint.group] = new Map();
+
+            if(!blueprintGroups[blueprint.group].has(blueprint.namespace))
+                blueprintGroups[blueprint.group].set(blueprint.namespace, blueprint);
+        }
+
+        const sortedGroups = Object.keys(blueprintGroups).sort().reduce(
+            (obj, key) => { 
+                obj[key] = blueprintGroups[key]; 
+                return obj;
+            }, 
+            {}
+        );
+
+        dataStorage().save("blueprintGroups", sortedGroups);
     }
 
     createGhostDrag(item: IBlueprintInput){

@@ -10,6 +10,6 @@ import { GlobalUIComponents, UIBuilder, TransformHTML } from "@ucsjs/uibuilder";
 
     const app = UIBuilder.fromMetadata("sample");
     const HTML = TransformHTML.parser(app);
-    console.log(HTML);
+    //console.log(HTML);
     fs.writeFileSync("sample.html", HTML);
 })();

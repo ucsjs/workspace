@@ -1,7 +1,7 @@
 import { plainToClass } from 'class-transformer';
 import { AbstractHttpAdapter, ExpressAdapter, Logger } from '@ucsjs/common';
+import { WSCall } from "@ucsjs/core";
 import { GlobalProto } from "@ucsjs/protobuf";
-import { WSCall } from "@interfaces";
 
 export class WSInterceptor{
     public static intercept(server: AbstractHttpAdapter, socket, event){

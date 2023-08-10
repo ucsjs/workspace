@@ -1,0 +1,35 @@
+<h1>Intercept</h1><a id="intercept" title="Intercept"></a>
+<p>The <code>@Intercept</code> decorator is used to intercept a specific blueprint and output within a controller method. It allows you to define a blueprint name, an output name, and optional arguments to be injected into the blueprint.</p>
+<h2>Usage</h2><a id="usage" title="Usage"></a>
+<p>The <code>@Intercept</code> decorator is applied to a parameter within a controller method. It takes three arguments:</p>
+<ul>
+<li><code>blueprintName</code>: The name of the blueprint to be intercepted.</li>
+<li><code>outputName</code>: The name of the output to be intercepted.</li>
+<li><code>args</code>: An optional array of objects that define the inputs to be injected into the blueprint.</li>
+</ul>
+<h3>Example</h3>
+<pre><code class="hljs language-typescript" lang="typescript">@Get(&quot;/:id&quot;)
+async getById(
+    @Param(&quot;id&quot;) id: string, 
+    @Intercept(&quot;MongoDBFind&quot;, &quot;result&quot;, [ { input: &quot;id&quot;, value: &quot;$param.id&quot; } ]) data
+) {
+    await GlobalModules.retrieve(CacheModule)?.set(`Users::\${id}`, data);
+    return data;
+}
+</code></pre>
+<p>In this example, the <code>@Intercept</code> decorator is used to intercept the <code>MongoDBFind</code> blueprint and the <code>result</code> output. It also injects the <code>id</code> parameter from the request into the blueprint.</p>
+<h2>Arguments Injection</h2><a id="arguments-injection" title="Arguments Injection"></a>
+<p>The <code>args</code> parameter allows you to define inputs to be injected into the blueprint. Each object in the array should have the following properties:</p>
+<ul>
+<li><code>input</code>: The name of the input to be injected.</li>
+<li><code>value</code>: The value to be injected. You can use special syntax like <code>$param.id</code> to refer to request parameters, <code>$query</code> for query parameters, <code>$header</code> for headers, and <code>$body</code> for the request body.</li>
+</ul>
+<h3>Example</h3>
+<pre><code class="hljs language-typescript" lang="typescript">@Intercept(&quot;MongoDBUpdate&quot;, &quot;result&quot;, [
+    { input: &quot;id&quot;, value: &quot;$param.id&quot; },
+    { input: &quot;set&quot;, value: &quot;$body&quot; }
+])
+</code></pre>
+<p>In this example, the <code>id</code> parameter from the request and the entire request body are injected into the blueprint.</p>
+<h2>Error Handling</h2><a id="error-handling" title="Error Handling"></a>
+<p>If the target is not an instance of <code>BlueprintController</code>, or if the flow cannot be retrieved from the controller, an error will be thrown.</p>

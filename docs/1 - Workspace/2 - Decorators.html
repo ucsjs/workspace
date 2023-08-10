@@ -99,3 +99,9 @@
     </tr>
   </tbody>
 </table>
+<h2>Access control</h2><a id="access-control" title="Access control"></a>
+<p>Access controllers can be integrated into IAM systems or through basic login via JWT and the implementation of access validation must be defined individually per route, or using a global guard that defines all routes as private and requires access scope for each request.</p>
+<h2>Blueprint</h2><a id="blueprint" title="Blueprint"></a>
+<p>Blueprints have decorators that help bind functions to Inputs and Triggers in a cleaner way than implementing callbacks via header or injecting through dynamic creation functions, and the recommended way for blueprints that will be publicly released on the marketplace.</p>
+<h2>Queues</h2><a id="queues" title="Queues"></a>
+<p>For queue services, decorators facilitate the implementation of consumers and adapters, decorators are transparent, regardless of the queue system configured in the system, because if there is no prior integration of a RabbitMQ or Kaffa, the queue will be made in memory through the Bull library (<a href="https://www.npmjs.com/package/bull" target="_blank" rel="nofollow">https://www.npmjs.com/package/bull</a>).</p>
