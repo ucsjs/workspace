@@ -1,0 +1,62 @@
+{
+    "useInEditor": true,
+    "version": 1,
+    "displayName": "TypeORM Drive",
+    "namespace": "TypeORM",
+    "group": "Repository",
+    "icon": "/assets/img/typeorm.png",
+    "helpLink": "https://typeorm.io/#/",
+    "editorHeaderColor": "#306090",
+    "outputs": [{ 
+        "name": "_default", 
+        "type": "Object" 
+    }],
+    "properties": [
+        { 
+            "name": "name", 
+            "type": "String", 
+            "displayName": "Name", 
+            "default": "TypeORMConn", 
+            "required": true 
+        },
+        { 
+            "name": "type", 
+            "type": "String", 
+            "displayName": "Database Type", 
+            "default": "mysql" 
+        },
+        { 
+            "name": "host", 
+            "type": "String", 
+            "displayName": "Hostname", 
+            "default": "localhost" 
+        },
+        { 
+            "name": "port", 
+            "type": "Int", 
+            "displayName": "Port", 
+            "default": 3306 
+        },
+        { 
+            "name": "username", 
+            "type": "String", 
+            "displayName": "Username" 
+        },
+        { 
+            "name": "password", 
+            "type": "String", 
+            "displayName": "Password" 
+        },
+        { 
+            "name": "database", 
+            "type": "String", 
+            "displayName": "Database" 
+        },
+        { 
+            "name": "synchronize", 
+            "type": "Boolean", 
+            "displayName": "Synchronize", 
+            "default": true 
+        }
+    ]
+}

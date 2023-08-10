@@ -33,7 +33,9 @@ export class UsersController extends BlueprintController implements IBlueprintCo
     @Get("/") 
     @Cache("Users::all")
     async getAll(
-        @Intercept("MongoDBFind", "result", [ { input: "query", value: {} } ]) data
+        @Intercept("MongoDBFind", "result", [ 
+            { input: "query", value: {} } 
+        ]) data
     ) {
         await GlobalModules.retrieve(CacheModule)?.set("Users::all", data);
         return data;         
@@ -42,7 +44,9 @@ export class UsersController extends BlueprintController implements IBlueprintCo
     @Get("/:id")
     async getById(
         @Param("id") id: string, 
-        @Intercept("MongoDBFind", "result", [ { input: "id", value: "$param.id" } ]) data
+        @Intercept("MongoDBFind", "result", [ 
+            { input: "id", value: "$param.id" } 
+        ]) data
     ) {
         await GlobalModules.retrieve(CacheModule)?.set(`Users::${id}`, data);
         return data;
@@ -51,7 +55,9 @@ export class UsersController extends BlueprintController implements IBlueprintCo
     @Post("/")
     async createUser(
         @Body() body: UsersDTO,
-        @Intercept("MongoDBInsert", "result", [ { input: "query", value: "$body" } ]) data
+        @Intercept("MongoDBInsert", "result", [ 
+            { input: "query", value: "$body" } 
+        ]) data
     ) {
         await GlobalModules.retrieve(CacheModule)?.del("Users::all");
         return data;
@@ -78,7 +84,9 @@ export class UsersController extends BlueprintController implements IBlueprintCo
     @Delete("/:id")
     async deleteUser(
         @Param("id") id: string,
-        @Intercept("MongoDBDelete", "result", [ { input: "id", value: "$param.id" } ]) result
+        @Intercept("MongoDBDelete", "result", [ 
+            { input: "id", value: "$param.id" } 
+        ]) result
     ) {
         if (await result === true) {
             await GlobalModules.retrieve(CacheModule)?.del("Users::all");

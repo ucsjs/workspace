@@ -2,9 +2,16 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import { glob } from 'glob';
 
-import { Singleton, Logger, isObject, isString } from "@ucsjs/common";
-import { IBlueprint, IBlueprintSettings, IBlueprintTransform } from "../interfaces";
+import { Singleton, Logger, isObject, isString, Type } from "@ucsjs/common";
 import { Blueprint, Flow } from "../core";
+
+import { 
+    IBlueprint, 
+    IBlueprintHeader, 
+    IBlueprintSettings, 
+    IBlueprintTransform 
+} from "../interfaces";
+import { Types } from '../enums';
 
 export class GlobalRegistry extends Singleton { 
     private directory: string | Array<string>;
@@ -35,11 +42,9 @@ export class GlobalRegistry extends Singleton {
                     await this.registerDirectory(fullPath, false);
                 } else if (file.endsWith((process.env.NODE_ENV == "prod") ? "blueprint.js" : "blueprint.ts")) {
                     const module = require(fullPath).default;
-
+                    
                     if (module){
                         let tmpInstance = new module();
-
-                        //Logger.log(`Loading Blueprint ${tmpInstance.header.namespace}`, "Global Registry");
 
                         if(tmpInstance.header.namespace != undefined && !globalRegistry.registry.has(tmpInstance.header.namespace))
                             globalRegistry.registry.set(tmpInstance.header.namespace, module);      
@@ -177,5 +182,61 @@ export class GlobalRegistry extends Singleton {
 
     static async createFlow(blueprints: { [key: string]: any }): Promise<Flow>{
         return await Flow.create(blueprints);
+    }
+
+    static fixHeader(headerMetadata: any): IBlueprintHeader {
+        if(isObject(headerMetadata)){
+            for(let key in headerMetadata){
+                switch(key){
+                    case "inputs":
+                    case "outputs": 
+                    case "properties":
+                        if(Array.isArray(headerMetadata[key])){
+                            for(let keyInput in headerMetadata[key]){
+                                if(
+                                    headerMetadata[key][keyInput] &&
+                                    headerMetadata[key][keyInput]["type"]
+                                ){
+                                    headerMetadata[key][keyInput]["type"] =
+                                    GlobalRegistry.TypeByString(headerMetadata[key][keyInput]["type"]);
+                                }    
+                                
+                                if(
+                                    headerMetadata[key][keyInput] &&
+                                    headerMetadata[key][keyInput]["objectArray"]
+                                ){
+                                    headerMetadata[key][keyInput]["objectArray"] =
+                                    headerMetadata[key][keyInput]["objectArray"].map(_data => {
+                                        if(_data["type"])
+                                            _data["type"] = GlobalRegistry.TypeByString(_data["type"]);
+
+                                        return _data;
+                                    });
+                                }
+                            }
+                        }
+                    break;
+                }
+            }
+
+            return headerMetadata as IBlueprintHeader;
+        }
+        else {
+            return null;
+        }
+    }
+
+    static TypeByString(value: string): Types {
+        switch(value){            
+            case "Any": return Types.Any;
+            case "Array": return Types.Array;
+            case "Boolean": return Types.Boolean;
+            case "Float": return Types.Float;
+            case "Function": return Types.Function;
+            case "Int": return Types.Int;
+            case "Object": return Types.Object;
+            case "Options": return Types.Options;
+            case "String": return Types.String;
+        }
     }
 }

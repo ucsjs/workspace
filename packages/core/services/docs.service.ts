@@ -11,7 +11,7 @@ export class DocsService {
     async getDocsStrutucture(file = null){
         let strutucture = {
             index: "",
-            link: file.replace(process.cwd(), ""),
+            link: file.replace(process.cwd(), "").replace(".html", ".md"),
             navbar: [],
             breadcrumb: [],
             anchors: []

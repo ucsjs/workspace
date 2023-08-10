@@ -1,5 +1,10 @@
 import * as mongoose from "mongoose";
-import { Connection, ConnectionStates, IConnection } from "@ucsjs/core";
+
+import { 
+    Connection, 
+    ConnectionStates, 
+    IConnection 
+} from "@ucsjs/core";
 
 export class MongoDBConnection extends Connection implements IConnection {
     public name: string = "MongoDBConnection";

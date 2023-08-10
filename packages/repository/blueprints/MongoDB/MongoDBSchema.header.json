@@ -1,0 +1,81 @@
+{
+    "useInEditor": true,
+    "version": 1,
+    "namespace": "MongoDBSchema",
+    "group": "Repository",
+    "icon": "/assets/img/mongodb.png",
+    "helpLink": "https://mongoosejs.com/docs/guide.html",
+    "displayName": "MongoDB Schema",
+    "editorHeaderColor": "#419343",
+    "inputs": [{ 
+        "name": "connectionName", 
+        "type": "String" 
+    }],
+    "outputs": [
+        { 
+            "name": "model", 
+            "type": "MongoDbTypes.MongoDBModel" 
+        }
+    ],
+    "properties": [
+        { 
+            "name": "name", 
+            "displayName": "Name", 
+            "type": "String"
+        },
+        { 
+            "name": "collection", 
+            "displayName": "Collection",
+            "type": "String" 
+        },
+        { 
+            "name": "timestamps", 
+            "displayName": "Timestamps", 
+            "type": "Boolean", 
+            "default": true 
+        },
+        { 
+            "name": "fields", 
+            "displayName": "Fields", 
+            "type": "Array", 
+            "objectArray": [
+                { 
+                    "name": "name", 
+                    "type": "String" 
+                },
+                { 
+                    "name": "type", 
+                    "type": "Options", 
+                    "options": [
+                        { "name": "String", "value": "String" },
+                        { "name": "Number", "value": "Number" },
+                        { "name": "Date", "value": "Date" },
+                        { "name": "Buffer", "value": "Buffer" },
+                        { "name": "Boolean", "value": "Boolean" },
+                        { "name": "Mixed", "value": "Mixed" },
+                        { "name": "ObjectId", "value": "ObjectId" },
+                        { "name": "Array", "value": "Array" },
+                        { "name": "Decimal128", "value": "Decimal128" },
+                        { "name": "Map", "value": "Map" },
+                        { "name": "Schema", "value": "Schema" }
+                    ] 
+                },
+                { 
+                    "name": "index", 
+                    "type": "Boolean", 
+                    "default": false 
+                },
+                { 
+                    "name": "unique", 
+                    "type": "Boolean", 
+                    "default": false 
+                },
+                { 
+                    "name": "required", 
+                    "type": "Boolean", 
+                    "default": false 
+                }
+            ] 
+        }
+    ]
+}

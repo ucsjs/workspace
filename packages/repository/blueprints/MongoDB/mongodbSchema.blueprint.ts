@@ -4,73 +4,17 @@ import { Logger } from "@ucsjs/common";
 import { 
     Blueprint, 
     IBlueprintData, 
-    IBlueprintHeader, 
-    Types, 
     ConnectionsManager,
-    Input 
+    Input, 
+    IBlueprintHeader,
+    GlobalRegistry
 } from "@ucsjs/core";
 
-import { MongoDbTypes } from "../../enums";
+const header = require("./MongoDBSchema.header.json");
 
 export default class MongoDBSchema extends Blueprint {
 
-    public header: IBlueprintHeader = {
-        useInEditor: true,
-        version: 1,
-        namespace: "MongoDBSchema",
-        group: "Repository",
-        icon: "/assets/img/mongodb.png",
-        helpLink: "https://mongoosejs.com/docs/guide.html",
-        displayName: "MongoDB Schema",
-        editorHeaderColor: "#419343",
-        inputs: [{ 
-            name: "connectionName", 
-            type: Types.String 
-        }],
-        outputs: [
-            { 
-                name: "model", 
-                type: MongoDbTypes.MongoDBModel 
-            }
-        ],
-        properties: [
-            { 
-                name: "name", 
-                displayName: "Name", 
-                type: Types.String 
-            },
-            { 
-                name: "collection", 
-                displayName: "Collection",
-                type: Types.String 
-            },
-            { 
-                name: "timestamps", 
-                displayName: "Timestamps", 
-                type: Types.Boolean, 
-                default: true 
-            },
-            { name: "fields", displayName: "Fields", type: Types.Array, objectArray: [
-                { name: "name", type: Types.String },
-                { name: "type", type: Types.Options, options: [
-                    { name: "String", value: "String" },
-                    { name: "Number", value: "Number" },
-                    { name: "Date", value: "Date" },
-                    { name: "Buffer", value: "Buffer" },
-                    { name: "Boolean", value: "Boolean" },
-                    { name: "Mixed", value: "Mixed" },
-                    { name: "ObjectId", value: "ObjectId" },
-                    { name: "Array", value: "Array" },
-                    { name: "Decimal128", value: "Decimal128" },
-                    { name: "Map", value: "Map" },
-                    { name: "Schema", value: "Schema" }
-                ] },
-                { name: "index", type: Types.Boolean, default: false },
-                { name: "unique", type: Types.Boolean, default: false },
-                { name: "required", type: Types.Boolean, default: false },
-            ] }
-        ]
-    }
+    header: IBlueprintHeader = GlobalRegistry.fixHeader(header);
 
     @Input("connectionName")
     public async createSchema(data: IBlueprintData){
