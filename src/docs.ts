@@ -28,24 +28,28 @@ class GenerateDocs {
             }
         });
     
-        const docsFiles = await glob(['./docs/**/*.md', './docs/*.md']);
+        const docsFiles = await glob(['./docs/**/*.md', './docs/*.md', './packages/**/*.md']);
     
         for(let file of docsFiles){
-            const content = await fs.readFileSync(path.resolve(file), "utf8");
-            let rendered = await markdown.render(content);
-            rendered = this.fixLinks(rendered);
-            rendered = this.addAnchorLinks(rendered);
-            await fs.writeFileSync(file.replace(".md", ".html"), rendered, "utf8");
+            if(!file.includes("README") && !file.includes("node_modules")){
+                const content = await fs.readFileSync(path.resolve(file), "utf8");
+                let rendered = await markdown.render(content);
+                rendered = this.fixLinks(rendered);
+                rendered = this.addAnchorLinks(rendered);
+                await fs.writeFileSync(file.replace(".md", ".html"), rendered, "utf8");
+            }
         } 
     }
 
     async generateIndex(){
-        const docsFiles = await glob(['./docs/**/*.html', './docs/*.html']);
+        const docsFiles = await glob(['./docs/**/*.html', './docs/*.html', './packages/**/*.html']);
         let index = {};
 
         for(let file of docsFiles){
-            const pathFile = encodeURIComponent(file.replace(process.cwd(), "").replace("docs/", "").replace(/\\/g, "/"));
-            index[this.convertLinkToCleanURL(pathFile)] = path.resolve(file);
+            if(!file.includes("README") && !file.includes("node_modules")){
+                const pathFile = encodeURIComponent(file.replace(process.cwd(), "").replace("docs/", "").replace(/\\/g, "/"));
+                index[this.convertLinkToCleanURL(pathFile)] = path.resolve(file);
+            }
         }
 
         await fs.writeFileSync("docs/index.json", JSON.stringify(index, null, 4));

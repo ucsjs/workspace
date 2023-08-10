@@ -26,4 +26,17 @@ export class DocsController {
         else
             res.status(404).end();
 	}
+
+    @Get("embled/:item")
+	async getDocInner(@Param("item") item: string, @Response() res) {
+        const filename = this.routes[item];
+
+        if(filename){
+            const doc = await this.docsService.getDocsStrutucture(filename);
+            res.status(200).send(doc.index).end();
+        }
+        else{
+            res.status(404).end();
+        } 
+	}
 }

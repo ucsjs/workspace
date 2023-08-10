@@ -32,6 +32,14 @@ export class API extends Vue {
         })
     }
 
+    getDocs(url: string): Promise<any> {
+        return new Promise((resolve, reject) => {
+            fetch(url, { headers: this.headers() })
+            .then(response => resolve(response.text()))
+            .catch(reject);
+        })
+    }
+
     postToApi(url: string, data: any): Promise<any> {
         return new Promise((resolve, reject) => {
             fetch(url, { 

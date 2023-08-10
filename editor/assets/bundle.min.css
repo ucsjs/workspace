@@ -621,11 +621,21 @@ to {
 }
 .blueprint-nodes-navbar-blueprints[data-v-187da2b6] {
     width: 300px;
-    height: calc(100% - 118px);
+    height: 480px;
     border-right: 1px solid #191919;
     display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
+}
+.blueprint-nodes-navbar-blueprints-contents[data-v-187da2b6] {
+    position: absolute; 
+    width: calc(100% - 300px);
+    height: 480px;
+    margin-left: 300px; 
+    top: 0px;
+    text-align: left;
+    color: #EFEFEF;
+    padding: 10px;
 }
 .blueprint-nodes-navbar-blueprints-group[data-v-187da2b6] {
     width: 100%;

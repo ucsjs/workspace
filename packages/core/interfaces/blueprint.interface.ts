@@ -106,6 +106,7 @@ export interface IBlueprintHeader {
     useInEditor: boolean;
     editorHeaderColor?: string;
     displayName?: string;
+    docsMarkdown?: string;
 }
 
 export interface IBlueprintIncorporate {

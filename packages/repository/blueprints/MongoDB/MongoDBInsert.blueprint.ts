@@ -11,6 +11,7 @@ export default class MongoDBInsert extends MongoDBBlueprint {
         group: "Repository",
         icon: "/assets/img/mongodb.png",
         helpLink: "https://mongoosejs.com/docs/models.html#constructing-documents",
+        displayName: "MongoDB Insert",
         editorHeaderColor: "#419343",
         outputs: [
             { 

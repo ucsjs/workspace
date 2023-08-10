@@ -1,0 +1,84 @@
+{
+    "useInEditor": true,
+    "version": 1,
+    "displayName": "MongoDB Drive",
+    "namespace": "MongoDB",
+    "group": "Repository",
+    "icon": "/assets/img/mongodb.png",
+    "helpLink": "https://mongoosejs.com/docs/connections.html",
+    "docsMarkdown": "packages-repository-mongodb-mongodb.html",
+    "editorHeaderColor": "#419343",
+    "outputs": [{ 
+        "name": "_default", 
+        "type": "MongoDbTypes.MongoDBConnection" 
+    }],
+    "properties": [
+        { 
+            "name": "name", 
+            "type": "String", 
+            "displayName": "Name", 
+            "default": "MongoDBConn", 
+            "required": true 
+        },
+        { 
+            "name": "connectionString", 
+            "type": "String", 
+            "displayName": "Connection String"
+        },
+        { 
+            "name": "protocol", 
+            "type": "Options", 
+            "displayName": "Protocol", 
+            "default": "mongodb",
+            "required": true,
+            "options": [
+                { "name": "mongodb", "value": "mongodb" },
+                { "name": "mongodb+srv", "value": "mongodb+srv" }
+            ]                
+        },
+        { 
+            "name": "host", 
+            "type": "String", 
+            "displayName": "Hostname", 
+            "default": "localhost" 
+        },
+        { 
+            "name": "port", 
+            "type": "Int", 
+            "displayName": "Port", 
+            "default": 27017 
+        },
+        { 
+            "name": "user", 
+            "type": "String", 
+            "displayName": "Username" 
+        },
+        { 
+            "name": "pass", 
+            "type": "String", 
+            "displayName": "Password" 
+        },
+        { 
+            "name": "db", 
+            "type": "String", 
+            "displayName": "Database" 
+        },
+        { 
+            "name": "replicaSet", 
+            "type": "String", 
+            "displayName": "Replica" 
+        },
+        { 
+            "name": "tls", 
+            "type": "Boolean", 
+            "displayName": "TLS", 
+            "default": false 
+        },
+        { 
+            "name": "authSource", 
+            "type": "String", 
+            "displayName": "Auth Source", 
+            "default": "admin" 
+        }
+    ]
+}

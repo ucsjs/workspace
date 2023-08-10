@@ -41,6 +41,7 @@ message Blueprint {
     repeated BlueprintInput inputs = 10;
     repeated BlueprintOutput outputs = 11;
     repeated BlueprintProperty properties = 12;
+    optional string docsMarkdown = 13;
 }
 
 message BlueprintList {

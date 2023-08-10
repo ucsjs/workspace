@@ -1,0 +1,215 @@
+img {
+    border-radius: 10px;
+}
+
+.content a {
+    color: cornflowerblue !important;
+}
+
+h1 {
+    margin: 20px 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 40px !important;
+    font-size: 24px !important; 
+    font-weight: 700 !important;
+    color: #EFEFEF;
+}
+
+h2 {
+    font-size: 20px !important; 
+    font-weight: 200 !important;
+    color: #EFEFEF;
+    margin-top: 20px !important;
+}
+
+h3 {
+    font-size: 15px !important; 
+    font-weight: bold !important;
+    margin-top: 20px !important;
+    margin-bottom: 20px !important;
+}
+
+h4 {
+    margin-top: 50px !important;
+}
+
+p {
+    color: #FFF;
+    line-height: 28px;
+    display: block;
+    font-size: 16px;
+    font-weight: 400;
+    margin-top: 1em !important;
+    margin-bottom: 1em !important;
+}
+
+.language-markup{
+    padding: 20px 26px;
+    margin: 20px 0;
+    overflow: auto;
+    border: 0;
+    background: #1d1d1d;
+    border-radius: 6px;
+    letter-spacing: normal;
+    color: #f7f7f7;
+    font-family: Inconsolata,Consolas,Monaco,Andale Mono,Ubuntu Mono,monospace;
+    text-align: left;
+    white-space: pre;
+    word-spacing: normal;
+    word-break: normal;
+    word-wrap: normal;
+    line-height: 25px;
+    font-size: 16px;
+    -moz-tab-size: 4;
+    -o-tab-size: 4;
+    tab-size: 4;
+    -webkit-hyphens: none;
+    hyphens: none;
+}
+
+.anchor ul{
+    content: "";
+    left: 0;
+    width: 2px;
+    background: #efefef;
+    list-style-type: disc;
+    padding: 0;
+}
+
+.anchor li {
+    display: block;
+    position: relative;
+    padding-left: 30px;
+    font-size: 14px;
+    line-height: 24px;
+    margin-bottom: 6px;
+    text-align: -webkit-match-parent;
+}
+
+.anchor li :before{
+    border-radius: 50%;
+    transform: translateY(-50%);
+    content: "";
+    background: #fdfdfd;
+    border: 2px solid #efefef;
+    left: -4px;
+    width: 10px;
+    height: 10px;
+    top: 50%;
+    display: inline-block;
+    position: absolute;
+}
+
+.anchor li a {
+    display: block;
+    color: #404040;
+    text-decoration: none;
+    margin-top: -20px;
+    font-size: 12px !important;
+    text-decoration: none;
+    min-width: 200px;
+    height: 40px;
+    padding-top: 12px;
+    text-align: left;
+}
+
+.current a {
+    color: cornflowerblue !important;
+    font-weight: 600;
+}
+
+.anchor li a:hover {
+    color: cornflowerblue;
+}
+
+.current a:before {
+    background: cornflowerblue;
+    border-color: cornflowerblue;
+    border-width: 1px;
+    left: -3px;
+    color: cornflowerblue;
+    font-weight: 600;
+}
+
+code {
+    font-family: Inconsolata,Consolas,Courier New,monospace;
+    font-display: swap;
+    padding: 2px 6px;
+    color: #2876d2;
+    border-radius: 4px;
+    font-size: 15px;
+    white-space: pre-wrap;
+    background: #f0f2f3;
+}
+
+blockquote {
+    line-height: 1.6;
+    position: relative;
+    margin: 35px 0 !important;
+    background: #f9eff1;
+    padding: 20px;
+    border-radius: 3px;
+    display: block;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 40px;
+    margin-inline-end: 40px;
+}
+
+blockquote.info:before {
+    background: #0894e2;
+}
+
+blockquote:before {
+    height: 100%;
+    width: 4px;
+    content: "";
+    background: #ed2945;
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+}
+
+table {
+    display: table;
+    border-collapse: separate !important;
+    box-sizing: border-box;
+    text-indent: initial !important;
+    border-spacing: 2px;
+    border-color: gray !important;
+    width: 100%;
+    margin: 40px 0;
+}
+
+tr {
+    display: table-row;
+    vertical-align: inherit;
+    border-color: inherit;
+}
+
+tr:nth-of-type(odd) td:first-of-type {
+    border-right: 1px solid #f0f2f3;
+}
+
+tr:nth-of-type(even) td {
+    background: #f7f7f7;
+}
+
+tr td {
+    padding: 20px 30px;
+    vertical-align: top;
+}
+
+td {
+    display: table-cell;
+    vertical-align: inherit;
+}
+
+.hljs{
+    border-radius: 10px;
+    text-align: left;
+}

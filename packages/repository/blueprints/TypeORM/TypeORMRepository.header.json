@@ -1,0 +1,74 @@
+{
+    "useInEditor": true,
+    "version": 1,
+    "namespace": "TypeORMRepository",
+    "group": "Repository",
+    "icon": "/assets/img/typeorm.png",
+    "helpLink": "https://typeorm.io/#/",
+    "displayName": "TypeORM Repository",
+    "editorHeaderColor": "#306090",
+    "inputs": [{ 
+        "name": "connectionName", 
+        "type": "String" 
+    }],
+    "outputs": [
+        {
+            "name": "repository",
+            "type": "Object"
+        }
+    ],
+    "properties": [
+        {
+            "name": "table",
+            "type": "String",
+            "displayName": "Table Name",
+            "required": true
+        },
+        {
+            "name": "columns",
+            "displayName": "Columns",
+            "type": "Array",
+            "objectArray": [
+                {
+                    "name": "name",
+                    "type": "String"
+                },
+                {
+                    "name": "type",
+                    "type": "Options",
+                    "options": [
+                        { "name": "String", "value": "varchar" },
+                        { "name": "Number", "value": "int" },
+                        { "name": "Date", "value": "date" },
+                        { "name": "Boolean", "value": "boolean" }
+                    ]
+                },
+                {
+                    "name": "primaryKey",
+                    "type": "Boolean",
+                    "default": false
+                },
+                {
+                    "name": "unique",
+                    "type": "Boolean",
+                    "default": false
+                },
+                {
+                    "name": "notNull",
+                    "type": "Boolean",
+                    "default": false
+                },
+                {
+                    "name": "default",
+                    "type": "String",
+                    "displayName": "Default Value"
+                },
+                {
+                    "name": "length",
+                    "type": "Int",
+                    "displayName": "Length"
+                }
+            ]
+        }
+    ]
+}

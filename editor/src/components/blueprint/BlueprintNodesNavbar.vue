@@ -23,8 +23,8 @@
             </header>
 
             <main>
-                <div v-if="tabIndex==0" class="blueprint-nodes-navbar-blueprints">
-                    <perfect-scrollbar>
+                <div v-if="tabIndex==0" style="position: relative;">
+                    <perfect-scrollbar class="blueprint-nodes-navbar-blueprints">
                         <div 
                             v-for="(group, index) in dataStore.blueprintGroups" 
                             :key="index"
@@ -62,7 +62,10 @@
                                         item[1].editorHeaderColor}"
                                     v-for="(item, index) in group" 
                                     :key="index"
-                                    @mouseover="item[1].currentColor = darkenColor(item[1].editorHeaderColor, 20)"
+                                    @mouseover="{
+                                        item[1].currentColor = darkenColor(item[1].editorHeaderColor, 20);
+                                        loadDocs(item[1]);
+                                    }"
                                     @mouseout="item[1].currentColor = item[1].editorHeaderColor"
                                     @click="createBlueprint(item[1])"
                                 >
@@ -81,6 +84,16 @@
                                     {{ item[1].displayName ? item[1].displayName : item[1].namespace }}
                                 </div>
                             </div>
+                        </div>
+                    </perfect-scrollbar>
+
+                    <perfect-scrollbar class="blueprint-nodes-navbar-blueprints-contents" v-if="doc">
+                        <div class="blueprint-nodes-docs-content docs" v-html="doc"></div>
+
+                        <div style="position: absolute; top: 20px; right: 20px;">
+                            <a :href="`/docs/${docLink}`" target="_blank" title="Full docs">
+                                <i class="fa-solid fa-pen-to-square fa-lg"></i>
+                            </a>
                         </div>
                     </perfect-scrollbar>
                 </div>
@@ -130,11 +143,22 @@
 
 .blueprint-nodes-navbar-blueprints {
     width: 300px;
-    height: calc(100% - 118px);
+    height: 480px;
     border-right: 1px solid #191919;
     display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
+}
+
+.blueprint-nodes-navbar-blueprints-contents {
+    position: absolute; 
+    width: calc(100% - 300px);
+    height: 480px;
+    margin-left: 300px; 
+    top: 0px;
+    text-align: left;
+    color: #EFEFEF;
+    padding: 10px;
 }
 
 .blueprint-nodes-navbar-blueprints-group {
@@ -232,6 +256,10 @@ export default class BlueprintNodesNavbar extends WS {
 
     searchText: string = "";
 
+    doc: string = "";
+
+    docLink: string = "";
+
     @Ref
     readonly window!: typeof Modal;
 
@@ -276,6 +304,13 @@ export default class BlueprintNodesNavbar extends WS {
             this.blueprintGroupsOpened[index] = !this.blueprintGroupsOpened[index];
         else
             this.blueprintGroupsOpened[index] = true;
+    }
+
+    async loadDocs(item){
+        if(item.docsMarkdown){
+            this.docLink = item.docsMarkdown;
+            this.doc = await this.getDocs(`/docs/embled/${item.docsMarkdown}`);
+        }
     }
 
     @Emit

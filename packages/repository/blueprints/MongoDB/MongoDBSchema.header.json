@@ -5,6 +5,7 @@
     "group": "Repository",
     "icon": "/assets/img/mongodb.png",
     "helpLink": "https://mongoosejs.com/docs/guide.html",
+    "docsMarkdown": "packages-repository-mongodb-mongodbschema.html",
     "displayName": "MongoDB Schema",
     "editorHeaderColor": "#419343",
     "inputs": [{ 
