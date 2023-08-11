@@ -1,5 +1,5 @@
 <template>
-    <div class="blueprint-editor">
+    <div class="blueprint-editor" ref="editor">
         <blueprint-navbar></blueprint-navbar>
 
         <perfect-scrollbar>        
@@ -28,7 +28,7 @@
                 <drag-handle 
                     @dragged="({ deltaX, deltaY }) => updatePosition(item[0], deltaX, deltaY)" 
                     @click.stop
-                    v-for="(item, key) in items" :key="key" 
+                    v-for="(item, key) in nodes" :key="key" 
                 >
                     <blueprint-component   
                         :id="item[0]"                      
@@ -36,7 +36,7 @@
                         :inputSelected="inputSelected"
                         :selectedItem="selectedItem"
                         @click="selectItem(item[0], item[1].component)"                        
-                        @mouseover="mouseOverComponent(item[1].component.id)"
+                        @mouseover="mouseOverComponent(item[1].component)"
                         @mouseleave="mouseLeaveComponent"    
                         ref="components"                    
                     ></blueprint-component>
@@ -46,6 +46,17 @@
                     ref="nodesNavbar"
                     @create-blueprint="createBlueprint"
                 ></blueprint-nodes-navbar>
+
+                <blueprint-line-connector 
+                    v-if="tmpLine" 
+                    :line="tmpLine" 
+                    :offset="linesOffset" 
+                    :scale="scale"
+                    :scrollOffset="scrollOffset"
+                    :transformPosition="position"
+                    :lineColor="tmpLine.lineColor"
+                    ref="tmpLine"
+                ></blueprint-line-connector>
             </div>
         </perfect-scrollbar>
     </div>
@@ -73,7 +84,7 @@
 </style>
 
 <script lang="ts">
-import { Component, Ref } from 'vue-facing-decorator';
+import { Component, Ref, Setup, Watch } from 'vue-facing-decorator';
 import { dataStorage } from '@stores/dataStore';
 import { Subscribe } from '@decorators';
 import { WS } from "@mixins/ws";
@@ -82,7 +93,8 @@ import { uuid } from "vue3-uuid";
 import { 
     IBlueprintInput,  
     IBlueprintComponent,
-    BlueprintComponentType
+    BlueprintComponentType,
+    IBlueprint
 } from "../../interfaces";
 
 import DragHandle from "../drag/DragHandle.vue";
@@ -91,6 +103,7 @@ import BlueprintInputs from "./BlueprintInputs.vue";
 import BlueprintComponent from "./BlueprintComponent.vue";
 import BlueprintInspector from "./BlueprintInspector.vue";
 import BlueprintNodesNavbar from "./BlueprintNodesNavbar.vue";
+import BlueprintNode from "./BlueprintNode.vue";
 
 @Component({
     components: { 
@@ -99,10 +112,14 @@ import BlueprintNodesNavbar from "./BlueprintNodesNavbar.vue";
         BlueprintInputs, 
         BlueprintComponent,
         BlueprintInspector,
+        BlueprintNode,
         BlueprintNodesNavbar 
     }
 })
 export default class BlueprintEditor extends WS {
+    @Setup(() => dataStorage())
+    dataStore = dataStorage();
+    
     id = uuid.v4();
 
     props = {
@@ -122,7 +139,10 @@ export default class BlueprintEditor extends WS {
 
     lastMousePosition = { x: 0, y: 0 };
 
-    items= new Map<string, IBlueprintComponent>();
+    nodes = new Map<string, IBlueprintComponent>();
+
+    @Ref
+    readonly editor!: HTMLDivElement;
 
     @Ref
     readonly contents!: HTMLDivElement;
@@ -133,8 +153,68 @@ export default class BlueprintEditor extends WS {
     @Ref
     readonly nodesNavbar!: typeof BlueprintNodesNavbar;
 
+    //Line
+    linesOffset: any = null;
+
+    scrollOffset = { x: 0, y: 0 };
+
+    tmpLine: any = null;
+
+    refreshLineInterval: any;
+
+    onCreateLine: boolean = false;
+
+    createLineElem: any;
+
+    position = { x: 0, y: 0 };
+
+    scale: number = 1;
+
     async mounted(){
         await this.deserialize();
+
+        this.linesOffset = this.editor.getBoundingClientRect();
+
+        this.refreshLineInterval = setInterval(() => {
+            this.refreshLines();
+
+            if(this.editor)
+                this.linesOffset = this.editor.getBoundingClientRect();
+        }, 1);
+    }
+
+    @Watch("dataStore",{
+        immediate: true,
+        deep:true
+    })
+    loadBlueprints(){
+        const blueprint = dataStorage().getBlueprint("Interval");
+        const blueprint2 = dataStorage().getBlueprint("Crypto");
+        const blueprint3 = dataStorage().getBlueprint("MongoDBFind");
+
+        this.nodes.set("1", {
+            x: 400,
+            y: 300,
+            id: "Teste",
+            type: BlueprintComponentType.Blueprint,
+            blueprint
+        });
+
+        this.nodes.set("2", {
+            x: 700,
+            y: 300,
+            id: "Teste2",
+            type: BlueprintComponentType.Blueprint,
+            blueprint: blueprint2
+        });
+
+        this.nodes.set("3", {
+            x: 700,
+            y: 100,
+            id: "Teste3",
+            type: BlueprintComponentType.Blueprint,
+            blueprint: blueprint3
+        });
     }
 
     @Subscribe("auth.Success")
@@ -145,6 +225,7 @@ export default class BlueprintEditor extends WS {
     @Subscribe("blueprint.BlueprintList")
     async receiveBlueprints(data: any){
         let blueprintGroups = {};
+        let blueprintIndex = {};
 
         dataStorage().save("blueprints", data?.blueprints);
 
@@ -153,7 +234,9 @@ export default class BlueprintEditor extends WS {
                 blueprintGroups[blueprint.group] = new Map();
 
             if(!blueprintGroups[blueprint.group].has(blueprint.namespace))
-                blueprintGroups[blueprint.group].set(blueprint.namespace, blueprint);
+                blueprintGroups[blueprint.group].set(blueprint.namespace, blueprint as IBlueprint);
+
+            blueprintIndex[blueprint.namespace] = blueprint as IBlueprint;
         }
 
         const sortedGroups = Object.keys(blueprintGroups).sort().reduce(
@@ -165,6 +248,7 @@ export default class BlueprintEditor extends WS {
         );
 
         dataStorage().save("blueprintGroups", sortedGroups);
+        dataStorage().save("blueprintIndex", blueprintIndex);
     }
 
     createGhostDrag(item: IBlueprintInput){
@@ -182,7 +266,13 @@ export default class BlueprintEditor extends WS {
 
     createComponentInput(x: number, y: number, item: IBlueprintInput){
         const id = uuid.v4();
-        this.items.set(id, { id, x, y, component: item, type: BlueprintComponentType.Input });
+
+        this.nodes.set(id, { 
+            id, x, y, 
+            component: item, 
+            type: BlueprintComponentType.Input 
+        });
+
         this.dragItem = null;
         this.saveLocal();
     }
@@ -191,8 +281,9 @@ export default class BlueprintEditor extends WS {
         event.dataTransfer.setDragImage(new Image(), 0, 0);
     }
 
-    mouseOverComponent(itemId: string){
-        this.inputs.itemMouseOver(itemId);
+    mouseOverComponent(component: IBlueprintComponent | IBlueprintInput | undefined){
+        if(component)
+            this.inputs.itemMouseOver(component.id);
     }
 
     mouseLeaveComponent(){
@@ -208,13 +299,13 @@ export default class BlueprintEditor extends WS {
     }
 
     updatePosition(componentId, x, y){
-        let item = this.items.get(componentId);
+        let item = this.nodes.get(componentId);
 
         if(item){
             item.x = item.x - x;
             item.y = item.y - y;
 
-            this.items.set(componentId, item);
+            this.nodes.set(componentId, item);
             this.saveLocal();
         }
     }
@@ -231,14 +322,15 @@ export default class BlueprintEditor extends WS {
     renameComponent(componentId: string, name: string){
         let items = new Map<string, IBlueprintComponent>();
 
-        this.items.forEach((value: IBlueprintComponent, key: string) => {
-            if(value.component.id === componentId)
+        this.nodes.forEach((value: IBlueprintComponent, key: string) => {
+            if(value.component && value.component.id === componentId)
                 value.component.name = name;
 
             items.set(key, value);
         });
 
-        this.items = items;
+        this.nodes = items;
+
         this.saveLocal();
     }
 
@@ -263,6 +355,29 @@ export default class BlueprintEditor extends WS {
         console.log(blueprint);
     }
 
+    createLine(event, item, input, key, id) {
+        if(!this.onCreateLine) {
+            this.onCreateLine = true;
+            this.createLineElem = { el: event.target, item, input, id, key };
+            this.tmpLine = { from: event.target, to: this.$refs.mousePointer };
+        }
+    }
+
+    refreshLines() {
+        if(this.tmpLine !== null && this.tmpLine != undefined)
+            this.$refs.tmpLine.draw();
+
+        if(this.$refs.lines) {
+            for(let line of this.$refs.lines)
+                line.draw();
+        }            
+    }
+
+    resertPosition() {
+        this.position = { x: 0, y: 0 };
+        this.scale = 1;
+    }
+
     saveLocal(){
         localStorage.setItem(`editor-${this.id}`, JSON.stringify(this.serialize()));
     }
@@ -275,7 +390,7 @@ export default class BlueprintEditor extends WS {
             this.inputs.inputs = settings.inputs;
 
             settings.items.forEach(obj => {
-                this.items.set(obj[0], obj[1]);
+                this.nodes.set(obj[0], obj[1]);
             });
         }            
     }
@@ -283,7 +398,7 @@ export default class BlueprintEditor extends WS {
     serialize(){
         return {
             inputs: this.inputs.serialize(),
-            items: Array.from(this.items)
+            items: Array.from(this.nodes)
         }
     }
 }

@@ -16,6 +16,12 @@ export const dataStorage = defineStore("dataStorage", {
             return this.data instanceof Map && this.data?.has("blueprintGroups") ? 
             this.data?.get("blueprintGroups") : 
             null;
+        },
+
+        blueprintIndex() {
+            return this.data instanceof Map && this.data?.has("blueprintIndex") ? 
+            this.data?.get("blueprintIndex") : 
+            null;
         }
     },
 
@@ -28,6 +34,12 @@ export const dataStorage = defineStore("dataStorage", {
         get(namespace: string) : any | null {
             return (this.data instanceof Map && this.data.has(namespace)) ? 
             this.data.get(namespace) : 
+            null;
+        },
+
+        getBlueprint(namespace: string) : any | null {
+            return (this.data?.has("blueprintIndex")) ? 
+            this.data?.get("blueprintIndex")[namespace] : 
             null;
         }
     }

@@ -1,5 +1,6 @@
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
+import { vMaska } from "maska";
 import localForage from "localforage";
 import PerfectScrollbar from 'vue3-perfect-scrollbar';
 import UUID from "vue3-uuid";
@@ -15,6 +16,7 @@ const app = createApp(App);
 app.use(UUID);
 app.use(PerfectScrollbar);
 app.use(Draggable);
+app.directive("maska", vMaska);
 
 //Pinia
 const pinia = createPinia();

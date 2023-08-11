@@ -12,6 +12,7 @@ export default class MongoDBDelete extends MongoDBBlueprint {
         group: "Repository",
         icon: "/assets/img/mongodb.png",
         helpLink: "https://mongoosejs.com/docs/models.html#deleting",
+        docsMarkdown: "packages-repository-mongodb-mongodbdelete.html",
         editorHeaderColor: "#419343",
         outputs: [{ 
             name: "result", 

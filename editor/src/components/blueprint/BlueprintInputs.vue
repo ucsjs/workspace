@@ -155,111 +155,112 @@
 </style>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { Component, Vue } from 'vue-facing-decorator';
 import { uuid } from "vue3-uuid";
 
 import { 
-    IBlueprintInputs, 
-    IBlueprintInput, 
     IBlueprintType 
 } from "../../interfaces/blueprint/IBlueprintInputs";
 
 import BlueprintContextMenu from "./BlueprintContextMenu.vue";
 
-export default defineComponent({
-    components: { BlueprintContextMenu },
-
-    emits: {
-        "start-drag": (item: IBlueprintInput) => true,
-        "change": () => true,
-        "over": (id: string) => true,
-        "out": () => true,
-        "rename": (id: string, value: string) => true,
-        "select-input": (input: IBlueprintInput) => true 
+@Component({
+    components: {
+        BlueprintContextMenu
     },
-    
-    data(): IBlueprintInputs {
-        return {
-            itemOver: null,
-            selectedItem: null,
-            renameInput: null,
-            inputTypes: [
-                { label: "Float", value: "float", default: 0 },
-                { label: "Integer", value: "int", default: 0 },
-                { label: "String", value: "string", default: "" },
-                { label: "Date", value: "date", default: Date.now() },
-                { label: "Color", value: "color", default: "#000000" },
-                { label: "Image", value: "image", default: null }
-            ],
-            inputs: []
-        }
-    },
-
-    methods: {
-        addInput(item: IBlueprintType){
-            this.inputs.push({
-                id: uuid.v4(),
-                name: `${item.label} (${this.inputs.length + 1})`,
-                type: item.label,
-            });
-
-            this.$emit("change");
-        },
-
-        removeInput(id: string){
-            this.inputs = this.inputs.filter((input) => input.id !== id).filter(item => item);
-            this.$emit("change");
-        },
-
-        itemMouseOver(id: string){
-            this.itemOver = id;
-        },
-
-        itemMouseOut(){
-            this.itemOver = null;
-        },
-
-        mouseOver(id: string){
-            this.$emit("over", id);
-        },
-
-        mouseOut(){
-            this.$emit("out");
-        },
-
-        rename(id: string){
-            this.renameInput = id;
-            this.$forceUpdate();
-
-            setTimeout(() => {
-                this.$refs.renameInput[0].focus()
-            }, 100);           
-        },
-
-        selectInput(id: string){
-            this.selectedItem = id;
-
-            this.inputs.map((input) => {
-                if(input.id === id)
-                    this.$emit("select-input", input);
-            });            
-        },
-
-        changeName(id: string, value: string){
-            this.inputs = this.inputs.map((input) => {
-                if(input.id === id)
-                    input.name = value;
-
-                return input;
-            }).filter(item => item);
-
-            this.$emit("rename", id, value);
-            this.renameInput = null;
-        },
-
-        serialize(){
-            return this.inputs;
-        }
-    }
+    emits: [
+        "start-drag",
+        "change",
+        "over",
+        "out",
+        "rename",
+        "select-input"
+    ]
 })
+export default class BlueprintInputs extends Vue {
+    itemOver!: string | null;
+
+    selectedItem!: string | null;
+
+    renameInput!: string | null;
+
+    inputTypes = [
+        { label: "Float", value: "float", default: 0 },
+        { label: "Integer", value: "int", default: 0 },
+        { label: "String", value: "string", default: "" },
+        { label: "Date", value: "date", default: Date.now() },
+        { label: "Color", value: "color", default: "#000000" },
+        { label: "Image", value: "image", default: null }
+    ];
+
+    inputs: Array<any> = new Array<any>();
+
+    addInput(item: IBlueprintType){
+        this.inputs.push({
+            id: uuid.v4(),
+            name: `${item.label} (${this.inputs.length + 1})`,
+            type: item.label,
+        });
+
+        this.$emit("change");
+    }
+
+    removeInput(id: string){
+        this.inputs = this.inputs.
+            filter((input) => input.id !== id).
+            filter(item => item);
+
+        this.$emit("change");
+    }
+
+    itemMouseOver(id: string){
+        this.itemOver = id;
+    }
+
+    itemMouseOut(){
+        this.itemOver = null;
+    }
+
+    mouseOver(id: string){
+        this.$emit("over", id);
+    }
+
+    mouseOut(){
+        this.$emit("out");
+    }
+
+    rename(id: string){
+        this.renameInput = id;
+        this.$forceUpdate();
+
+        setTimeout(() => {
+            //this.$refs.renameInput[0].focus()
+        }, 100);           
+    }
+
+    selectInput(id: string){
+        this.selectedItem = id;
+
+        this.inputs.map((input) => {
+            if(input.id === id)
+                this.$emit("select-input", input);
+        });            
+    }
+
+    changeName(id: string, value: string){
+        this.inputs = this.inputs.map((input) => {
+            if(input.id === id)
+                input.name = value;
+
+            return input;
+        }).filter(item => item);
+
+        this.$emit("rename", id, value);
+        this.renameInput = null;
+    }
+
+    serialize(){
+        return this.inputs;
+    }
+}
 </script>

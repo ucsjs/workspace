@@ -376,6 +376,28 @@ export class Blueprint extends Singleton implements IBlueprint {
             return null;
         }
     }
+
+    public getParameterKeyValue(name: string): object {
+        let returnValue = {};
+
+        if(this.propertiesIndex.has(name)) {
+            let property = this.propertiesIndex.get(name);
+            let tmpValue = (property.value && typeof property.value !== "boolean") ? property.value : property.default;
+
+            if(Array.isArray(tmpValue)){  
+                for(let valueObject of tmpValue)
+                    returnValue[valueObject["key"]] = valueObject["value"];      
+
+                return returnValue;
+            }
+            else{
+                return returnValue
+            }
+        }
+        else{
+            return returnValue;
+        }
+    }
     
     public trigger(name: string = "_default"): boolean {
         if(this.triggers.has(name)) {

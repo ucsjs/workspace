@@ -2,7 +2,7 @@ import { CronJob } from 'cron';
 import * as timezones from "google-timezones-json";
 import { enumToList, objectKeysToList } from "@ucsjs/common";
 import { Types, IBlueprintHeader, Blueprint } from "@ucsjs/core";
-import { CronExpression } from "./cronexpression.enum";
+import { CronExpression } from "../../enums";
 
 export default class Cron extends Blueprint {
 
@@ -12,7 +12,7 @@ export default class Cron extends Blueprint {
         useInEditor: true,
         version: 1,
         namespace: "Cron",
-        group: "Schedule",
+        group: "Common",
         icon: "fa-solid fa-clock-rotate-left",
         helpLink: "https://www.w3schools.com/jsref/met_console_log.asp",
         properties: [

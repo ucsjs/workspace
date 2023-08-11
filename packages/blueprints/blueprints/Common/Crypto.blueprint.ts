@@ -7,7 +7,7 @@ export default class Crypto extends Blueprint {
         useInEditor: true,
         version: 1,
         namespace: "Crypto",
-        group: "Crypto & Hash",
+        group: "Common",
         icon: "fa-solid fa-lock",
         helpLink: "https://nodejs.org/api/crypto.html",
         inputs: [

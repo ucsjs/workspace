@@ -11,6 +11,7 @@ export default class MongoDBCount extends MongoDBBlueprint {
         group: "Repository",
         icon: "/assets/img/mongodb.png",
         helpLink: "https://mongoosejs.com/docs/api/query.html#Query.prototype.count()",
+        docsMarkdown: "packages-repository-mongodb-mongodbcount.html",
         displayName: "MongoDB Count",
         editorHeaderColor: "#419343",
         outputs: [{ 

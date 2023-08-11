@@ -12,6 +12,7 @@ export default class MongoDBFind extends MongoDBBlueprint {
         group: "Repository",
         icon: "/assets/img/mongodb.png",
         helpLink: "https://mongoosejs.com/docs/models.html#querying",
+        docsMarkdown: "packages-repository-mongodb-mongodbfind.html",
         displayName: "MongoDB Find",
         editorHeaderColor: "#419343",
         outputs: [{ 

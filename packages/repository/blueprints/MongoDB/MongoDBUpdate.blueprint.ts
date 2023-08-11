@@ -11,6 +11,7 @@ export default class MongoDBUpdate extends MongoDBBlueprint {
         group: "Repository",
         icon: "/assets/img/mongodb.png",
         helpLink: "https://mongoosejs.com/docs/documents.html#updating-using-queries",
+        docsMarkdown: "packages-repository-mongodb-mongodbupdate.html",
         displayName: "MongoDB Update",
         editorHeaderColor: "#419343",
         outputs: [{ 

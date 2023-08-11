@@ -17,7 +17,7 @@ export default class Console extends Blueprint {
         useInEditor: true,
         version: 1,
         namespace: "Console",
-        group: "Debug",
+        group: "Common",
         helpLink: "https://www.w3schools.com/jsref/met_console_log.asp",
         inputs: [
             { 

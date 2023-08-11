@@ -9,6 +9,8 @@ export default class Interval extends Blueprint {
         useInEditor: true,
         namespace: "Interval",
         group: "Common",
+        displayName: "Interval",
+        icon: "fa-solid fa-clock",
         version: 1,
         outputs: [
             { 

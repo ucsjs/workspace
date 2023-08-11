@@ -33,7 +33,7 @@ import { defineComponent } from 'vue';
 export default defineComponent({    
     data() {
         return {
-            opened: true
+            opened: false
         }
     },
 
