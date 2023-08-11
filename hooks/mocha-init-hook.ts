@@ -1,3 +1,5 @@
+import "mocha";
+
 export const mochaHooks = (): Mocha.RootHookObject => {
     return {
         async beforeAll(this: Mocha.Context) {

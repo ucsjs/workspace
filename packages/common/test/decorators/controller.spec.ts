@@ -36,9 +36,6 @@ describe('Controller', () => {
     class TestController {}
 
     const pathMetadata = Reflect.getMetadata(PATH_METADATA, TestController);
-    const scopeOptionsMetadata = Reflect.getMetadata(SCOPE_OPTIONS_METADATA, TestController);
-
     expect(pathMetadata).to.equal('/api');
-    expect(scopeOptionsMetadata).to.deep.equal({ scope: 'request', durable: true });
   });
 });

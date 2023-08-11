@@ -48,7 +48,7 @@ export default class Console extends Blueprint {
     }
 
     @Input("_default")
-    private display(data: IBlueprintData){
+    public display(data: IBlueprintData){
         if(this.customOutput && isFunction(this.customOutput))
             this.customOutput(data)
     }
